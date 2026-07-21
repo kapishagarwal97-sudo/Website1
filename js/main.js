@@ -207,6 +207,17 @@
     });
   }
 
+  /* ---------- Mood filters (single active) ---------- */
+  const moodGroup = document.querySelector("[data-moods]");
+  if (moodGroup) {
+    moodGroup.querySelectorAll(".mood").forEach((m) => {
+      m.addEventListener("click", () => {
+        moodGroup.querySelectorAll(".mood").forEach((x) => x.removeAttribute("data-active"));
+        m.setAttribute("data-active", "");
+      });
+    });
+  }
+
   /* ---------- Current year ---------- */
   document.querySelectorAll("[data-year]").forEach((el) => {
     el.textContent = new Date().getFullYear();

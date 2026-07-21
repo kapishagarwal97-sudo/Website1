@@ -1,73 +1,79 @@
-# TRYB — Studio Website
+# TRYB — Real life, in good company
 
-A minimalist, new-age website for the **TRYB** brand. Built as a fast, dependency-free
-static site (plain HTML, CSS and JavaScript) so it can be hosted anywhere.
+A minimalist, editorial website for **TRYB** — a platform that curates real-life
+invitations so five strangers can become one story. Built as a fast, dependency-free
+static site (plain HTML, CSS, JavaScript).
+
+> Design language: *luxury magazine + invitation card + journal + boutique hotel.
+> Not a startup.*
 
 ## The idea
 
-The homepage is a **blank navy canvas** (`#1e2a44`) with the cursive `tryb` wordmark.
-As you move the cursor, brand-coloured images **pop** into view and fade away — a living,
-playful surface. Inner pages carry the same custom cursor, grain, scroll-reveal
-animations and floating imagery.
+The homepage is a **blank navy canvas** (`#1e2a44`) with the cursive `tryb`
+wordmark. As you move the cursor, brand images **pop** into view along its path.
+Inner pages alternate dark and **light (cream/sand/bronze)** editorial sections so
+the full five-colour palette is used throughout.
 
 ## Pages
 
 | Page | File | Purpose |
 |------|------|---------|
-| Home | `index.html` | Blank-canvas hero, cursor-popping images, links to the four pillars |
-| Why TRYB | `why.html` | The story and belief behind the name |
-| Mission | `mission.html` | What we build and who we build it for |
-| Process | `process.html` | The 5-step method, spark → launch |
-| Events | `events.html` | Upcoming event listings |
+| Home | `index.html` | Blank-canvas hero, cursor-popping images, four pillars |
+| Why TRYB | `why.html` | Who we are + the case for real conversations |
+| Our Promise | `promise.html` | Mission: the joy of meeting people in real life |
+| How It Works | `works.html` | The 8-step journey, matching signals, safety |
+| Your Invitations | `invitations.html` | Curated invitation cards + mood filters |
 
-## Brand palette
+> **Language rule:** they are always **Invitations**, never "Events."
 
-| Token | Hex | Use |
-|-------|-----|-----|
-| Ink (canvas) | `#1e2a44` | Background |
-| Bronze | `#b07a4b` | Accents, eyebrows |
-| Sand | `#d7cec3` | Muted text, borders |
-| Cream | `#f7f2ea` | Primary text, wordmark |
-| Ember | `#eb642e` | Highlights, hover states |
+## Brand palette (all five in use)
+
+| Token | Hex | Where |
+|-------|-----|-------|
+| Ink | `#1e2a44` | Canvas, dark sections, text on light |
+| Bronze | `#b07a4b` | Eyebrows, accents, "third place" |
+| Sand | `#d7cec3` | Soft light sections, muted text, borders |
+| Cream | `#f7f2ea` | Paper sections, text on dark, wordmark |
+| Ember | `#eb642e` | CTAs, highlights, hover states |
 
 ## Features
 
 - **Custom cursor** — dot + trailing ring, grows over interactive elements.
-- **Cursor-popping images** — abstract brand artwork appears along the cursor's path.
-- **Animated hero background** — a canvas "video" of drifting brand-coloured blobs.
-- **Scroll reveals** — content fades and rises into view via `IntersectionObserver`.
+- **Cursor-popping images** — brand imagery appears along the cursor's path.
+- **Animated hero background** — canvas "video" of drifting brand-coloured blobs.
+- **Scroll reveals**, marquee, hover motion; respects `prefers-reduced-motion`.
 - **Fully responsive** with a mobile menu.
-- **Accessible** — respects `prefers-reduced-motion`; system cursor on touch devices.
 
-## Add your own video
+## ⚠️ Add your real photos & logo
 
-The hero is set up for a real brand film. In `index.html`, uncomment the `<video>`
-block inside `.hero` and drop your file at `assets/hero.mp4`:
+The four cursor-popping images and the in-card imagery currently use **branded
+SVG placeholders** (`assets/pop-1.svg` … `pop-4.svg`) that echo the four photos
+you shared. The photos you pasted in chat weren't saved as files, so they could
+not be embedded automatically.
 
-```html
-<video class="hero__video" autoplay muted loop playsinline poster="assets/art-1.svg">
-  <source src="assets/hero.mp4" type="video/mp4" />
-</video>
-```
+To use your real assets:
 
-It layers beneath the wordmark. The animated canvas stays as a fallback.
+1. Drop your four photos into `assets/` (e.g. `pop-1.jpg` … `pop-4.jpg`).
+2. In each page, update the `<img src="assets/pop-#.svg">` paths inside
+   `.float-layer` (and the invitation cards) to your filenames.
+3. For the logo, the wordmark renders in **Pacifico** (close to your cursive
+   mark). To use the exact logo image, drop it at `assets/logo.png` and swap the
+   `.brand` / `.hero__mark` / `.footer-brand` text for an `<img>`.
 
-## Swap the popping images
+## Add a brand video
 
-Replace the SVGs in `assets/` (`art-1.svg` … `art-6.svg`) with your own photos
-(`.jpg`/`.png` are fine) and update the `<img src>` paths inside each page's
-`.float-layer`.
+In `index.html`, uncomment the `<video>` block inside `.hero` and add your file
+at `assets/hero.mp4`. It layers beneath the wordmark; the animated canvas stays
+as a fallback.
 
 ## Run locally
 
-It's static — open `index.html` directly, or serve the folder:
-
 ```bash
 python3 -m http.server 8000
-# then visit http://localhost:8000
+# visit http://localhost:8000
 ```
 
 ## Fonts
 
-Loaded from Google Fonts: **Pacifico** (wordmark), **Fraunces** (headings),
-**Inter** (body). Requires an internet connection on first load.
+Google Fonts: **Pacifico** (wordmark), **Fraunces** (headings), **Inter** (body).
+Requires internet on first load.

@@ -3,104 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TRYB — A New Age Studio</title>
-  <meta name="description" content="TRYB — a minimalist studio building things worth trying. A blank canvas for what comes next." />
+  <title>TRYB — Real life, in good company</title>
+  <meta name="description" content="TRYB turns strangers into stories. One invite, one evening, five strangers, one memory. Real conversations over screen time." />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <!-- Preloader -->
   <div class="loader"><span class="loader__mark">tryb</span></div>
 
-  <!-- Custom cursor -->
   <div class="cursor-dot"></div>
   <div class="cursor-ring"></div>
   <div class="grain"></div>
 
-  <!-- Cursor-popping images -->
+  <!-- Cursor-popping images (your 4 photos) -->
   <div class="float-layer" aria-hidden="true">
-    <div class="float-img"><img src="assets/art-1.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/art-2.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/art-3.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/art-4.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/art-5.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/art-6.svg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-1.svg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-2.svg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-3.svg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-4.svg" alt="" /></div>
   </div>
 
-  <!-- Header -->
   <header class="site-header">
     <a href="index.html" class="brand">tryb</a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav class="nav" id="nav">
       <a href="why.html">Why TRYB</a>
-      <a href="mission.html">Mission</a>
-      <a href="process.html">Process</a>
-      <a href="events.html">Events</a>
+      <a href="promise.html">Our Promise</a>
+      <a href="works.html">How It Works</a>
+      <a href="invitations.html">Invitations</a>
+      <a href="mailto:hello@tryb.life?subject=Join%20TRYB" class="nav-cta">Join TRYB</a>
     </nav>
   </header>
 
   <main>
-    <!-- Hero: the blank navy canvas -->
+    <!-- Hero: the blank canvas -->
     <section class="hero">
       <canvas class="hero__canvas"></canvas>
       <!-- Drop a brand film here; it layers under the wordmark -->
-      <!-- <video class="hero__video" autoplay muted loop playsinline poster="assets/art-1.svg">
+      <!-- <video class="hero__video" autoplay muted loop playsinline poster="assets/pop-1.svg">
         <source src="assets/hero.mp4" type="video/mp4" />
       </video> -->
       <div class="hero__scrim"></div>
       <div class="hero__inner">
         <h1 class="hero__mark">tryb</h1>
         <p class="hero__tag">move your cursor</p>
+        <p class="hero__sub">Real life, in good company. One invite, one evening, five strangers, one memory.</p>
       </div>
       <div class="hero__scroll"><span class="line"></span>Scroll</div>
     </section>
 
     <!-- Marquee -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee__track">
-        <span>Curiosity<span class="dot"> · </span>Craft<span class="dot"> · </span>Courage<span class="dot"> · </span>Community<span class="dot"> · </span></span>
-        <span>Curiosity<span class="dot"> · </span>Craft<span class="dot"> · </span>Courage<span class="dot"> · </span>Community<span class="dot"> · </span></span>
+    <section class="section tight" style="padding-top:0;">
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee__track">
+          <span>One invite<span class="dot"> · </span>One evening<span class="dot"> · </span>Five strangers<span class="dot"> · </span>One memory<span class="dot"> · </span></span>
+          <span>One invite<span class="dot"> · </span>One evening<span class="dot"> · </span>Five strangers<span class="dot"> · </span>One memory<span class="dot"> · </span></span>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- Intro -->
     <section class="section">
       <div class="wrap narrow reveal">
-        <span class="eyebrow">A blank canvas</span>
-        <h2 class="line-mask"><span>Everything worth doing begins with the willingness to <span class="script">try</span>.</span></h2>
-        <p class="lead mt-3">TRYB is a studio for the in-between — the space where an idea is still soft,
-          still forming, still yours. We hold that space open, then help it take shape.</p>
+        <span class="eyebrow">A better invitation</span>
+        <h2 class="line-mask"><span>The world doesn't need another social app.</span></h2>
+        <h2 class="line-mask"><span>It needs more <span class="script bronze">real</span> conversations.</span></h2>
+        <p class="lead mt-3">TRYB reads your personality, interests and rhythm — then sends you a small,
+          curated invitation each week. You choose one. You show up. You leave with a story.</p>
       </div>
     </section>
 
-    <!-- Navigation cards to the four pillars -->
-    <section class="section" style="padding-top:0;">
+    <!-- Four pillars (light editorial section) -->
+    <section class="section section--cream">
       <div class="wrap">
-        <div class="grid cols-2">
+        <div class="reveal"><span class="eyebrow">Find your people</span></div>
+        <div class="grid cols-2 mt-2">
           <a href="why.html" class="card reveal">
-            <span class="idx">01 — Story</span>
+            <span class="idx">01 — Why</span>
             <h3>Why TRYB</h3>
-            <p class="muted">The belief behind the name, and why the first step matters most.</p>
+            <p class="muted">Less swiping, less small talk. More living. The case for showing up in person.</p>
           </a>
-          <a href="mission.html" class="card reveal d1">
-            <span class="idx">02 — Purpose</span>
-            <h3>Mission</h3>
-            <p class="muted">What we are here to build, and who we are building it for.</p>
+          <a href="promise.html" class="card reveal d1">
+            <span class="idx">02 — Promise</span>
+            <h3>Our Promise</h3>
+            <p class="muted">We exist to bring back the joy of meeting people in real life.</p>
           </a>
-          <a href="process.html" class="card reveal d2">
+          <a href="works.html" class="card reveal d2">
             <span class="idx">03 — Method</span>
-            <h3>Process</h3>
-            <p class="muted">From spark to shipped — the way we move an idea into the world.</p>
+            <h3>How It Works</h3>
+            <p class="muted">Tell us about you. We understand you. Curated invitations follow.</p>
           </a>
-          <a href="events.html" class="card reveal d3">
-            <span class="idx">04 — Gather</span>
-            <h3>Upcoming Events</h3>
-            <p class="muted">Where the community meets. Dates, drops and doors opening soon.</p>
+          <a href="invitations.html" class="card reveal d3">
+            <span class="idx">04 — Tonight</span>
+            <h3>Your Invitations</h3>
+            <p class="muted">One evening, five strangers, one table. This week's invitations await.</p>
           </a>
         </div>
+      </div>
+    </section>
+
+    <!-- Manifesto teaser (bronze) -->
+    <section class="section section--bronze">
+      <div class="wrap manifesto reveal">
+        <p>We don't optimize for screen time. We optimize for <span class="script">story time</span>.</p>
       </div>
     </section>
 
@@ -108,38 +116,40 @@
     <section class="section">
       <div class="wrap reveal">
         <div class="cta">
-          <span class="eyebrow" style="justify-content:center;">Say hello</span>
-          <h2>Have something worth trying?</h2>
-          <p class="lead" style="margin:0 auto 2rem;">Bring the raw version. We like it there.</p>
-          <a href="mailto:hello@tryb.studio" class="btn">Start a conversation <span class="arrow">↗</span></a>
+          <span class="eyebrow" style="justify-content:center;color:var(--bronze);">Give yourself a chance</span>
+          <h2>Your next favourite person is still a stranger.</h2>
+          <p class="lead mx-auto" style="margin-bottom:2rem;">Join TRYB and meet them this week.</p>
+          <a href="mailto:hello@tryb.life?subject=Join%20TRYB" class="btn btn--solid">Join TRYB <span class="arrow">↗</span></a>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-top">
-      <div class="footer-brand">tryb</div>
+      <div>
+        <div class="footer-brand">tryb</div>
+        <p class="footer-note">Real life, in good company. One invite, one evening, five strangers, one memory.</p>
+      </div>
       <div class="footer-links">
         <div class="footer-col">
           <h4>Explore</h4>
           <a href="why.html">Why TRYB</a>
-          <a href="mission.html">Mission</a>
-          <a href="process.html">Process</a>
-          <a href="events.html">Events</a>
+          <a href="promise.html">Our Promise</a>
+          <a href="works.html">How It Works</a>
+          <a href="invitations.html">Invitations</a>
         </div>
         <div class="footer-col">
-          <h4>Connect</h4>
-          <a href="mailto:hello@tryb.studio">Email</a>
+          <h4>Join</h4>
+          <a href="mailto:hello@tryb.life?subject=Join%20TRYB">Join TRYB</a>
+          <a href="mailto:hello@tryb.life">Email</a>
           <a href="#">Instagram</a>
-          <a href="#">LinkedIn</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© <span data-year>2026</span> TRYB Studio. All rights reserved.</span>
-      <span>Made with curiosity.</span>
+      <span>© <span data-year>2026</span> TRYB. All rights reserved.</span>
+      <span>We optimize for story time.</span>
     </div>
   </footer>
 
