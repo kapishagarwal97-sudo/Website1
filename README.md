@@ -1,70 +1,56 @@
 # TRYB — Real life, in good company
 
-A minimalist, editorial website for **TRYB** — a platform that curates real-life
-invitations so five strangers can become one story. Built as a fast, dependency-free
-static site (plain HTML, CSS, JavaScript).
+A minimalist, editorial **one-page** website for **TRYB** — a platform that curates
+real-life invitations so five strangers can become one story. Built as a fast,
+dependency-free static site (plain HTML, CSS, JavaScript).
 
 > Design language: *luxury magazine + invitation card + journal + boutique hotel.
 > Not a startup.*
 
-## The idea
+## Structure (single scrolling page — `index.html`)
 
-The homepage is a **blank navy canvas** (`#1e2a44`) with the cursive `tryb`
-wordmark. As you move the cursor, brand images **pop** into view along its path.
-Inner pages alternate dark and **light (cream/sand/bronze)** editorial sections so
-the full five-colour palette is used throughout.
+Each section is sized close to one screen; the nav smooth-scrolls to anchors.
 
-## Pages
+| # | Section | Anchor | Notes |
+|---|---------|--------|-------|
+| 1 | **Hero** | `#top` | Blank navy canvas, real cursive logo, polaroid photo clusters fanning from the corners, cursor-popping images |
+| 2 | **What is TRYB** | `#what` | "The world doesn't need another social app" + tilted poster cards |
+| 3 | **Our Promise** | `#promise` | Bronze manifesto — bring back the joy of meeting in real life |
+| 4 | **How it works** | `#how` | Four big scroll-revealed steps (222-style), ~2 screens |
+| 5 | **Experiences** | `#experiences` | Full-screen 3-slide auto slider (cinematic → trade timeline → matching) |
+| 6 | **Invitations** | `#invites` | City filters + horizontal invite carousel with "tryb invited you" chips |
+| 7 | **FAQ** | `#faq` | Accordion |
+| — | **Footer** | | Logo + 5 links + © line |
 
-| Page | File | Purpose |
-|------|------|---------|
-| Home | `index.html` | Blank-canvas hero, cursor-popping images, four pillars |
-| Why TRYB | `why.html` | Who we are + the case for real conversations |
-| Our Promise | `promise.html` | Mission: the joy of meeting people in real life |
-| How It Works | `works.html` | The 8-step journey, matching signals, safety |
-| Your Invitations | `invitations.html` | Curated invitation cards + mood filters |
-
-> **Language rule:** they are always **Invitations**, never "Events."
+Header (logo + Why TRYB / Our Promise / How It Works / Invitations / **Join TRYB**)
+is fixed and permanent; it gains a translucent dark bar once you scroll.
 
 ## Brand palette (all five in use)
 
 | Token | Hex | Where |
 |-------|-----|-------|
 | Ink | `#1e2a44` | Canvas, dark sections, text on light |
-| Bronze | `#b07a4b` | Eyebrows, accents, "third place" |
-| Sand | `#d7cec3` | Soft light sections, muted text, borders |
-| Cream | `#f7f2ea` | Paper sections, text on dark, wordmark |
+| Bronze | `#b07a4b` | Eyebrows, accents, promise band |
+| Sand | `#d7cec3` | Muted text, borders |
+| Cream | `#f7f2ea` | Paper sections, text on dark, polaroid frames |
 | Ember | `#eb642e` | CTAs, highlights, hover states |
 
-## Features
+## Assets
 
-- **Custom cursor** — dot + trailing ring, grows over interactive elements.
-- **Cursor-popping images** — brand imagery appears along the cursor's path.
-- **Animated hero background** — canvas "video" of drifting brand-coloured blobs.
-- **Scroll reveals**, marquee, hover motion; respects `prefers-reduced-motion`.
-- **Fully responsive** with a mobile menu.
+- `logo.png` — the real cursive TRYB logo (transparent), used in header, hero,
+  loader and footer.
+- `pop-1..6.jpg` — the supplied brand poster photos, used for the cursor-popping
+  images and the tilted "what is TRYB" cards.
+- `scene-*.jpg` — clean crops of the photos (headline/watermark removed), used for
+  polaroids, the slider arch timeline, invite cards and the matching photos.
+- `av-1..3.jpg` — small avatars for the "your friend invited you" chips.
+- Original uploads (`1.png`…`9.png`, `LOGO.jpg`, `Brand Mood 1.jpeg`) are kept as
+  source files; the site serves the optimised derivatives above.
 
-## ⚠️ Add your real photos & logo
+## Add a real video (slider slide 1)
 
-The four cursor-popping images and the in-card imagery currently use **branded
-SVG placeholders** (`assets/pop-1.svg` … `pop-4.svg`) that echo the four photos
-you shared. The photos you pasted in chat weren't saved as files, so they could
-not be embedded automatically.
-
-To use your real assets:
-
-1. Drop your four photos into `assets/` (e.g. `pop-1.jpg` … `pop-4.jpg`).
-2. In each page, update the `<img src="assets/pop-#.svg">` paths inside
-   `.float-layer` (and the invitation cards) to your filenames.
-3. For the logo, the wordmark renders in **Pacifico** (close to your cursive
-   mark). To use the exact logo image, drop it at `assets/logo.png` and swap the
-   `.brand` / `.hero__mark` / `.footer-brand` text for an `<img>`.
-
-## Add a brand video
-
-In `index.html`, uncomment the `<video>` block inside `.hero` and add your file
-at `assets/hero.mp4`. It layers beneath the wordmark; the animated canvas stays
-as a fallback.
+Slide 1 currently uses a darkened brand photo. To use a real film, swap the
+`.slide--cine .slide__bg > img` for a `<video autoplay muted loop playsinline>`.
 
 ## Run locally
 
@@ -75,5 +61,5 @@ python3 -m http.server 8000
 
 ## Fonts
 
-Google Fonts: **Pacifico** (wordmark), **Fraunces** (headings), **Inter** (body).
-Requires internet on first load.
+Google Fonts: **Pacifico** (nods to the logo), **Fraunces** (headings), **Inter**
+(body). Requires internet on first load.

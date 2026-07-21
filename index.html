@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TRYB — Real life, in good company</title>
-  <meta name="description" content="TRYB turns strangers into stories. One invite, one evening, five strangers, one memory. Real conversations over screen time." />
+  <meta name="description" content="TRYB turns strangers into stories. You pick the place, we find your people. One invite, one evening, five strangers, one memory." />
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,7 +18,7 @@
   <div class="cursor-ring"></div>
   <div class="grain"></div>
 
-  <!-- Cursor-popping images (your 4 photos) -->
+  <!-- Cursor-popping images (permanent, every section) -->
   <div class="float-layer" aria-hidden="true">
     <div class="float-img"><img src="assets/pop-1.jpg" alt="" /></div>
     <div class="float-img"><img src="assets/pop-2.jpg" alt="" /></div>
@@ -28,130 +28,310 @@
     <div class="float-img"><img src="assets/pop-6.jpg" alt="" /></div>
   </div>
 
+  <!-- Header: logo + permanent nav -->
   <header class="site-header">
-    <a href="index.html" class="brand">tryb</a>
+    <a href="#top" class="brand"><img src="assets/logo.png" alt="tryb" /></a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav class="nav" id="nav">
-      <a href="why.html">Why TRYB</a>
-      <a href="promise.html">Our Promise</a>
-      <a href="works.html">How It Works</a>
-      <a href="invitations.html">Invitations</a>
+      <a href="#what">Why TRYB</a>
+      <a href="#promise">Our Promise</a>
+      <a href="#how">How It Works</a>
+      <a href="#experiences">Invitations</a>
       <a href="mailto:hello@tryb.life?subject=Join%20TRYB" class="nav-cta">Join TRYB</a>
     </nav>
   </header>
 
   <main>
-    <!-- Hero: the blank canvas -->
-    <section class="hero">
+    <!-- 1 · HERO (one screen) -->
+    <section class="hero" id="top">
       <canvas class="hero__canvas"></canvas>
-      <!-- Drop a brand film here; it layers under the wordmark -->
-      <!-- <video class="hero__video" autoplay muted loop playsinline poster="assets/pop-1.jpg">
-        <source src="assets/hero.mp4" type="video/mp4" />
-      </video> -->
       <div class="hero__scrim"></div>
+
+      <!-- polaroid clusters fanning from the corners -->
+      <div class="hero__clusters">
+        <div class="polaroid p1"><img src="assets/scene-dinner.jpg" alt="" /></div>
+        <div class="polaroid p2"><img src="assets/scene-dark.jpg" alt="" /></div>
+        <div class="polaroid p3"><img src="assets/scene-supper.jpg" alt="" /></div>
+        <div class="polaroid p4"><img src="assets/scene-rooftop.jpg" alt="" /></div>
+        <div class="polaroid p5"><img src="assets/scene-coffee.jpg" alt="" /></div>
+        <div class="polaroid p6"><img src="assets/scene-cafe.jpg" alt="" /></div>
+      </div>
+
       <div class="hero__inner">
         <h1 class="hero__mark"><img class="hero__logo" src="assets/logo.png" alt="tryb" /></h1>
-        <p class="hero__tag">move your cursor</p>
         <p class="hero__sub">Real life, in good company. One invite, one evening, five strangers, one memory.</p>
-      </div>
-      <div class="hero__scroll"><span class="line"></span>Scroll</div>
-    </section>
-
-    <!-- Marquee -->
-    <section class="section tight" style="padding-top:0;">
-      <div class="marquee" aria-hidden="true">
-        <div class="marquee__track">
-          <span>One invite<span class="dot"> · </span>One evening<span class="dot"> · </span>Five strangers<span class="dot"> · </span>One memory<span class="dot"> · </span></span>
-          <span>One invite<span class="dot"> · </span>One evening<span class="dot"> · </span>Five strangers<span class="dot"> · </span>One memory<span class="dot"> · </span></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Intro -->
-    <section class="section">
-      <div class="wrap narrow reveal">
-        <span class="eyebrow">A better invitation</span>
-        <h2 class="line-mask"><span>The world doesn't need another social app.</span></h2>
-        <h2 class="line-mask"><span>It needs more <span class="script bronze">real</span> conversations.</span></h2>
-        <p class="lead mt-3">TRYB reads your personality, interests and rhythm — then sends you a small,
-          curated invitation each week. You choose one. You show up. You leave with a story.</p>
-      </div>
-    </section>
-
-    <!-- Four pillars (light editorial section) -->
-    <section class="section section--cream">
-      <div class="wrap">
-        <div class="reveal"><span class="eyebrow">Find your people</span></div>
-        <div class="grid cols-2 mt-2">
-          <a href="why.html" class="card reveal">
-            <span class="idx">01 — Why</span>
-            <h3>Why TRYB</h3>
-            <p class="muted">Less swiping, less small talk. More living. The case for showing up in person.</p>
-          </a>
-          <a href="promise.html" class="card reveal d1">
-            <span class="idx">02 — Promise</span>
-            <h3>Our Promise</h3>
-            <p class="muted">We exist to bring back the joy of meeting people in real life.</p>
-          </a>
-          <a href="works.html" class="card reveal d2">
-            <span class="idx">03 — Method</span>
-            <h3>How It Works</h3>
-            <p class="muted">Tell us about you. We understand you. Curated invitations follow.</p>
-          </a>
-          <a href="invitations.html" class="card reveal d3">
-            <span class="idx">04 — Tonight</span>
-            <h3>Your Invitations</h3>
-            <p class="muted">One evening, five strangers, one table. This week's invitations await.</p>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Manifesto teaser (bronze) -->
-    <section class="section section--bronze">
-      <div class="wrap manifesto reveal">
-        <p>We don't optimize for screen time. We optimize for <span class="script">story time</span>.</p>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="section">
-      <div class="wrap reveal">
-        <div class="cta">
-          <span class="eyebrow" style="justify-content:center;color:var(--bronze);">Give yourself a chance</span>
-          <h2>Your next favourite person is still a stranger.</h2>
-          <p class="lead mx-auto" style="margin-bottom:2rem;">Join TRYB and meet them this week.</p>
+        <div class="hero__cta">
           <a href="mailto:hello@tryb.life?subject=Join%20TRYB" class="btn btn--solid">Join TRYB <span class="arrow">↗</span></a>
+          <a href="#how" class="btn">How it works</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT IS TRYB -->
+    <section class="section screen" id="what">
+      <div class="wrap">
+        <div class="split">
+          <div class="reveal">
+            <span class="eyebrow">A better invitation</span>
+            <h2 class="line-mask"><span>The world doesn't need</span></h2>
+            <h2 class="line-mask"><span>another social app.</span></h2>
+            <h2 class="line-mask"><span>It needs more <span class="script bronze">real</span> conversations.</span></h2>
+            <p class="lead mt-3">TRYB reads your personality, interests and rhythm — then sends you a small,
+              curated invitation each week. You choose one. You show up. You leave with a story.</p>
+          </div>
+          <div class="tilted reveal d1">
+            <div class="tilt-card t1"><img src="assets/pop-4.jpg" alt="Life happens in person" /></div>
+            <div class="tilt-card t2"><img src="assets/pop-3.jpg" alt="Less scrolling, more belonging" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · OUR PROMISE -->
+    <section class="section section--bronze screen" id="promise">
+      <div class="wrap manifesto reveal">
+        <span class="eyebrow" style="justify-content:center;">Our promise</span>
+        <p>We exist to bring back the joy of meeting people in <span class="script">real life</span>.</p>
+        <p style="opacity:.9;font-size:clamp(1.1rem,2.2vw,1.6rem);max-width:42ch;">
+          Home. Work. And a third place that's just yours — where technology disappears and life doesn't.</p>
+      </div>
+    </section>
+
+    <!-- 4 · HOW IT WORKS (≈2 screens) -->
+    <section class="section section--cream screen-2x" id="how">
+      <div class="wrap">
+        <div class="reveal mb-3"><span class="eyebrow">How it works</span>
+          <h2>Four steps, from hello to a story.</h2></div>
+        <div class="bigsteps">
+          <div class="bigstep reveal">
+            <div class="bigstep__label">step 1</div>
+            <div>
+              <div class="bigstep__title">take a personality test</div>
+              <p class="bigstep__desc">Start with a short, human personality read so we can find the people
+                you'll genuinely click with.</p>
+            </div>
+          </div>
+          <div class="bigstep reveal">
+            <div class="bigstep__label">step 2</div>
+            <div>
+              <div class="bigstep__title">choose an <span class="accent">experience</span></div>
+              <p class="bigstep__desc">From candlelit dinners to rooftop sundowners, pottery to long morning
+                walks. You pick — we'll plan every detail.</p>
+            </div>
+          </div>
+          <div class="bigstep reveal">
+            <div class="bigstep__label">step 3</div>
+            <div>
+              <div class="bigstep__title">meet your matches</div>
+              <p class="bigstep__desc">We match you with five to seven of your most compatible people. After
+                dinner, groups from across the city come together for the night.</p>
+            </div>
+          </div>
+          <div class="bigstep reveal">
+            <div class="bigstep__label">step 4</div>
+            <div>
+              <div class="bigstep__title">refine your matches</div>
+              <p class="bigstep__desc">A quick follow-up after the evening. If the feeling's mutual, we'll pair
+                you again — for another experience, or a blind date.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · EXPERIENCES — full-screen slider -->
+    <section id="experiences">
+      <div class="slider" data-slider>
+        <!-- slide 1 · cinematic -->
+        <div class="slide slide--cine active">
+          <div class="slide__bg"><img src="assets/scene-dark.jpg" alt="" /></div>
+          <div class="slide__in">
+            <div class="slide__time">9:00 pm</div>
+            <p class="slide__line">your table joins all the other <span class="script">tryb</span> groups to end the night.</p>
+          </div>
+        </div>
+
+        <!-- slide 2 · the trade / transition -->
+        <div class="slide slide--trade">
+          <div class="trade-head">
+            <span class="eyebrow" style="justify-content:center;">The trade we're making</span>
+            <h2>Less scrolling, <span class="script bronze">more living</span>.</h2>
+          </div>
+          <div class="arches">
+            <div class="arch"><div class="arch__img"><img src="assets/scene-cafe.jpg" alt="" /></div><div class="arch__no">01</div><div class="arch__t">You join</div><div class="arch__d">Share a little about you.</div></div>
+            <div class="arch"><div class="arch__img"><img src="assets/scene-supper.jpg" alt="" /></div><div class="arch__no">02</div><div class="arch__t">We understand</div><div class="arch__d">Your vibe & energy.</div></div>
+            <div class="arch"><div class="arch__img"><img src="assets/scene-dinner.jpg" alt="" /></div><div class="arch__no">03</div><div class="arch__t">We curate</div><div class="arch__d">The right group.</div></div>
+            <div class="arch"><div class="arch__img"><img src="assets/scene-lost.jpg" alt="" /></div><div class="arch__no">04</div><div class="arch__t">You're invited</div><div class="arch__d">An evening you'll love.</div></div>
+            <div class="arch"><div class="arch__img"><img src="assets/scene-rooftop.jpg" alt="" /></div><div class="arch__no">05</div><div class="arch__t">You show up</div><div class="arch__d">Meet, be present.</div></div>
+            <div class="arch"><div class="arch__img"><img src="assets/scene-coffee.jpg" alt="" /></div><div class="arch__no">06</div><div class="arch__t">Real bonds</div><div class="arch__d">Memories are made.</div></div>
+            <div class="arch"><div class="arch__img"><img src="assets/scene-strangers.jpg" alt="" /></div><div class="arch__no">07</div><div class="arch__t">We get better</div><div class="arch__d">The next fits even more.</div></div>
+          </div>
+          <div class="trade-result">
+            <div class="r-eyebrow">The result</div>
+            <h3>Trade digital noise for real-life stories.</h3>
+          </div>
+        </div>
+
+        <!-- slide 3 · chemistry / matching -->
+        <div class="slide slide--match">
+          <div class="match-grid">
+            <div>
+              <span class="eyebrow">How we match</span>
+              <h2 class="mb-2" style="color:var(--cream);">Chemistry isn't luck. It's careful <span class="script bronze">listening</span>.</h2>
+              <p class="lead" style="color:var(--sand);">We weigh eight signals to place you at the right table with the
+                right people for the right evening — so the conversation flows before anyone's said a word.</p>
+              <div class="pill-list mt-2">
+                <span class="pill is-static">Personality</span>
+                <span class="pill is-static">Energy</span>
+                <span class="pill is-static">Conversation style</span>
+                <span class="pill is-static">Interests</span>
+                <span class="pill is-static">Life stage</span>
+                <span class="pill is-static">Availability</span>
+                <span class="pill is-static">Location</span>
+                <span class="pill is-static">Experience</span>
+              </div>
+            </div>
+            <div class="match-photos">
+              <div class="visual"><img src="assets/scene-rooftop.jpg" alt="" /></div>
+              <div class="visual"><img src="assets/scene-dinner.jpg" alt="" /></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="slider__arrow prev" data-prev aria-label="Previous">‹</button>
+        <button class="slider__arrow next" data-next aria-label="Next">›</button>
+        <div class="slider__nav" data-dots></div>
+      </div>
+    </section>
+
+    <!-- 6 · DEMO INVITES (city filter + carousel) -->
+    <section class="section" id="invites">
+      <div class="wrap">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;" class="reveal mb-3">
+          <div>
+            <span class="eyebrow">Invitations</span>
+            <h2>Explore your city. <span class="script bronze">Or a new one.</span></h2>
+            <p class="muted mt-1">Your membership works across every city we're in — and we're in more each month.</p>
+          </div>
+          <div class="city-filter" data-cities>
+            <button class="city" data-active>all</button>
+            <button class="city">Bengaluru</button>
+            <button class="city">Mumbai</button>
+            <button class="city">Delhi</button>
+            <button class="city">Goa</button>
+          </div>
+        </div>
+
+        <div class="invite-rail reveal">
+          <article class="rail-card">
+            <div class="rail-card__img"><img src="assets/scene-dinner.jpg" alt="" /></div>
+            <div class="rail-card__body">
+              <h3>Strangers &amp; small plates</h3>
+              <p class="rail-card__meta">Fri, 25 Jul · 7:30 pm · Indiranagar</p>
+              <span class="rail-chip"><b>tryb</b> invited you →</span>
+            </div>
+          </article>
+          <article class="rail-card">
+            <div class="rail-card__img"><img src="assets/scene-cafe.jpg" alt="" /></div>
+            <div class="rail-card__body">
+              <h3>Coffee &amp; a long walk</h3>
+              <p class="rail-card__meta">Sun, 27 Jul · 8:00 am · Cubbon Park</p>
+              <span class="rail-chip">blind date invited by <b>tryb</b> →</span>
+            </div>
+          </article>
+          <article class="rail-card">
+            <div class="rail-card__img"><img src="assets/scene-rooftop.jpg" alt="" /></div>
+            <div class="rail-card__body">
+              <h3>Sundowners &amp; stories</h3>
+              <p class="rail-card__meta">Sat, 26 Jul · 6:00 pm · Koramangala</p>
+              <span class="rail-chip"><img class="av" src="assets/av-1.jpg" alt="" /> your friend invited you →</span>
+            </div>
+          </article>
+          <article class="rail-card">
+            <div class="rail-card__img"><img src="assets/scene-coffee.jpg" alt="" /></div>
+            <div class="rail-card__body">
+              <h3>Pottery &amp; playlists</h3>
+              <p class="rail-card__meta">Thu, 31 Jul · 6:30 pm · Jayanagar</p>
+              <span class="rail-chip"><b>tryb</b> invited you →</span>
+            </div>
+          </article>
+          <article class="rail-card">
+            <div class="rail-card__img"><img src="assets/scene-table.jpg" alt="" /></div>
+            <div class="rail-card__body">
+              <h3>Long-table supper club</h3>
+              <p class="rail-card__meta">Wed, 30 Jul · 8:00 pm · Whitefield</p>
+              <span class="rail-chip"><img class="av" src="assets/av-2.jpg" alt="" /> your friend invited you →</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · FAQ -->
+    <section class="section section--cream" id="faq">
+      <div class="wrap">
+        <div class="faq-grid">
+          <div class="reveal"><h2>Frequently<br>asked<br><span class="script bronze">questions</span></h2></div>
+          <div class="reveal d1" data-faq>
+            <div class="faq-item open">
+              <button class="faq-q">is this for friends or dating? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>That's up to you. Our job is to get you offline and in front of people
+                you'd actually want to meet. What happens from there is yours to choose.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">will there be people my age? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>Yes. We factor life stage and energy into every match, so the table always
+                feels right — never random.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">how does matching work? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>A short personality read, plus your interests, availability and city. We place
+                you with five to seven of your most compatible people.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">how many people am i meeting? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>An intimate group of five to seven, always with a trusted host to hold the room.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">when will my reservation be revealed? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>You'll get the venue and details the day before. A little mystery is part of
+                the fun.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">when do i find out about the second location? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>On the night. After dinner, the city's groups come together for the after —
+                and that's where the magic tends to happen.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">what about dietary restrictions? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>Tell us anything, anytime. We brief every host and venue in advance so you're
+                looked after.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q">what does membership include? <span class="chev">⌄</span></button>
+              <div class="faq-a"><p>Weekly curated invitations, verified members, trusted hosts, and access across
+                every tryb city.</p></div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- Footer -->
   <footer class="site-footer">
-    <div class="footer-top">
-      <div>
-        <div class="footer-brand">tryb</div>
-        <p class="footer-note">Real life, in good company. One invite, one evening, five strangers, one memory.</p>
+    <div class="footer-v3">
+      <div class="f-logo">
+        <img src="assets/logo.png" alt="tryb" />
+        <p class="f-copy">© <span data-year>2026</span> TRYB. Real life, in good company.</p>
       </div>
-      <div class="footer-links">
-        <div class="footer-col">
-          <h4>Explore</h4>
-          <a href="why.html">Why TRYB</a>
-          <a href="promise.html">Our Promise</a>
-          <a href="works.html">How It Works</a>
-          <a href="invitations.html">Invitations</a>
-        </div>
-        <div class="footer-col">
-          <h4>Join</h4>
-          <a href="mailto:hello@tryb.life?subject=Join%20TRYB">Join TRYB</a>
-          <a href="mailto:hello@tryb.life">Email</a>
-          <a href="#">Instagram</a>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© <span data-year>2026</span> TRYB. All rights reserved.</span>
-      <span>We optimize for story time.</span>
+      <nav class="f-links">
+        <a href="#">terms of service</a>
+        <a href="#">privacy policy</a>
+        <a href="mailto:hello@tryb.life">contact</a>
+        <a href="#">careers</a>
+        <a href="#">instagram</a>
+      </nav>
     </div>
   </footer>
 

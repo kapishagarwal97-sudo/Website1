@@ -40,7 +40,9 @@
     if (ring) ringLoop();
 
     // Hover grow on interactive elements
-    const hoverables = document.querySelectorAll("a, button, .card, .event, .btn");
+    const hoverables = document.querySelectorAll(
+      "a, button, .card, .event, .btn, .city, .mood, .slider__arrow, .slider__dot, .rail-card, .faq-q, .pill"
+    );
     hoverables.forEach((el) => {
       el.addEventListener("mouseenter", () => ring && ring.classList.add("is-hover"));
       el.addEventListener("mouseleave", () => ring && ring.classList.remove("is-hover"));
@@ -207,15 +209,82 @@
     });
   }
 
-  /* ---------- Mood filters (single active) ---------- */
-  const moodGroup = document.querySelector("[data-moods]");
-  if (moodGroup) {
-    moodGroup.querySelectorAll(".mood").forEach((m) => {
+  /* ---------- Mood / city filters (single active) ---------- */
+  document.querySelectorAll("[data-moods], [data-cities]").forEach((group) => {
+    const items = group.querySelectorAll(".mood, .city");
+    items.forEach((m) => {
       m.addEventListener("click", () => {
-        moodGroup.querySelectorAll(".mood").forEach((x) => x.removeAttribute("data-active"));
+        items.forEach((x) => x.removeAttribute("data-active"));
         m.setAttribute("data-active", "");
       });
     });
+  });
+
+  /* ---------- Header scrolled state ---------- */
+  const header = document.querySelector(".site-header");
+  if (header) {
+    const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  /* ---------- Hero polaroids reveal ---------- */
+  const hero = document.querySelector(".hero");
+  if (hero) setTimeout(() => hero.classList.add("in"), reduceMotion ? 0 : 400);
+
+  /* ---------- FAQ accordion ---------- */
+  const faq = document.querySelector("[data-faq]");
+  if (faq) {
+    const items = [...faq.querySelectorAll(".faq-item")];
+    const setH = (item) => {
+      const a = item.querySelector(".faq-a");
+      a.style.maxHeight = item.classList.contains("open") ? a.scrollHeight + "px" : "0px";
+    };
+    items.forEach((item) => {
+      setH(item);
+      item.querySelector(".faq-q").addEventListener("click", () => {
+        const wasOpen = item.classList.contains("open");
+        items.forEach((i) => { i.classList.remove("open"); setH(i); });
+        if (!wasOpen) { item.classList.add("open"); setH(item); }
+      });
+    });
+    window.addEventListener("resize", () =>
+      items.filter((i) => i.classList.contains("open")).forEach(setH)
+    );
+  }
+
+  /* ---------- Experiences slider ---------- */
+  const slider = document.querySelector("[data-slider]");
+  if (slider) {
+    const slides = [...slider.querySelectorAll(".slide")];
+    const dotsWrap = slider.querySelector("[data-dots]");
+    let i = 0, timer = null;
+    slides.forEach((_, idx) => {
+      const d = document.createElement("button");
+      d.className = "slider__dot" + (idx === 0 ? " active" : "");
+      d.setAttribute("aria-label", "Go to slide " + (idx + 1));
+      d.addEventListener("click", () => go(idx));
+      dotsWrap.appendChild(d);
+    });
+    const dots = [...dotsWrap.children];
+    function go(n) {
+      slides[i].classList.remove("active");
+      dots[i].classList.remove("active");
+      i = (n + slides.length) % slides.length;
+      slides[i].classList.add("active");
+      dots[i].classList.add("active");
+      restart();
+    }
+    function restart() {
+      if (reduceMotion) return;
+      clearInterval(timer);
+      timer = setInterval(() => go(i + 1), 6000);
+    }
+    slider.querySelector("[data-next]").addEventListener("click", () => go(i + 1));
+    slider.querySelector("[data-prev]").addEventListener("click", () => go(i - 1));
+    slider.addEventListener("mouseenter", () => clearInterval(timer));
+    slider.addEventListener("mouseleave", restart);
+    restart();
   }
 
   /* ---------- Current year ---------- */
