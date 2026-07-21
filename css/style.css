@@ -97,6 +97,10 @@ img { max-width: 100%; display: block; }
   opacity: 0;
   animation: loaderIn 1.4s var(--ease) forwards;
 }
+.loader__logo {
+  width: min(52vw, 300px); height: auto;
+  opacity: 0; animation: loaderIn 1.4s var(--ease) forwards;
+}
 @keyframes loaderIn {
   0%   { opacity: 0; transform: translateY(20px) scale(.96); }
   45%  { opacity: 1; transform: none; }
@@ -269,6 +273,10 @@ p + p { margin-top: 1.1rem; }
   font-family: var(--font-script);
   font-size: clamp(5rem, 22vw, 18rem);
   color: var(--cream); line-height: .9;
+}
+.hero__logo {
+  width: min(84vw, 760px); height: auto;
+  filter: drop-shadow(0 24px 70px rgba(0, 0, 0, .45));
 }
 .hero__tag {
   margin-top: 1rem;

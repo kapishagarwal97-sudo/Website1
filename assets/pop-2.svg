@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" preserveAspectRatio="xMidYMid slice" font-family="Fraunces, Georgia, serif">
-  <defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#f7f2ea"/><stop offset="0.6" stop-color="#d7cec3"/><stop offset="1" stop-color="#b07a4b"/></linearGradient></defs>
-  <rect width="480" height="600" fill="url(#b)"/>
-  <circle cx="360" cy="150" r="70" fill="#eb642e" opacity="0.35"/>
-  <ellipse cx="240" cy="430" rx="240" ry="150" fill="#1e2a44" opacity="0.28"/>
-  <text x="40" y="110" fill="#1e2a44" font-size="38" font-style="italic">your next</text>
-  <text x="40" y="156" fill="#1e2a44" font-size="38" font-style="italic">favourite person</text>
-</svg>

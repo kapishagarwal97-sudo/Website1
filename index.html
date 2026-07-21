@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TRYB — Real life, in good company</title>
   <meta name="description" content="TRYB turns strangers into stories. One invite, one evening, five strangers, one memory. Real conversations over screen time." />
-  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="loader"><span class="loader__mark">tryb</span></div>
+  <div class="loader"><img class="loader__logo" src="assets/logo.png" alt="tryb" /></div>
 
   <div class="cursor-dot"></div>
   <div class="cursor-ring"></div>
@@ -20,10 +20,12 @@
 
   <!-- Cursor-popping images (your 4 photos) -->
   <div class="float-layer" aria-hidden="true">
-    <div class="float-img"><img src="assets/pop-1.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/pop-2.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/pop-3.svg" alt="" /></div>
-    <div class="float-img"><img src="assets/pop-4.svg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-1.jpg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-2.jpg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-3.jpg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-4.jpg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-5.jpg" alt="" /></div>
+    <div class="float-img"><img src="assets/pop-6.jpg" alt="" /></div>
   </div>
 
   <header class="site-header">
@@ -43,12 +45,12 @@
     <section class="hero">
       <canvas class="hero__canvas"></canvas>
       <!-- Drop a brand film here; it layers under the wordmark -->
-      <!-- <video class="hero__video" autoplay muted loop playsinline poster="assets/pop-1.svg">
+      <!-- <video class="hero__video" autoplay muted loop playsinline poster="assets/pop-1.jpg">
         <source src="assets/hero.mp4" type="video/mp4" />
       </video> -->
       <div class="hero__scrim"></div>
       <div class="hero__inner">
-        <h1 class="hero__mark">tryb</h1>
+        <h1 class="hero__mark"><img class="hero__logo" src="assets/logo.png" alt="tryb" /></h1>
         <p class="hero__tag">move your cursor</p>
         <p class="hero__sub">Real life, in good company. One invite, one evening, five strangers, one memory.</p>
       </div>
