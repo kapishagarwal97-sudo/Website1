@@ -310,7 +310,7 @@ p + p { margin-top: 1.1rem; }
 
 /* ---------- Floating / popping images (cursor trail) ---------- */
 .float-layer {
-  position: fixed; inset: 0; z-index: 2;
+  position: fixed; inset: 0; z-index: 60;
   pointer-events: none; overflow: hidden;
 }
 .float-img {
@@ -626,7 +626,7 @@ p + p { margin-top: 1.1rem; }
 .slide {
   position: absolute; inset: 0;
   opacity: 0; visibility: hidden;
-  transition: opacity .9s var(--ease), visibility .9s var(--ease);
+  transition: opacity .18s linear, visibility .18s linear;
   display: flex; align-items: center; justify-content: center;
 }
 .slide.active { opacity: 1; visibility: visible; }
@@ -756,3 +756,6 @@ p + p { margin-top: 1.1rem; }
 
 /* Anchor offset for fixed header */
 section[id] { scroll-margin-top: 76px; }
+
+/* larger cinematic line when timestamp is omitted */
+.slide__line--lg { font-size: clamp(1.9rem, 5vw, 3.6rem); max-width: 22ch; }
