@@ -119,17 +119,13 @@
   const toggle = document.querySelector(".nav-toggle");
   const nav = document.querySelector(".nav");
   if (toggle && nav) {
-    toggle.addEventListener("click", () => {
-      const open = nav.classList.toggle("open");
-      toggle.textContent = open ? "Close" : "Menu";
+    const setOpen = (open) => {
+      nav.classList.toggle("open", open);
+      document.body.classList.toggle("menu-open", open);
       toggle.setAttribute("aria-expanded", String(open));
-    });
-    nav.querySelectorAll("a").forEach((a) =>
-      a.addEventListener("click", () => {
-        nav.classList.remove("open");
-        toggle.textContent = "Menu";
-      })
-    );
+    };
+    toggle.addEventListener("click", () => setOpen(!nav.classList.contains("open")));
+    nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
   }
 
   /* ---------- Animated canvas hero background (video-like) ---------- */
