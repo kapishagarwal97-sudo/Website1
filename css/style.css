@@ -127,11 +127,20 @@ img { max-width: 100%; display: block; }
   transition: background .5s var(--ease), backdrop-filter .5s var(--ease), padding .5s var(--ease);
 }
 .site-header.scrolled {
-  background: rgba(24, 34, 58, .92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(24, 34, 58, .96);
   padding-top: .7rem; padding-bottom: .7rem;
   border-bottom: 1px solid rgba(215, 206, 195, .12);
+}
+/* Frosted glass only on desktop. On mobile the nav is a fixed full-screen
+   overlay that lives inside the header; a backdrop-filter on the header would
+   become the containing block for that fixed child and collapse it to the
+   header's height — so we keep the mobile header a solid bar. */
+@media (min-width: 861px) {
+  .site-header.scrolled {
+    background: rgba(24, 34, 58, .82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
 }
 .brand { display: inline-flex; align-items: center; line-height: 1; }
 .brand img { height: clamp(30px, 3.4vw, 40px); width: auto; display: block; }
@@ -793,6 +802,8 @@ section[id] { scroll-margin-top: 76px; }
 }
 
 @media (max-width: 620px) {
+  /* Let tall sections size to their content on phones (less dead scrolling) */
+  .screen { min-height: auto; }
   .section { padding-top: clamp(3.5rem, 9vh, 5rem); padding-bottom: clamp(3.5rem, 9vh, 5rem); }
   .hero__cta { flex-direction: column; align-items: center; width: 100%; }
   .hero__cta .btn { width: 100%; max-width: 300px; justify-content: center; }
