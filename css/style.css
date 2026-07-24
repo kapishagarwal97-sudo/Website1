@@ -807,3 +807,14 @@ section[id] { scroll-margin-top: 76px; }
   .faq-q { font-size: 1.05rem; }
   .footer-v3 { flex-direction: column; gap: 1.5rem; }
 }
+
+/* Clickable step title (links to the sign-up form) */
+.step-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  text-decoration-color: var(--bronze);
+  transition: color .35s var(--ease), text-decoration-color .35s var(--ease);
+}
+.step-link:hover { color: var(--ember); text-decoration-color: var(--ember); }
