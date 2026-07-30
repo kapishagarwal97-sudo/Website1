@@ -355,10 +355,10 @@ input[type="date"]{color-scheme:dark}
    1 · SETUP
    ============================================================ */
 
-/* Paste the Apps Script Web App /exec URL here (see apps-script/Code.gs).
-   While it is empty the form runs in preview mode: nothing is sent anywhere
-   and the finish screen shows exactly what would have been recorded. */
-const SHEET_ENDPOINT = "";
+/* Apps Script Web App that writes into the TRYB responses sheet
+   (see apps-script/Code.gs). Empty this string to fall back to preview mode,
+   where nothing is sent and the finish screen shows the captured payload. */
+const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKdfw00pO9l9JQAcpCiDvQciVJAE5_dbDZAnYrv9jH_jMeR5EWgX6tQA/exec";
 
 /* Must match SUBMIT_TOKEN in Code.gs. */
 const SUBMIT_TOKEN = "tryb-2026";
