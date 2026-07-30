@@ -115,9 +115,9 @@ refresh (`localStorage`); the intro then offers to resume or start over.
 
 - **Rapid-fire titles were blank** in the form ("Type a question" placeholder) —
   the seven titles here are written to fit the answer pairs and need your sign-off.
-- **Name, email and phone are not in the Tally form.** A waitlist with no way
-  to reach anyone does not work, so the final screen asks for all three (phone
-  optional). These are not counted among the 61 questions. Remove
+- **Name, email and phone were not in the source questionnaire.** A waitlist
+  with no way to reach anyone does not work, so the final screen asks for all
+  three (phone optional). These are not counted among the 61 questions. Remove
   `{ kind:"details" }` from `STEPS` if you'd rather not.
 - **Date of birth gates at 18+** (`MIN_AGE`), given the alcohol and smoking
   questions. Set it to `0` to remove the gate.
