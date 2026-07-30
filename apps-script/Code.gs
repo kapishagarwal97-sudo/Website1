@@ -13,8 +13,14 @@
 
 var SHEET_NAME = 'Responses';
 
-/** Optional. Leave '' to use the spreadsheet this script is bound to. */
-var SPREADSHEET_ID = '';
+/** The TRYB responses spreadsheet. Set explicitly so this works whether the
+ *  script is bound to the sheet or standalone.
+ *  https://docs.google.com/spreadsheets/d/1CSyC-AzOQF5TmWXx-cL6Scdhb-BogUxfIB-d5SilP0o/edit */
+var SPREADSHEET_ID = '1CSyC-AzOQF5TmWXx-cL6Scdhb-BogUxfIB-d5SilP0o';
+
+/** Newest response first: each one is inserted at row 2, directly under the
+ *  headers, so the latest is always the row you see. Set false to append. */
+var NEWEST_FIRST = true;
 
 /** Must match SUBMIT_TOKEN in personality-test.html. Keeps casual bots out. */
 var SUBMIT_TOKEN = 'tryb-2026';
@@ -50,6 +56,7 @@ function flatten(body) {
   row['Submitted at']  = new Date();          // server clock, not the visitor's
   row['Name']          = body.name  || '';
   row['Email']         = body.email || '';
+  row['Phone']         = body.phone || '';
 
   (body.answers || []).forEach(function (a) {
     // Sheets evaluates a leading =, + or -, so those are quoted defensively.
@@ -92,7 +99,13 @@ function appendRow(row) {
   var values = headers.map(function (h) {
     return row.hasOwnProperty(h) ? row[h] : '';
   });
-  sheet.appendRow(values);
+
+  if (NEWEST_FIRST) {
+    sheet.insertRowAfter(1);                        // push older responses down
+    sheet.getRange(2, 1, 1, values.length).setValues([values]);
+  } else {
+    sheet.appendRow(values);
+  }
 }
 
 function json(obj) {

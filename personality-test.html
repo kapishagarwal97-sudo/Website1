@@ -527,7 +527,7 @@ const LETTERS = ["A","B","C","D","E","F"];
 const STORE   = "tryb-form-v2";
 
 let answers = {};          // id -> value, [] for multi, or null when a clock ran out
-let details = { name:"", email:"" };
+let details = { name:"", email:"", phone:"" };
 let step = 0, ticker = null, locked = false, sending = false, finished = false;
 let startedAt = Date.now();
 
@@ -630,7 +630,7 @@ function renderIntro(){
   card.querySelector("#start").onclick = () => go(resumable ? firstUnanswered() : step + 1);
   const r = card.querySelector("#restart");
   if (r) r.onclick = () => {
-    answers = {}; details = { name:"", email:"" };
+    answers = {}; details = { name:"", email:"", phone:"" };
     startedAt = Date.now(); clearDraft(); paintProgress(); render();
   };
   hint.innerHTML = `press <kbd>enter</kbd> to begin`;
@@ -841,6 +841,11 @@ function renderDetails(){
         <input id="i-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(details.email)}" />
         <p class="err">That email doesn't look right.</p>
       </div>
+      <div class="field" id="f-phone">
+        <label for="i-phone">Phone <span style="opacity:.6">(optional)</span></label>
+        <input id="i-phone" name="phone" type="tel" autocomplete="tel" placeholder="+91" value="${esc(details.phone)}" />
+        <p class="err">That number doesn't look right.</p>
+      </div>
       <div class="hp"><label>Leave this empty<input id="i-hp" type="text" tabindex="-1" autocomplete="off" /></label></div>
     </form>
     <button class="btn" id="submit">Join the waitlist <span>&rarr;</span></button>
@@ -848,7 +853,7 @@ function renderDetails(){
       Nothing is shared with the other four before you both say yes.</p>
     <p class="status" id="status"></p>`;
 
-  ["name","email"].forEach(k => {
+  ["name","email","phone"].forEach(k => {
     const el = card.querySelector("#i-" + k);
     el.oninput = () => { details[k] = el.value; card.querySelector("#f-" + k).classList.remove("bad"); saveDraft(); };
   });
@@ -948,6 +953,7 @@ function validate(){
   const bad = id => { card.querySelector("#f-" + id).classList.add("bad"); ok = false; };
   if (!details.name.trim()) bad("name");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(details.email.trim())) bad("email");
+  if (details.phone.trim() && !/^[+\d][\d\s()-]{6,}$/.test(details.phone.trim())) bad("phone");
   return ok;
 }
 
@@ -958,6 +964,7 @@ function payload(){
     submittedAt: new Date().toISOString(),
     name: details.name.trim(),
     email: details.email.trim(),
+    phone: details.phone.trim(),
     answers: QUESTIONS.map(q => ({ id:q.id, question:q.text, answer:answerLabel(q) })),
     timedOut: QUESTIONS.filter(q => answers[q.id] === null).length,
     durationSeconds: Math.round((Date.now() - startedAt) / 1000)

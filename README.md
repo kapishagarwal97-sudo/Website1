@@ -115,8 +115,9 @@ refresh (`localStorage`); the intro then offers to resume or start over.
 
 - **Rapid-fire titles were blank** in the form ("Type a question" placeholder) —
   the seven titles here are written to fit the answer pairs and need your sign-off.
-- **Name and email are not in the Tally form.** A waitlist with no way to reach
-  anyone does not work, so the final screen asks for both. Remove
+- **Name, email and phone are not in the Tally form.** A waitlist with no way
+  to reach anyone does not work, so the final screen asks for all three (phone
+  optional). These are not counted among the 61 questions. Remove
   `{ kind:"details" }` from `STEPS` if you'd rather not.
 - **Date of birth gates at 18+** (`MIN_AGE`), given the alcohol and smoking
   questions. Set it to `0` to remove the gate.
@@ -140,7 +141,13 @@ refresh (`localStorage`); the intro then offers to resume or start over.
 Until that URL is set the form runs in **preview mode**: nothing is sent, and
 the finish screen shows exactly what would have been recorded.
 
-A `Responses` tab is created on the first submission. Columns are built from the
+The sheet is set in `SPREADSHEET_ID` (already pointing at the TRYB responses
+sheet), and a `Responses` tab is created on the first submission. Each new
+response is inserted at **row 2**, directly under the frozen header, so the
+newest is always the row you see — set `NEWEST_FIRST = false` to append instead.
+
+Columns are `Submitted at · Name · Email · Phone` + one per question +
+`Unanswered (timed out)` · `Time taken (s)` — **67 in total**. Columns are built from the
 payload and matched by header name after that, so adding questions later just
 adds columns — existing rows stay aligned. `SUBMIT_TOKEN` must match on both
 sides; it plus a honeypot field keeps casual bots out. Note that the endpoint URL
