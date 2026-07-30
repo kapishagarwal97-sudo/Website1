@@ -50,14 +50,13 @@ function flatten(body) {
   row['Submitted at']  = new Date();          // server clock, not the visitor's
   row['Name']          = body.name  || '';
   row['Email']         = body.email || '';
-  row['Phone']         = body.phone || '';
-  row['City']          = body.city  || '';
 
   (body.answers || []).forEach(function (a) {
-    // Sheets treats a leading =, +, - or @ as a formula, and option labels can
-    // start with one, so those are quoted defensively.
+    // Sheets evaluates a leading =, + or -, so those are quoted defensively.
+    // '@' is deliberately NOT escaped: Sheets does not treat it as a formula,
+    // and every Instagram handle starts with one.
     var v = a.answer;
-    if (typeof v === 'string' && /^[=+\-@]/.test(v)) v = "'" + v;
+    if (typeof v === 'string' && /^[=+\-]/.test(v)) v = "'" + v;
 
     // Two questions worded identically would otherwise share one column.
     var header = a.question;
