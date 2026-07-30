@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TRYB — Personality Test</title>
+<title>TRYB — Find your table</title>
 <meta name="description" content="A few questions, so we can seat you with the right five." />
 <link rel="icon" href="assets/logo.png" type="image/png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
-   TRYB — personality test
+   TRYB — find your table
    Palette and type follow css/style.css.
    ============================================================ */
 :root{
@@ -27,25 +27,22 @@
   --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 
   --ease:cubic-bezier(.16,1,.3,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
   --gutter:clamp(1.25rem,5vw,6rem);
+  --hud:96px;
 }
 *,*::before,*::after{box-sizing:border-box}
 *{margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body{
   min-height:100vh;min-height:100dvh;
-  background:var(--ink);
-  color:var(--cream);
-  font-family:var(--font-sans);
-  font-weight:300;
-  line-height:1.6;
-  overflow-x:hidden;
-  -webkit-tap-highlight-color:transparent;
+  background:var(--ink);color:var(--cream);
+  font-family:var(--font-sans);font-weight:300;line-height:1.6;
+  overflow-x:hidden;-webkit-tap-highlight-color:transparent;
 }
 ::selection{background:var(--ember);color:var(--cream)}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
-/* two slow warm lights, so the canvas is never flat */
 body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
@@ -55,31 +52,77 @@ body::before{
 }
 @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-2%,1.5%,0)}}
 
-/* ---------- progress ---------- */
-.progress{
-  position:fixed;top:0;left:0;right:0;height:2px;z-index:40;
-  background:rgba(215,206,195,.14);
+/* ============================================================
+   The walk to the table — this is the progress indicator.
+   A token travels a dotted path toward the one empty seat.
+   ============================================================ */
+.hud{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  padding:0 var(--gutter) 1.1rem;
+  background:linear-gradient(to top, var(--ink) 55%, rgba(30,42,68,0));
+  pointer-events:none;
 }
-.progress__fill{
-  height:100%;width:0;
-  background:linear-gradient(90deg,var(--bronze),var(--ember));
-  transition:width .55s var(--ease);
+.hud__inner{display:flex;align-items:center;gap:.9rem;max-width:1100px;margin:0 auto}
+.hud__track{
+  position:relative;flex:1;height:22px;
 }
-.progress__tick{position:absolute;top:0;width:1px;height:100%;background:var(--ink);opacity:.9}
+.hud__track::before{
+  content:"";position:absolute;left:0;right:0;top:50%;height:1px;
+  background:repeating-linear-gradient(to right, rgba(215,206,195,.42) 0 3px, transparent 3px 10px);
+}
+.hud__you{
+  position:absolute;top:50%;left:0;
+  width:11px;height:11px;border-radius:50%;
+  background:var(--ember);
+  box-shadow:0 0 0 4px rgba(235,100,46,.16), 0 0 16px rgba(235,100,46,.5);
+  transform:translate(-50%,-50%);
+  transition:left .75s var(--spring);
+}
+.hud__you::after{                       /* a faint trail behind the walker */
+  content:"";position:absolute;right:100%;top:50%;width:26px;height:1px;
+  background:linear-gradient(to left, rgba(235,100,46,.5), transparent);
+  transform:translateY(-50%);
+}
+.hud.step .hud__you{animation:bob .75s var(--ease)}
+@keyframes bob{0%,100%{margin-top:0}45%{margin-top:-5px}}
+
+.hud__table{width:68px;height:68px;flex:0 0 auto;margin-left:-8px}
+.seat{fill:var(--sand);opacity:.85;transform-origin:center}
+.seat--empty{
+  fill:none;stroke:var(--ember);stroke-width:1.6;stroke-dasharray:2.4 2.4;
+  transform-origin:center;animation:waiting 2.6s ease-in-out infinite;
+}
+@keyframes waiting{0%,100%{opacity:.55}50%{opacity:1}}
+.tabletop{fill:rgba(215,206,195,.07);stroke:rgba(215,206,195,.4);stroke-width:1}
+.hud.arrived .seat--empty{fill:var(--ember);stroke:var(--ember);stroke-dasharray:none;opacity:1;animation:none}
+.hud.arrived .seat{animation:greet .6s var(--spring) both}
+.hud.arrived .seat:nth-of-type(2){animation-delay:.05s}
+.hud.arrived .seat:nth-of-type(3){animation-delay:.1s}
+.hud.arrived .seat:nth-of-type(4){animation-delay:.15s}
+.hud.arrived .seat:nth-of-type(5){animation-delay:.2s}
+@keyframes greet{0%{transform:scale(1)}50%{transform:scale(1.45)}100%{transform:scale(1)}}
+.hud.arrived .hud__you{opacity:0;transition:opacity .3s ease}
+
+.hud__note{
+  max-width:1100px;margin:.55rem auto 0;
+  font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--sand);opacity:.5;
+}
+.hud.arrived .hud__note{color:var(--ember);opacity:.9}
 
 /* ---------- shell ---------- */
 .wrap{
   position:relative;z-index:1;
   min-height:100vh;min-height:100dvh;
   display:grid;grid-template-rows:auto 1fr auto;
-  padding:clamp(1.1rem,3vw,2rem) var(--gutter);
+  padding:clamp(1.1rem,3vw,2rem) var(--gutter) calc(var(--hud) + .5rem);
 }
 .top{display:flex;align-items:center;justify-content:space-between;gap:1rem}
 .brand{display:flex;align-items:center}
 .brand img{height:30px;width:auto}
-.part{font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;color:var(--sand);opacity:.55}
+.part{font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;color:var(--sand);opacity:.55;text-align:right}
 
-.stage{display:flex;align-items:center;width:100%;max-width:760px;margin:0 auto;padding:clamp(1.5rem,5vh,3rem) 0}
+.stage{display:flex;align-items:center;width:100%;max-width:820px;margin:0 auto;padding:clamp(1rem,3.5vh,2.4rem) 0}
 .card{width:100%;transition:opacity .28s ease,transform .28s var(--ease),filter .28s ease}
 .card.is-out{opacity:0;transform:translateY(-18px);filter:blur(2px)}
 .card.is-in{animation:enter .6s var(--ease) both}
@@ -89,28 +132,28 @@ body::before{
 .eyebrow{font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--bronze);margin-bottom:1.1rem}
 .q{
   font-family:var(--font-display);font-weight:400;
-  font-size:clamp(1.55rem,4.2vw,2.6rem);
-  line-height:1.14;letter-spacing:-.01em;max-width:20ch;
+  font-size:clamp(1.4rem,3.6vw,2.35rem);
+  line-height:1.16;letter-spacing:-.01em;max-width:24ch;
 }
 .lede{margin-top:1.1rem;max-width:46ch;color:var(--sand);font-size:clamp(.95rem,1.5vw,1.05rem)}
+.sub{margin-top:.7rem;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sand);opacity:.45}
 
-/* ---------- timer ---------- */
+/* ---------- timer (rapid fire only) ---------- */
 .timer{
-  display:flex;align-items:center;gap:.7rem;margin-top:1.4rem;
+  display:flex;align-items:center;gap:.7rem;margin-top:1.3rem;
   opacity:0;transform:translateY(6px);
   transition:opacity .4s ease,transform .4s var(--ease);
 }
 .timer.on{opacity:1;transform:none}
-.timer__track{position:relative;flex:1;height:1px;max-width:320px;background:rgba(215,206,195,.2)}
+.timer__track{position:relative;flex:1;height:2px;max-width:340px;background:rgba(215,206,195,.2)}
 .timer__bar{position:absolute;inset:0 auto 0 0;width:100%;background:var(--sand);transform-origin:left center}
-.timer__num{font-family:var(--font-display);font-size:.85rem;color:var(--sand);opacity:.7;min-width:1.4ch;font-variant-numeric:tabular-nums}
+.timer__num{font-family:var(--font-display);font-size:.95rem;color:var(--sand);opacity:.7;min-width:2ch;font-variant-numeric:tabular-nums}
 .timer.warn .timer__bar{background:var(--ember)}
 .timer.warn .timer__num{color:var(--ember);opacity:1}
 
 /* ---------- likert ---------- */
-.scale{margin-top:clamp(2rem,5vh,3rem);width:100%;--dot-base:38px}
-.scale--5{max-width:440px;--dot-step:9px}
-.scale--7{max-width:580px;--dot-step:6px}
+.scale{margin-top:clamp(1.6rem,4vh,2.6rem);width:100%;--dot-base:38px}
+.scale--8 {max-width:560px;--dot-step:4.5px}
 .scale--11{max-width:660px;--dot-step:2.4px}
 .dots{display:flex;align-items:center;justify-content:space-between;gap:clamp(.3rem,1.6vw,.75rem)}
 .dot{
@@ -119,10 +162,9 @@ body::before{
   width:calc(var(--dot-base) + var(--k) * var(--dot-step));
   aspect-ratio:1;
   display:grid;place-items:center;border-radius:50%;
-  border:1px solid rgba(215,206,195,.35);
-  color:var(--sand);
+  border:1px solid rgba(215,206,195,.35);color:var(--sand);
   font-family:var(--font-display);font-size:.95rem;
-  animation:rise .45s var(--ease) both;animation-delay:calc(var(--i) * 45ms);
+  animation:rise .45s var(--ease) both;animation-delay:calc(var(--i) * 40ms);
   transition:transform .35s var(--ease),background .25s ease,border-color .25s ease,color .25s ease;
 }
 .dot:hover,.dot:focus-visible{border-color:var(--cream);color:var(--cream);transform:translateY(-3px) scale(1.06);outline:none}
@@ -132,61 +174,93 @@ body::before{
   border:1px solid rgba(235,100,46,.4);animation:ping .5s var(--ease) both;
 }
 @keyframes ping{from{transform:scale(.8);opacity:1}to{transform:scale(1);opacity:1}}
-
 .ends{
-  display:flex;justify-content:space-between;gap:1rem;margin-top:1.15rem;
-  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sand);opacity:.55;
+  display:flex;justify-content:space-between;gap:1rem;margin-top:1.1rem;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sand);opacity:.55;
 }
+.ends span{flex:1}
 .ends span:nth-child(2){text-align:center}
 .ends span:last-child{text-align:right}
 
-/* ---------- choices ---------- */
-.choices{margin-top:clamp(1.8rem,4.5vh,2.6rem);display:grid;gap:.6rem;max-width:660px}
+/* ---------- single choice ---------- */
+.choices{margin-top:clamp(1.4rem,3.5vh,2.2rem);display:grid;gap:.55rem;max-width:680px}
 .choice{
   display:flex;align-items:center;gap:1rem;width:100%;
-  padding:1rem 1.15rem;text-align:left;
-  border:1px solid rgba(215,206,195,.22);border-radius:2px;
-  color:var(--cream);font-size:clamp(.95rem,1.6vw,1.08rem);line-height:1.35;
-  animation:rise .5s var(--ease) both;animation-delay:calc(var(--i) * 60ms);
+  padding:.95rem 1.1rem;text-align:left;
+  border:1px solid rgba(215,206,195,.22);border-radius:2px;color:var(--cream);
+  font-size:clamp(.92rem,1.5vw,1.05rem);line-height:1.35;
+  animation:rise .5s var(--ease) both;animation-delay:calc(var(--i) * 45ms);
   transition:border-color .25s ease,background .25s ease,transform .3s var(--ease);
 }
 .choice:hover,.choice:focus-visible{border-color:var(--sand);background:rgba(247,242,234,.04);transform:translateX(5px);outline:none}
 .choice__key{
-  flex:0 0 auto;width:26px;height:26px;display:grid;place-items:center;
+  flex:0 0 auto;width:25px;height:25px;display:grid;place-items:center;
   border:1px solid rgba(215,206,195,.35);border-radius:50%;
-  font-family:var(--font-display);font-size:.72rem;color:var(--sand);
+  font-family:var(--font-display);font-size:.7rem;color:var(--sand);
   transition:background .25s ease,border-color .25s ease,color .25s ease;
 }
 .choice.sel{border-color:var(--ember);background:rgba(235,100,46,.1)}
 .choice.sel .choice__key{background:var(--ember);border-color:var(--ember);color:var(--cream)}
 
-/* ---------- intro / interstitial / done ---------- */
-.big{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,6vw,3.6rem);line-height:1.06;letter-spacing:-.02em}
-.rule{width:44px;height:1px;background:var(--bronze);margin:1.6rem 0}
-.notes{display:grid;gap:.55rem;margin-top:1.6rem;max-width:44ch}
+/* ---------- rapid fire: two big tiles ---------- */
+.rapid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:clamp(1.4rem,4vh,2.4rem);max-width:720px}
+.tile{
+  position:relative;overflow:hidden;
+  min-height:clamp(120px,20vh,168px);
+  display:grid;place-items:center;text-align:center;padding:1.4rem 1rem;
+  border:1px solid rgba(215,206,195,.25);border-radius:3px;
+  font-family:var(--font-display);font-size:clamp(1.05rem,2.4vw,1.5rem);line-height:1.2;
+  animation:rise .5s var(--spring) both;animation-delay:calc(var(--i) * 90ms);
+  transition:border-color .25s ease,background .25s ease,transform .35s var(--spring);
+}
+.tile:hover,.tile:focus-visible{border-color:var(--cream);background:rgba(247,242,234,.05);transform:translateY(-4px);outline:none}
+.tile.sel{border-color:var(--ember);background:rgba(235,100,46,.16);transform:scale(1.03)}
+.tile__key{
+  position:absolute;top:.6rem;left:.7rem;
+  font-family:var(--font-sans);font-size:.6rem;letter-spacing:.18em;color:var(--sand);opacity:.5;
+}
+
+/* ---------- multi select ---------- */
+.multi{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:clamp(1.2rem,3vh,2rem);max-width:760px}
+.opt{
+  padding:.6rem 1.05rem;border-radius:999px;
+  border:1px solid rgba(215,206,195,.26);color:var(--sand);
+  font-size:.88rem;line-height:1.2;
+  animation:rise .4s var(--ease) both;animation-delay:calc(var(--i) * 22ms);
+  transition:border-color .22s ease,background .22s ease,color .22s ease,transform .3s var(--spring);
+}
+.opt:hover{border-color:var(--cream);color:var(--cream);transform:translateY(-2px)}
+.opt.sel{background:var(--ember);border-color:var(--ember);color:var(--cream)}
+.count{margin-top:1rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--sand);opacity:.45}
+
+/* ---------- intro / section cards / done ---------- */
+.big{font-family:var(--font-display);font-weight:400;font-size:clamp(1.9rem,5.4vw,3.4rem);line-height:1.06;letter-spacing:-.02em}
+.rule{width:44px;height:1px;background:var(--bronze);margin:1.5rem 0}
+.notes{display:grid;gap:.55rem;margin-top:1.5rem;max-width:46ch}
 .note{display:flex;gap:.75rem;color:var(--sand);font-size:.92rem;line-height:1.5}
 .note b{color:var(--bronze);font-family:var(--font-display);font-weight:400}
 .btn{
-  display:inline-flex;align-items:center;gap:.7rem;margin-top:2.2rem;
-  padding:.85rem 1.7rem;border-radius:999px;
-  background:var(--ember);color:var(--cream);
+  display:inline-flex;align-items:center;gap:.7rem;margin-top:1.9rem;
+  padding:.85rem 1.7rem;border-radius:999px;background:var(--ember);color:var(--cream);
   font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
   transition:transform .3s var(--ease),box-shadow .3s var(--ease),opacity .25s ease;
 }
 .btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(235,100,46,.28)}
-.btn[disabled]{opacity:.5;pointer-events:none}
+.btn[disabled]{
+  background:none;border:1px solid rgba(215,206,195,.22);color:var(--sand);
+  opacity:.55;pointer-events:none;box-shadow:none;
+}
 .btn--ghost{background:none;border:1px solid rgba(215,206,195,.35);color:var(--sand)}
 .btn--ghost:hover{border-color:var(--cream);color:var(--cream);box-shadow:none}
-.btn--sm{margin-top:1.2rem;padding:.7rem 1.3rem;font-size:.72rem}
+.btn--sm{margin-top:1.1rem;padding:.7rem 1.3rem;font-size:.72rem}
 
-/* ---------- details ---------- */
-.fields{display:grid;gap:1.5rem;margin-top:2.2rem;max-width:460px}
+/* ---------- fields ---------- */
+.fields{display:grid;gap:1.4rem;margin-top:1.9rem;max-width:460px}
 .field label{display:block;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);opacity:.65;margin-bottom:.5rem}
 .field input{
-  width:100%;padding:.55rem 0;
-  background:none;border:none;border-bottom:1px solid rgba(215,206,195,.3);
-  color:var(--cream);font-family:var(--font-display);font-size:1.15rem;font-weight:400;
-  border-radius:0;                                  /* iOS strips its own rounding */
+  width:100%;padding:.55rem 0;background:none;border:none;
+  border-bottom:1px solid rgba(215,206,195,.3);color:var(--cream);
+  font-family:var(--font-display);font-size:1.15rem;font-weight:400;border-radius:0;
   transition:border-color .25s ease;
 }
 .field input::placeholder{color:rgba(215,206,195,.3)}
@@ -194,30 +268,17 @@ body::before{
 .field.bad input{border-bottom-color:var(--ember)}
 .field .err{display:none;margin-top:.4rem;font-size:.75rem;color:var(--ember)}
 .field.bad .err{display:block}
+input[type="date"]{color-scheme:dark}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.fineprint{margin-top:1.4rem;max-width:46ch;font-size:.78rem;line-height:1.5;color:var(--sand);opacity:.5}
+.status{margin-top:1rem;font-size:.85rem;color:var(--ember);max-width:46ch}
 
-.chips{display:flex;flex-wrap:wrap;gap:.5rem}
-.chip{
-  padding:.5rem 1rem;border-radius:999px;
-  border:1px solid rgba(215,206,195,.28);color:var(--sand);font-size:.85rem;
-  transition:border-color .25s ease,background .25s ease,color .25s ease,transform .3s var(--ease);
-}
-.chip:hover{border-color:var(--cream);color:var(--cream);transform:translateY(-2px)}
-.chip.sel{background:var(--ember);border-color:var(--ember);color:var(--cream)}
-
-.fineprint{margin-top:1.6rem;max-width:44ch;font-size:.78rem;line-height:1.5;color:var(--sand);opacity:.5}
-.status{margin-top:1.2rem;font-size:.85rem;color:var(--ember);max-width:44ch}
-
-/* ---------- preview panel (only when no endpoint is configured) ---------- */
-.dump{
-  margin-top:1.8rem;max-height:40vh;overflow:auto;
-  border:1px solid rgba(215,206,195,.2);border-radius:2px;
-  padding:1rem;font-size:.78rem;color:var(--sand);display:none;
-}
+/* ---------- preview panel ---------- */
+.dump{margin-top:1.6rem;max-height:44vh;overflow:auto;border:1px solid rgba(215,206,195,.2);padding:1rem;font-size:.76rem;color:var(--sand);display:none}
 .dump.on{display:block}
 .dump table{width:100%;border-collapse:collapse}
-.dump td{padding:.32rem 0;vertical-align:top;border-bottom:1px solid rgba(215,206,195,.1)}
-.dump td:last-child{text-align:right;color:var(--cream);white-space:nowrap;padding-left:1rem}
+.dump td{padding:.3rem 0;vertical-align:top;border-bottom:1px solid rgba(215,206,195,.1)}
+.dump td:last-child{text-align:right;color:var(--cream);padding-left:1rem}
 .dump .miss{color:var(--ember)}
 
 /* ---------- footer ---------- */
@@ -227,31 +288,34 @@ body::before{
 .back:hover{color:var(--cream)}
 .hint kbd{font-family:var(--font-sans);font-size:.66rem;border:1px solid rgba(215,206,195,.3);border-radius:3px;padding:.1rem .34rem;margin:0 .12rem}
 
+@media (max-width:760px){
+  .rapid{grid-template-columns:1fr}
+  .tile{min-height:90px}
+}
 @media (max-width:640px){
+  :root{--hud:84px}
   .hint{display:none}
-  .part{display:none}                     /* the eyebrow already names the section */
+  .part{display:none}
+  .hud__table{width:52px;height:52px}
+  .hud__note{font-size:.6rem;letter-spacing:.16em}
 }
 @media (max-width:560px){
   .scale{--dot-base:30px}
-  .scale--5{--dot-step:6px}
-  .scale--7{--dot-step:3px}
+  .scale--8{--dot-step:2.6px}
   /* eleven dots have to survive a 320px screen, so they track the viewport */
   .scale--11{--dot-base:clamp(17px,5.6vw,26px);--dot-step:1px}
   .dots{gap:clamp(.12rem,.8vw,.25rem)}
   .dot{font-size:.82rem}
   .scale--11 .dot{font-size:.68rem}
-  .ends{font-size:.58rem;letter-spacing:.06em}
+  .ends{font-size:.56rem;letter-spacing:.05em}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .hud__you{transition:left .01ms!important}
 }
 </style>
 </head>
 <body>
-
-<div class="progress" aria-hidden="true">
-  <div class="progress__fill" id="fill"></div>
-</div>
 
 <div class="wrap">
   <header class="top">
@@ -269,6 +333,23 @@ body::before{
   </footer>
 </div>
 
+<!-- progress: you, walking toward the one empty seat -->
+<div class="hud" id="hud" aria-hidden="true">
+  <div class="hud__inner">
+    <div class="hud__track"><div class="hud__you" id="you"></div></div>
+    <svg class="hud__table" viewBox="0 0 70 70">
+      <circle class="tabletop" cx="35" cy="35" r="13" />
+      <circle class="seat--empty" cx="10"   cy="35"    r="4.2" />
+      <circle class="seat" cx="22.5" cy="13.35" r="4.2" />
+      <circle class="seat" cx="47.5" cy="13.35" r="4.2" />
+      <circle class="seat" cx="60"   cy="35"    r="4.2" />
+      <circle class="seat" cx="47.5" cy="56.65" r="4.2" />
+      <circle class="seat" cx="22.5" cy="56.65" r="4.2" />
+    </svg>
+  </div>
+  <p class="hud__note" id="hudNote">setting out</p>
+</div>
+
 <script>
 /* ============================================================
    1 · SETUP
@@ -276,82 +357,157 @@ body::before{
 
 /* Paste the Apps Script Web App /exec URL here (see apps-script/Code.gs).
    While it is empty the form runs in preview mode: nothing is sent anywhere
-   and the finish screen shows you exactly what would have been recorded. */
+   and the finish screen shows exactly what would have been recorded. */
 const SHEET_ENDPOINT = "";
 
 /* Must match SUBMIT_TOKEN in Code.gs. */
 const SUBMIT_TOKEN = "tryb-2026";
 
-const TIMER_SECONDS = 7;
-const CITIES = ["Delhi","Gurgaon","Noida","Lucknow","Somewhere else"];
+const RAPID_SECONDS = 10;      // rapid fire only — nothing else is timed
+const MIN_AGE = 18;
 
 /* ============================================================
-   2 · QUESTIONS
+   2 · QUESTIONS  —  transcribed from TRYB_Form_Questions.docx
    ============================================================ */
-const SCALE = ["Strongly disagree","Neutral","Strongly agree"];
+const AGREE = ["Strongly disagree","Neutral","Strongly agree"];
 
-const QUESTIONS = [
-  /* ---- Part one — 1 to 5 ---- */
-  { id:"b1",  part:0, type:"scale", max:5, text:"I see myself as someone who is reserved." },
-  { id:"b2",  part:0, type:"scale", max:5, text:"I see myself as someone who is trusting." },
-  { id:"b3",  part:0, type:"scale", max:5, text:"I see myself as someone who tends to be lazy." },
-  { id:"b4",  part:0, type:"scale", max:5, text:"I see myself as someone who is relaxed, handles stress well." },
-  { id:"b5",  part:0, type:"scale", max:5, text:"I see myself as someone who is artistic." },
-  { id:"b6",  part:0, type:"scale", max:5, text:"I see myself as someone who is outgoing, sociable." },
-  { id:"b7",  part:0, type:"scale", max:5, text:"I see myself as someone who tends to find fault with others." },
-  { id:"b8",  part:0, type:"scale", max:5, text:"I see myself as someone who has an active imagination." },
-  { id:"b9",  part:0, type:"scale", max:5, text:"I generally follow the rules." },
-
-  /* ---- Part two — 1 to 7 ---- */
-  { id:"v1", part:1, type:"scale", max:7, text:"Taking risk in pursuit of adventure is a fundamental part of who I am." },
-  { id:"v2", part:1, type:"scale", max:7, text:"Wearing designer brands is important to me." },
-  { id:"v3", part:1, type:"scale", max:7, text:"I enjoy talking about work when meeting new people." },
-  { id:"v4", part:1, type:"scale", max:7, text:"One of my core character traits is a desire to learn new things." },
-  { id:"v5", part:1, type:"scale", max:7, text:"Even in a joke, some things should never be said." },
-  { id:"v6", part:1, type:"scale", max:7, text:"How important to you is physical attraction?",
-    labels:["Not at all","Somewhat","Extremely"] },
-
-  /* ---- Part three — timed multiple choice ---- */
-  { id:"c1", part:2, type:"choice", timed:true, text:"More important in a close friend:",
-    options:["They stay, even when it's hard","They tell you what you need to hear"] },
-  { id:"c2", part:2, type:"choice", timed:true, text:"A good life leans more toward…",
-    options:["Comfort and security","Novelty and risk"] },
-  { id:"c3", part:2, type:"choice", timed:true, text:"When a group makes a decision, it matters more that…",
-    options:["Everyone had a fair say","We respect whoever's leading"] },
-  { id:"c4", part:2, type:"choice", timed:true, text:"You're drawn more to people who are…",
-    options:["Ambitious and driven","Content and present"] },
-  { id:"c5", part:2, type:"choice", timed:true, text:"You'd rather be known as someone who is…",
-    options:["Kind","Real"] },
-  { id:"c6", part:2, type:"choice", timed:true, text:"You'd rather spend a free evening…",
-    options:["Deep in conversation with one person","In the middle of a lively group"] },
-  { id:"c7", part:2, type:"choice", timed:true, text:"A stronger pull for you:",
-    options:["There's wisdom in how things have always been done","The old ways are made to be questioned"] },
-  { id:"c8", part:2, type:"choice", timed:true,
-    text:"Your group's at a restaurant and the server messes up the order twice. You're most likely to:",
-    options:[
-      "Wave it off — it's genuinely not a big deal",
-      "Be polite, but let them know it needs fixing",
-      "Get visibly annoyed — you're paying for this",
-      "Quietly make sure everyone else's is right first"
-    ] },
-
-  /* ---- Part four — from the last screen of the Tally form ---- */
-  { id:"l1", part:3, type:"scale", min:0, max:10, text:"How often do you smoke?",
-    labels:["Never","Once a week","Almost daily"] },
-  { id:"l2", part:3, type:"choice", text:"What's your usual budget for a quality evening out with friends?",
-    options:["Below ₹1,000","₹1,000 – ₹2,000","₹2,000 – ₹3,000","₹3,000 – ₹4,000","₹4,000 +"] },
-  { id:"l3", part:3, type:"text", text:"Instagram", placeholder:"@yourhandle" },
-  { id:"l4", part:3, type:"text", text:"LinkedIn", placeholder:"linkedin.com/in/…" },
-  { id:"l5", part:3, type:"text", optional:true,
-    text:"Add your best friend's contact, to see if chance takes you to the same table.",
-    placeholder:"Their number or email" }
+const SECTIONS = [
+  { key:"self",   label:"I see myself as someone who" },
+  { key:"agree",  label:"How strongly do you agree" },
+  { key:"land",   label:"Where do you really land" },
+  { key:"know",   label:"How well do you know yourself" },
+  { key:"you",    label:"A little more about you" },
+  { key:"rapid",  label:"Rapid fire" },
+  { key:"basics", label:"Essentials" }
 ];
 
-const PARTS = [
-  { label:"Part one · How you see yourself" },
-  { label:"Part two · What you lean toward" },
-  { label:"Value section · Where do you really land" },
-  { label:"Part four · A little about your world" }
+/* Cards shown when the way you answer changes. No waitlist CTA on any of them. */
+const SECTION_CARDS = {
+  land: { title:"Where do you<br />really land?", lede:"No scales here — just pick the one that's more you. Nothing is timed, so take the moment you need." },
+  you:  { title:"Tell us what<br />you're into.", lede:"Pick as many as you like on these — the more you choose, the better we can seat you." },
+  rapid:{ title:"Rapid fire.", lede:"Seven snap calls, ten seconds each. Don't think — the first answer is usually the true one. If the clock runs out we simply move on." },
+  basics:{ title:"Last stretch.", lede:"The practical things: where you are, what you eat, how to reach you." }
+};
+
+const QUESTIONS = [
+  /* ---- Page 1 · I see myself as someone who ---- */
+  { id:"s1", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who is reserved." },
+  { id:"s2", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who is trusting." },
+  { id:"s3", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who tends to be lazy." },
+  { id:"s4", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who is relaxed, handles stress well." },
+  { id:"s5", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who is artistic." },
+  { id:"s6", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who is outgoing." },
+  { id:"s7", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who has an active imagination." },
+  { id:"s8", s:0, type:"scale", min:0, max:7, text:"I see myself as someone who generally follows the rules." },
+
+  /* ---- Page 2 · How strongly do you agree ---- */
+  { id:"a1", s:1, type:"scale", min:0, max:7, text:"Wearing designer brands is important to me." },
+  { id:"a2", s:1, type:"scale", min:0, max:7, text:"Taking risk in pursuit of adventure is a fundamental part of who I am." },
+  { id:"a3", s:1, type:"scale", min:0, max:7, text:"I enjoy talking about my work to new people." },
+  { id:"a4", s:1, type:"scale", min:0, max:7, text:"One of my core character traits is a desire to learn new things." },
+  { id:"a5", s:1, type:"scale", min:0, max:7, text:"Physical attraction to my partner is very important to me." },
+  { id:"a6", s:1, type:"scale", min:0, max:7, text:"Even in a joke, some things should never be said." },
+
+  /* ---- Page 4 · Where do you really land (single select, untimed) ---- */
+  { id:"w1", s:2, type:"choice", text:"A friend tells you a story where they were clearly in the wrong. You:",
+    options:["Tell them straight that they're wrong","Gently point it out",
+             "Take their side — they came to you for support, not judgment","Ask questions until they see it themselves"] },
+  { id:"w2", s:2, type:"choice", text:"A good life for you leans more towards",
+    options:["Comfort and security","Novelty and risk"] },
+  { id:"w3", s:2, type:"choice", text:"When a group makes a decision, it matters more that",
+    options:["everyone had a fair say","we respect whoever took charge"] },
+  { id:"w4", s:2, type:"choice", text:"You're drawn more to people who are",
+    options:["Ambitious and driven","Content and present"] },
+  { id:"w5", s:2, type:"choice", text:"You'd rather be known as someone who is",
+    options:["Kind","Real"] },
+  { id:"w6", s:2, type:"choice", text:"You'd rather spend a free evening",
+    options:["deep in conversation with one person","in the middle of a lively group"] },
+  { id:"w7", s:2, type:"choice", text:"A stronger pull for you is when",
+    options:["there's belief in old wisdom","the old ways are questioned"] },
+  { id:"w8", s:2, type:"choice", text:"Your group is at a restaurant, and the server messes up the order twice. You're most likely to:",
+    options:["wave it off — it's genuinely not a big deal","be polite, but let them know it needs fixing"] },
+
+  /* ---- Page 5 · How well do you know yourself ---- */
+  { id:"k1",  s:3, type:"scale", min:0, max:7, text:"I find it easy to get close to people." },
+  { id:"k2",  s:3, type:"scale", min:0, max:7, text:"I find that people are always there when you need them." },
+  { id:"k3",  s:3, type:"scale", min:0, max:7, text:"I worry that other people don't really love me." },
+  { id:"k4",  s:3, type:"scale", min:0, max:7, text:"How attractive do you consider yourself?",
+    labels:["Unattractive","Extremely attractive"] },
+  { id:"k5",  s:3, type:"scale", min:0, max:7, text:"How intelligent do you consider yourself?",
+    labels:["Not the brightest","Very intelligent"] },
+  { id:"k6",  s:3, type:"scale", min:0, max:7, text:"How extroverted do you consider yourself?",
+    labels:["Very introverted","Very extroverted"] },
+  { id:"k7",  s:3, type:"scale", min:0, max:7, text:"How spontaneous are you when making plans to go out?",
+    labels:["Need a month's notice","A day's notice"] },
+  { id:"k8",  s:3, type:"scale", min:0, max:7, text:"How often do you feel lonely?",
+    labels:["Never","Every day"] },
+  { id:"k9",  s:3, type:"scale", min:0, max:7, text:"Does your advice generally tend to be more logical or emotional?",
+    labels:["Pure logic","All heart"] },
+  { id:"k10", s:3, type:"scale", min:0, max:7, text:"How often are you the one talking in group settings?",
+    labels:["I only listen","Primary speaker"] },
+
+  /* ---- Page 6 · Let's get to know you a little more (multi-select) ---- */
+  { id:"h1", s:4, type:"multi", text:"What are your favourite hobbies?",
+    options:["Reading & Writing","Travel & Exploration","Pets & Animal Care","Gaming & Esports",
+             "Health, Fitness & Wellness","Sports (Watching or Playing)","Movies, TV Shows & Streaming",
+             "Social Media & Online Content","Music & Podcasts","Photography & Videography",
+             "Cooking & Food Exploration","Technology & Gadgets"] },
+  { id:"h2", s:4, type:"multi", text:"Which one of these interests you deeply?",
+    options:["Entrepreneurship & Startups","Astronomy & Space Science","Puzzles & Riddles","Astrology",
+             "Technology","Finance & Investing","Science & Research","Politics & Society",
+             "Movies & Web-shows","Sports","Nutrition & Healthy Living","Music & Dance","Fashion & Lifestyle"] },
+  { id:"h3", s:4, type:"multi", text:"Which sports do you follow?",
+    options:["Cricket","Football","F1 and Racing","Racquet Sports","Basketball","Hockey","eSports","Others"] },
+  { id:"h4", s:4, type:"multi", text:"Which music genre do you like?",
+    options:["Bollywood","Indie","Punjabi","Classical Music","Electronic Dance Music (EDM)",
+             "Sufi Music","Devotional & Bhajan","Rock & Alternative Rock","Regional Music"] },
+  { id:"h5", s:4, type:"multi", text:"Which outing experiences would you most likely say yes to?",
+    options:["Board-games Night","Live Music","Cafe-hopping","Hikes & Treks","DIY Workshops",
+             "Museum/Bookstore Visits","Comedy Shows / Open Mic","City Tours","Sports & Games",
+             "Arcade/Gaming Arenas","Wellness Retreats","Fitness Events","Others"] },
+  { id:"h6", s:4, type:"multi", text:"Which of these personalities would you most like to follow for a year?",
+    options:["Nikhil Kamath (Business & Investing)","Tech Burner (Technology)","Sam Altman (AI & Innovation)",
+             "Akshat Shrivastava (Finance)","Diipa Khosla (Beauty)","Raj Shamani (Self-growth & Podcasts)",
+             "Gaurav Kapur (Sports)","Bhuvan Bam (Entertainment)","Karl Rock (Travel & Culture)",
+             "Kusha Kapila (Lifestyle)"] },
+
+  /* ---- Page 7 · Rapid fire (10-second clock).
+         Titles were blank in the form — these are written to fit the options. ---- */
+  { id:"r1", s:5, type:"rapid", text:"Something's bothering you. You:",  options:["Confront immediately","Take time to process"] },
+  { id:"r2", s:5, type:"rapid", text:"Tonight's film:",                  options:["Rom-com","Action"] },
+  { id:"r3", s:5, type:"rapid", text:"The perfect Sunday:",              options:["Day in","Day out"] },
+  { id:"r4", s:5, type:"rapid", text:"Saturday night:",                  options:["House party","Clubbing"] },
+  { id:"r5", s:5, type:"rapid", text:"Book the trip:",                   options:["Beaches","Mountains"] },
+  { id:"r6", s:5, type:"rapid", text:"You're a:",                        options:["Night owl","Early bird"] },
+  { id:"r7", s:5, type:"rapid", text:"On repeat:",                       options:["Arijit Singh","Karan Aujla"] },
+
+  /* ---- Page 8 · Essentials ---- */
+  { id:"e1",  s:6, type:"choice", text:"Which gender do you identify with?",
+    options:["Male","Female","Others","Prefer not to say"] },
+  { id:"e2",  s:6, type:"choice", text:"What is your current relationship status?",
+    options:["Single","Committed","Married","Other ;)","Prefer not to say"] },
+  { id:"e3",  s:6, type:"text",   text:"What is your hometown?", placeholder:"City you're from" },
+  { id:"e4",  s:6, type:"text",   text:"Which city do you live in?", placeholder:"Where you are now" },
+  { id:"e5",  s:6, type:"choice", text:"How long have you been living in your current city?",
+    options:["Less than 6 months","6 months – 1 year","1 year – 3 years","3 years – 10 years","10 years +"] },
+  { id:"e6",  s:6, type:"multi",  text:"What are your dietary preferences?",
+    options:["Vegetarian","Non-vegetarian","Vegan","Gluten-free","No specific preference"] },
+  { id:"e7",  s:6, type:"multi",  text:"What are your preferable cuisines?",
+    options:["Asian","North Indian","South Indian","Italian","Mexican","Chinese","Others"] },
+  { id:"e8",  s:6, type:"date",   text:"When's your birthday?" },
+  { id:"e9",  s:6, type:"text",   text:"Which sector do you work in?", placeholder:"e.g. design, finance, medicine" },
+  { id:"e10", s:6, type:"scale",  min:0, max:7, text:"How well did you do in school?",
+    labels:["Struggled","Average","Exceptional"] },
+  { id:"e11", s:6, type:"scale",  min:0, max:10, text:"How often do you drink alcohol?",
+    labels:["Never","Once a week","Almost daily"] },
+  { id:"e12", s:6, type:"scale",  min:0, max:10, text:"How often do you smoke?",
+    labels:["Never","Once a week","Almost daily"] },
+  { id:"e13", s:6, type:"choice", text:"What's your usual budget for a quality evening out with friends?",
+    options:["Below ₹1,000","₹1,000 – ₹2,000","₹2,000 – ₹3,000","₹3,000 – ₹4,000","₹4,000 +"] },
+  { id:"e14", s:6, type:"text",   text:"Instagram", placeholder:"@yourhandle" },
+  { id:"e15", s:6, type:"text",   text:"LinkedIn",  placeholder:"linkedin.com/in/…" },
+  { id:"e16", s:6, type:"text",   text:"Add your best friend's contact, to see if chance takes you to the same table at TRYB.",
+    placeholder:"Their number or email" }
 ];
 
 /* ============================================================
@@ -359,63 +515,63 @@ const PARTS = [
    ============================================================ */
 const STEPS = [{ kind:"intro" }];
 QUESTIONS.forEach((q,i) => {
-  if (i > 0 && q.part === 2 && QUESTIONS[i-1].part !== 2) STEPS.push({ kind:"gut" });
+  const newSection = i === 0 || QUESTIONS[i-1].s !== q.s;
+  const cardCfg = SECTION_CARDS[SECTIONS[q.s].key];
+  if (newSection && cardCfg) STEPS.push({ kind:"card", cfg:cardCfg, s:q.s });
   STEPS.push({ kind:"q", q });
 });
 STEPS.push({ kind:"details" }, { kind:"done" });
 
 const TOTAL   = QUESTIONS.length;
 const LETTERS = ["A","B","C","D","E","F"];
-const STORE   = "tryb-test-v1";
+const STORE   = "tryb-form-v2";
 
-let answers = {};          // question id -> value, or null when the clock ran out
-let details = { name:"", email:"", phone:"", city:"" };
-let step    = 0;
-let ticker  = null;
-let locked  = false;       // ignores input mid-transition, so nothing double-advances
-let sending = false;
-let finished = false;      // once sent, nothing may write the draft back
+let answers = {};          // id -> value, [] for multi, or null when a clock ran out
+let details = { name:"", email:"" };
+let step = 0, ticker = null, locked = false, sending = false, finished = false;
 let startedAt = Date.now();
 
 const card  = document.getElementById("card");
-const fill  = document.getElementById("fill");
 const back  = document.getElementById("back");
 const hint  = document.getElementById("hint");
 const label = document.getElementById("partLabel");
+const hud   = document.getElementById("hud");
+const you   = document.getElementById("you");
+const note  = document.getElementById("hudNote");
 
-/* part boundaries on the progress bar — one tick per part change */
-(() => {
-  const bar = document.querySelector(".progress");
-  let seen = 0;
-  PARTS.forEach((_, i) => {
-    seen += QUESTIONS.filter(q => q.part === i).length;
-    if (i === PARTS.length - 1) return;                 // no tick at the very end
-    const tick = document.createElement("i");
-    tick.className = "progress__tick";
-    tick.style.left = (seen / TOTAL * 100) + "%";
-    bar.appendChild(tick);
-  });
-})();
-
-/* ---------- draft, so a refresh mid-test is not fatal ---------- */
+/* ---------- draft ---------- */
 function saveDraft(){
   if (finished) return;
-  try { localStorage.setItem(STORE, JSON.stringify({ answers, details, step, startedAt })); } catch (e) {}
-}
-function loadDraft(){
-  try {
-    const d = JSON.parse(localStorage.getItem(STORE) || "null");
-    if (!d || typeof d.step !== "number") return null;
-    return d;
-  } catch (e) { return null; }
+  try { localStorage.setItem(STORE, JSON.stringify({ answers, details, startedAt })); } catch (e) {}
 }
 function clearDraft(){ try { localStorage.removeItem(STORE); } catch (e) {} }
 
-const answeredCount = () => Object.keys(answers).length;
+const answered = q => {
+  const a = answers[q.id];
+  if (a === undefined) return false;
+  return Array.isArray(a) ? a.length > 0 : true;      // null counts: the clock ran out
+};
+const answeredCount = () => QUESTIONS.filter(answered).length;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 
-function paintProgress(){
-  fill.style.width = (Math.min(answeredCount(), TOTAL) / TOTAL * 100).toFixed(2) + "%";
+/* ---------- the walk ---------- */
+const NOTES = [
+  [0,    "setting out"],
+  [0.18, "on your way"],
+  [0.45, "getting closer"],
+  [0.72, "almost there"],
+  [0.93, "one seat away"]
+];
+function paintProgress(stepped){
+  const p = Math.min(answeredCount() / TOTAL, 1);
+  you.style.left = (p * 100).toFixed(2) + "%";
+  const arrived = p >= 1;
+  hud.classList.toggle("arrived", arrived);
+  note.textContent = arrived ? "you're at the table"
+                             : NOTES.filter(n => p >= n[0]).pop()[1];
+  if (stepped && !arrived){
+    hud.classList.remove("step"); void hud.offsetWidth; hud.classList.add("step");
+  }
 }
 
 function go(next){
@@ -425,7 +581,6 @@ function go(next){
   card.classList.add("is-out");
   setTimeout(() => {
     step = next;
-    saveDraft();
     render();
     card.classList.remove("is-out","is-in");
     void card.offsetWidth;
@@ -436,18 +591,23 @@ function go(next){
 
 function render(){
   const s = STEPS[step];
-  label.textContent = s.kind === "q" ? PARTS[s.q.part].label : "";
+  label.textContent = s.kind === "q" ? SECTIONS[s.q.s].label : "";
   back.classList.toggle("on", step > 0 && s.kind !== "done");
   hint.innerHTML = "";
   paintProgress();
 
   if (s.kind === "intro")   return renderIntro();
-  if (s.kind === "gut")     return renderGut();
+  if (s.kind === "card")    return renderCard(s);
   if (s.kind === "details") return renderDetails();
   if (s.kind === "done")    return renderDone();
-  if (s.q.type === "scale") return renderScale(s.q);
-  if (s.q.type === "text")  return renderText(s.q);
-  return renderChoice(s.q);
+
+  const q = s.q;
+  if (q.type === "scale")  return renderScale(q);
+  if (q.type === "choice") return renderChoice(q);
+  if (q.type === "rapid")  return renderRapid(q);
+  if (q.type === "multi")  return renderMulti(q);
+  if (q.type === "date")   return renderDate(q);
+  return renderText(q);
 }
 
 /* ============================================================
@@ -457,51 +617,50 @@ function renderIntro(){
   const resumable = answeredCount() > 0;
   card.innerHTML = `
     <p class="eyebrow">Before you join</p>
-    <h1 class="big">A few questions,<br />so we can seat you<br />with the right five.</h1>
+    <h1 class="big">There's a table<br />with one seat left.<br />Let's see if it's yours.</h1>
     <div class="rule"></div>
     <div class="notes">
-      <p class="note"><b>01</b> ${TOTAL} questions. Around four minutes.</p>
-      <p class="note"><b>02</b> One at a time. There are no right answers.</p>
-      <p class="note"><b>03</b> The last section is timed — seven seconds each. Answer on instinct.</p>
+      <p class="note"><b>01</b> Answer as you go and you'll walk toward the table at the bottom of the screen.</p>
+      <p class="note"><b>02</b> No right answers, and nothing is timed — except rapid fire, which is ten seconds a call.</p>
+      <p class="note"><b>03</b> Around eight minutes. Your answers save as you go.</p>
     </div>
-    <button class="btn" id="start">${resumable ? "Pick up where you left off" : "Begin"} <span>&rarr;</span></button>
+    <button class="btn" id="start">${resumable ? "Pick up where you left off" : "Start walking"} <span>&rarr;</span></button>
     ${resumable ? `<div><button class="btn btn--ghost btn--sm" id="restart">Start over</button></div>` : ""}`;
 
   card.querySelector("#start").onclick = () => go(resumable ? firstUnanswered() : step + 1);
   const r = card.querySelector("#restart");
   if (r) r.onclick = () => {
-    answers = {}; details = { name:"", email:"", phone:"", city:"" };
+    answers = {}; details = { name:"", email:"" };
     startedAt = Date.now(); clearDraft(); paintProgress(); render();
   };
   hint.innerHTML = `press <kbd>enter</kbd> to begin`;
 }
 
-/** Index of the first step whose question has no answer yet. */
 function firstUnanswered(){
   for (let i = 1; i < STEPS.length; i++){
     const s = STEPS[i];
-    if (s.kind === "q" && !(s.q.id in answers)) return i;
+    if (s.kind === "q" && !answered(s.q)) return i;
   }
   return STEPS.findIndex(s => s.kind === "details");
 }
 
-function renderGut(){
+function renderCard(s){
   card.innerHTML = `
-    <p class="eyebrow">Value section</p>
-    <h2 class="big">Where do you<br />really land?</h2>
-    <p class="lede">Eight quick calls, seven seconds each. Don't weigh them —
-      the first answer is usually the true one. If the clock runs out, we simply move on.</p>
-    <button class="btn" id="ready">I'm ready <span>&rarr;</span></button>`;
-  card.querySelector("#ready").onclick = () => go(step + 1);
-  hint.innerHTML = `press <kbd>enter</kbd> when ready`;
+    <p class="eyebrow">${esc(SECTIONS[s.s].label)}</p>
+    <h2 class="big">${s.cfg.title}</h2>
+    <p class="lede">${esc(s.cfg.lede)}</p>
+    <button class="btn" id="onward">Continue <span>&rarr;</span></button>`;
+  card.querySelector("#onward").onclick = () => go(step + 1);
+  hint.innerHTML = `press <kbd>enter</kbd> to continue`;
 }
 
-/** Scales run lo…hi — usually 1–5 or 1–7, but Tally's smoking question is 0–10. */
+/* Scales run lo…hi — every scale here starts at 0. */
 const lo = q => (q.min === undefined ? 1 : q.min);
 const steps = q => q.max - lo(q) + 1;
 
 function renderScale(q){
-  const labels = q.labels || SCALE;
+  let labels = q.labels || AGREE;
+  if (labels.length === 2) labels = [labels[0], "", labels[1]];
   const mid = (lo(q) + q.max) / 2;
   const dots = Array.from({ length:steps(q) }, (_,i) => {
     const v = lo(q) + i;
@@ -511,7 +670,7 @@ function renderScale(q){
   }).join("");
 
   card.innerHTML = `
-    <p class="eyebrow">${esc(PARTS[q.part].label.split(" · ")[1])}</p>
+    <p class="eyebrow">${esc(SECTIONS[q.s].label)}</p>
     <h2 class="q">${esc(q.text)}</h2>
     <div class="scale scale--${steps(q)}">
       <div class="dots">${dots}</div>
@@ -524,27 +683,93 @@ function renderScale(q){
     : `<kbd>${lo(q)}</kbd>–<kbd>${q.max}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
 }
 
+function renderChoice(q){
+  const opts = q.options.map((o,i) => {
+    const sel = answers[q.id] === i ? " sel" : "";
+    return `<button class="choice${sel}" data-v="${i}" style="--i:${i}">
+              <span class="choice__key">${LETTERS[i]}</span><span>${esc(o)}</span>
+            </button>`;
+  }).join("");
+  card.innerHTML = `
+    <p class="eyebrow">${esc(SECTIONS[q.s].label)}</p>
+    <h2 class="q">${esc(q.text)}</h2>
+    <div class="choices">${opts}</div>`;
+  card.querySelectorAll(".choice").forEach(b => { b.onclick = () => pick(q, Number(b.dataset.v), b); });
+  hint.innerHTML = `<kbd>${LETTERS.slice(0, q.options.length).join("</kbd> <kbd>")}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+}
+
+function renderRapid(q){
+  const tiles = q.options.map((o,i) => {
+    const sel = answers[q.id] === i ? " sel" : "";
+    return `<button class="tile${sel}" data-v="${i}" style="--i:${i}">
+              <span class="tile__key">${LETTERS[i]}</span>${esc(o)}
+            </button>`;
+  }).join("");
+  const done = q.id in answers;      // revisits are untimed — the clock only runs once
+  card.innerHTML = `
+    <p class="eyebrow">Rapid fire</p>
+    <h2 class="q">${esc(q.text)}</h2>
+    <div class="timer" id="timer">
+      <div class="timer__track"><div class="timer__bar" id="tbar"></div></div>
+      <div class="timer__num" id="tnum">${RAPID_SECONDS}</div>
+    </div>
+    <div class="rapid">${tiles}</div>`;
+  card.querySelectorAll(".tile").forEach(b => { b.onclick = () => pick(q, Number(b.dataset.v), b); });
+  hint.innerHTML = `<kbd>A</kbd> <kbd>B</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+  if (!done) startTimer(q);
+}
+
+function renderMulti(q){
+  const chosen = Array.isArray(answers[q.id]) ? answers[q.id] : [];
+  const opts = q.options.map((o,i) =>
+    `<button class="opt${chosen.includes(i) ? " sel" : ""}" data-v="${i}" style="--i:${i}">${esc(o)}</button>`
+  ).join("");
+  card.innerHTML = `
+    <p class="eyebrow">${esc(SECTIONS[q.s].label)}</p>
+    <h2 class="q">${esc(q.text)}</h2>
+    <div class="multi">${opts}</div>
+    <p class="count" id="count"></p>
+    <button class="btn" id="next">Continue <span>&rarr;</span></button>`;
+
+  const btn = card.querySelector("#next");
+  const cnt = card.querySelector("#count");
+  const sync = () => {
+    const n = (answers[q.id] || []).length;
+    cnt.textContent = n ? `${n} selected` : "pick at least one";
+    btn.disabled = n === 0;
+  };
+  card.querySelectorAll(".opt").forEach(b => {
+    b.onclick = () => {
+      const v = Number(b.dataset.v);
+      const list = Array.isArray(answers[q.id]) ? answers[q.id].slice() : [];
+      const at = list.indexOf(v);
+      if (at > -1) list.splice(at, 1); else list.push(v);
+      answers[q.id] = list;
+      b.classList.toggle("sel", at === -1);
+      sync(); paintProgress(true); saveDraft();
+    };
+  });
+  sync();
+  btn.onclick = () => { if ((answers[q.id] || []).length) go(step + 1); };
+  hint.innerHTML = `pick any number &nbsp;·&nbsp; <kbd>enter</kbd> to continue`;
+}
+
 function renderText(q){
   const val = answers[q.id] || "";
   card.innerHTML = `
-    <p class="eyebrow">${esc(PARTS[q.part].label.split(" · ")[1])}</p>
+    <p class="eyebrow">${esc(SECTIONS[q.s].label)}</p>
     <h2 class="q">${esc(q.text)}</h2>
-    <div class="fields" style="margin-top:2rem">
+    <div class="fields">
       <div class="field" id="f-free">
         <input id="i-free" type="text" autocomplete="off" autocapitalize="none"
                placeholder="${esc(q.placeholder || "")}" value="${esc(val)}" />
         <p class="err">This one we do need.</p>
       </div>
     </div>
-    <button class="btn" id="next">${q.optional && !val ? "Skip" : "Continue"} <span>&rarr;</span></button>`;
-
+    <button class="btn" id="next">Continue <span>&rarr;</span></button>`;
   const input = card.querySelector("#i-free");
-  const btn   = card.querySelector("#next");
-  input.oninput = () => {
-    card.querySelector("#f-free").classList.remove("bad");
-    btn.innerHTML = (q.optional && !input.value.trim() ? "Skip" : "Continue") + ' <span>&rarr;</span>';
-  };
-  btn.onclick = () => commitText(q);
+  input.oninput = () => card.querySelector("#f-free").classList.remove("bad");
+  card.querySelector("#next").onclick = () => commitText(q);
   setTimeout(() => input.focus(), 320);
   hint.innerHTML = `<kbd>enter</kbd> to continue &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
 }
@@ -553,49 +778,58 @@ function commitText(q){
   if (locked) return;
   const input = card.querySelector("#i-free");
   const v = input.value.trim();
-  if (!v && !q.optional){
-    card.querySelector("#f-free").classList.add("bad");
-    input.focus();
-    return;
-  }
-  answers[q.id] = v || null;      // an skipped optional field reads the same as no answer
-  paintProgress();
-  saveDraft();
+  if (!v){ card.querySelector("#f-free").classList.add("bad"); input.focus(); return; }
+  answers[q.id] = v;
+  paintProgress(true); saveDraft();
   go(step + 1);
 }
 
-function renderChoice(q){
-  const opts = q.options.map((o,i) => {
-    const sel = answers[q.id] === i ? " sel" : "";
-    return `<button class="choice${sel}" data-v="${i}" style="--i:${i}">
-              <span class="choice__key">${LETTERS[i]}</span><span>${esc(o)}</span>
-            </button>`;
-  }).join("");
-
-  const answered = q.id in answers;   // revisits are untimed — the clock only runs once
+function renderDate(q){
+  const val = answers[q.id] || "";
   card.innerHTML = `
-    <p class="eyebrow">Where do you really land</p>
+    <p class="eyebrow">${esc(SECTIONS[q.s].label)}</p>
     <h2 class="q">${esc(q.text)}</h2>
-    <div class="timer" id="timer">
-      <div class="timer__track"><div class="timer__bar" id="tbar"></div></div>
-      <div class="timer__num" id="tnum">${TIMER_SECONDS}</div>
+    <div class="fields">
+      <div class="field" id="f-free">
+        <label for="i-free">Date of birth</label>
+        <input id="i-free" type="date" value="${esc(val)}" max="${new Date().toISOString().slice(0,10)}" />
+        <p class="err" id="dateErr">You need to be ${MIN_AGE} or over to join TRYB.</p>
+      </div>
     </div>
-    <div class="choices">${opts}</div>`;
+    <button class="btn" id="next">Continue <span>&rarr;</span></button>`;
+  const input = card.querySelector("#i-free");
+  input.oninput = () => card.querySelector("#f-free").classList.remove("bad");
+  card.querySelector("#next").onclick = () => commitDate(q);
+  hint.innerHTML = `<kbd>enter</kbd> to continue &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+}
 
-  card.querySelectorAll(".choice").forEach(b => { b.onclick = () => pick(q, Number(b.dataset.v), b); });
-  hint.innerHTML = `<kbd>${LETTERS.slice(0, q.options.length).join("</kbd> <kbd>")}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
-
-  if (q.timed && !answered) startTimer(q);
+function commitDate(q){
+  if (locked) return;
+  const input = card.querySelector("#i-free");
+  const field = card.querySelector("#f-free");
+  const err   = card.querySelector("#dateErr");
+  const v = input.value;
+  if (!v){
+    err.textContent = "We need your date of birth.";
+    field.classList.add("bad"); return;
+  }
+  const dob = new Date(v + "T00:00:00");
+  const age = (Date.now() - dob) / 31557600000;
+  if (age < MIN_AGE){
+    err.textContent = `You need to be ${MIN_AGE} or over to join TRYB.`;
+    field.classList.add("bad"); return;
+  }
+  answers[q.id] = v;
+  paintProgress(true); saveDraft();
+  go(step + 1);
 }
 
 function renderDetails(){
-  const chips = CITIES.map(c =>
-    `<button type="button" class="chip${details.city === c ? " sel" : ""}" data-city="${esc(c)}">${esc(c)}</button>`
-  ).join("");
-
   card.innerHTML = `
-    <p class="eyebrow">Last thing</p>
-    <h2 class="big">Where do we<br />send the invitation?</h2>
+    <p class="eyebrow">You've reached the table</p>
+    <h2 class="big">Save your seat.</h2>
+    <p class="lede">You're on the list once we know where to reach you.
+      We'll send your first invitation when a table near you comes together.</p>
     <form class="fields" id="form" novalidate>
       <div class="field" id="f-name">
         <label for="i-name">Your name</label>
@@ -607,57 +841,34 @@ function renderDetails(){
         <input id="i-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(details.email)}" />
         <p class="err">That email doesn't look right.</p>
       </div>
-      <div class="field" id="f-phone">
-        <label for="i-phone">Phone <span style="opacity:.6">(optional)</span></label>
-        <input id="i-phone" name="phone" type="tel" autocomplete="tel" placeholder="+91" value="${esc(details.phone)}" />
-        <p class="err">That number doesn't look right.</p>
-      </div>
-      <div class="field" id="f-city">
-        <label>Where are you?</label>
-        <div class="chips">${chips}</div>
-        <p class="err">Pick a city.</p>
-      </div>
       <div class="hp"><label>Leave this empty<input id="i-hp" type="text" tabindex="-1" autocomplete="off" /></label></div>
     </form>
-    <button class="btn" id="submit">Send it in <span>&rarr;</span></button>
+    <button class="btn" id="submit">Join the waitlist <span>&rarr;</span></button>
     <p class="fineprint">We use this only to match you to a table and send your invitation.
       Nothing is shared with the other four before you both say yes.</p>
     <p class="status" id="status"></p>`;
 
-  card.querySelectorAll(".chip").forEach(c => {
-    c.onclick = () => {
-      details.city = c.dataset.city;
-      card.querySelectorAll(".chip").forEach(x => x.classList.toggle("sel", x === c));
-      card.querySelector("#f-city").classList.remove("bad");
-      saveDraft();
-    };
-  });
-  ["name","email","phone"].forEach(k => {
+  ["name","email"].forEach(k => {
     const el = card.querySelector("#i-" + k);
-    el.oninput = () => {
-      details[k] = el.value;
-      card.querySelector("#f-" + k).classList.remove("bad");
-      saveDraft();
-    };
+    el.oninput = () => { details[k] = el.value; card.querySelector("#f-" + k).classList.remove("bad"); saveDraft(); };
   });
   card.querySelector("#submit").onclick = submit;
   card.querySelector("#form").onsubmit = e => { e.preventDefault(); submit(); };
-  hint.innerHTML = `<kbd>enter</kbd> to send`;
+  hint.innerHTML = `<kbd>enter</kbd> to join`;
 }
 
 function renderDone(){
   const missed  = QUESTIONS.filter(q => answers[q.id] === null).length;
   const preview = !SHEET_ENDPOINT;
   card.innerHTML = `
-    <p class="eyebrow">That's everything</p>
-    <h2 class="big">Thank you${details.name ? ", " + esc(details.name.split(" ")[0]) : ""}.<br />We'll take it<br />from here.</h2>
+    <p class="eyebrow">You're on the list</p>
+    <h2 class="big">Welcome${details.name ? ", " + esc(details.name.split(" ")[0]) : ""}.<br />The seat is yours.</h2>
     <div class="rule"></div>
-    <p class="lede">Your answers help us put you at a table with people you'll actually
-      want to sit with. We'll be in touch with your first invitation.
-      ${missed ? `<br /><span style="opacity:.65">(${missed} timed question${missed>1?"s":""} ran out — that's fine, it tells us something too.)</span>` : ""}</p>
+    <p class="lede">We'll be in touch when a table near you comes together — five people
+      picked because of what you just told us.
+      ${missed ? `<br /><span style="opacity:.65">(${missed} rapid-fire call${missed>1?"s":""} ran out — that tells us something too.)</span>` : ""}</p>
     ${preview ? `<button class="btn btn--ghost" id="peek">Preview mode: see what would be sent</button><div class="dump" id="dump"></div>`
               : `<a class="btn btn--ghost" href="index.html">Back to TRYB</a>`}`;
-  fill.style.width = "100%";
   back.classList.remove("on");
 
   const peek = card.querySelector("#peek");
@@ -665,10 +876,8 @@ function renderDone(){
     const dump = card.querySelector("#dump");
     dump.classList.toggle("on");
     if (!dump.innerHTML){
-      const rows = [
-        ["Name", details.name], ["Email", details.email],
-        ["Phone", details.phone || "—"], ["City", details.city]
-      ].concat(QUESTIONS.map(q => [q.text, answerLabel(q)]));
+      const rows = [["Name", details.name], ["Email", details.email]]
+        .concat(QUESTIONS.map(q => [q.text, answerLabel(q)]));
       dump.innerHTML = "<table>" + rows.map(([k,v]) =>
         `<tr><td>${esc(k)}</td><td>${v === "—" ? '<span class="miss">no answer</span>' : esc(v)}</td></tr>`
       ).join("") + "</table>";
@@ -682,12 +891,12 @@ function renderDone(){
    ============================================================ */
 function pick(q, value, el){
   if (locked) return;
-  locked = true;                       // hold input while the answer registers
+  locked = true;
   clearTimer();
   answers[q.id] = value;
-  card.querySelectorAll(".dot,.choice").forEach(n => n.classList.remove("sel"));
+  card.querySelectorAll(".dot,.choice,.tile").forEach(n => n.classList.remove("sel"));
   el.classList.add("sel");
-  paintProgress();
+  paintProgress(true);
   saveDraft();
   setTimeout(() => { locked = false; go(step + 1); }, 340);
 }
@@ -695,28 +904,29 @@ function pick(q, value, el){
 function answerLabel(q){
   const a = answers[q.id];
   if (a === null || a === undefined || a === "") return "—";
-  if (q.type === "text")  return a;
+  if (Array.isArray(a)) return a.length ? a.map(i => q.options[i]).join("; ") : "—";
+  if (q.type === "text" || q.type === "date") return a;
   if (q.type === "scale") return a + " / " + q.max;
   return LETTERS[a] + " — " + q.options[a];
 }
 
-/* ---------- the 7-second clock ---------- */
+/* ---------- the rapid-fire clock ---------- */
 function startTimer(q){
   const wrap = card.querySelector("#timer");
   const bar  = card.querySelector("#tbar");
   const num  = card.querySelector("#tnum");
   requestAnimationFrame(() => wrap.classList.add("on"));
 
-  const end = performance.now() + TIMER_SECONDS * 1000;
+  const end = performance.now() + RAPID_SECONDS * 1000;
   const tick = now => {
     const left = Math.max(0, end - now);
-    bar.style.transform = `scaleX(${left / (TIMER_SECONDS * 1000)})`;
+    bar.style.transform = `scaleX(${left / (RAPID_SECONDS * 1000)})`;
     num.textContent = Math.ceil(left / 1000);
-    wrap.classList.toggle("warn", left <= 2000);
+    wrap.classList.toggle("warn", left <= 3000);
     if (left <= 0){
       ticker = null;
       answers[q.id] = null;              // ran out — recorded as a non-answer
-      paintProgress();
+      paintProgress(true);
       saveDraft();
       go(step + 1);
       return;
@@ -731,15 +941,13 @@ function clearTimer(){
 }
 
 /* ============================================================
-   6 · SUBMIT
+   6 · JOIN THE WAITLIST
    ============================================================ */
 function validate(){
   let ok = true;
   const bad = id => { card.querySelector("#f-" + id).classList.add("bad"); ok = false; };
   if (!details.name.trim()) bad("name");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(details.email.trim())) bad("email");
-  if (details.phone.trim() && !/^[+\d][\d\s()-]{6,}$/.test(details.phone.trim())) bad("phone");
-  if (!details.city) bad("city");
   return ok;
 }
 
@@ -750,8 +958,6 @@ function payload(){
     submittedAt: new Date().toISOString(),
     name: details.name.trim(),
     email: details.email.trim(),
-    phone: details.phone.trim(),
-    city: details.city,
     answers: QUESTIONS.map(q => ({ id:q.id, question:q.text, answer:answerLabel(q) })),
     timedOut: QUESTIONS.filter(q => answers[q.id] === null).length,
     durationSeconds: Math.round((Date.now() - startedAt) / 1000)
@@ -761,39 +967,28 @@ function payload(){
 async function submit(){
   if (sending) return;
   const status = card.querySelector("#status");
-  if (!validate()){
-    status.textContent = "A couple of fields need a look.";
-    return;
-  }
+  if (!validate()){ status.textContent = "A couple of fields need a look."; return; }
 
-  // No endpoint configured yet — go straight to the finish screen in preview mode.
-  if (!SHEET_ENDPOINT){
-    finished = true;
-    clearDraft();
-    go(STEPS.length - 1);
-    return;
+  if (!SHEET_ENDPOINT){                 // preview mode
+    finished = true; clearDraft(); go(STEPS.length - 1); return;
   }
 
   sending = true;
   const btn = card.querySelector("#submit");
   btn.disabled = true;
-  btn.innerHTML = "Sending…";
+  btn.innerHTML = "Joining…";
   status.textContent = "";
 
   try {
     // text/plain keeps this a "simple" request, so the browser skips the CORS
     // preflight that Apps Script cannot answer.
     const res  = await fetch(SHEET_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify(payload())
     });
     const data = await res.json().catch(() => ({ ok: res.ok }));
     if (!data.ok) throw new Error(data.error || "The sheet turned it down.");
-
-    finished = true;
-    clearDraft();
-    sending = false;
+    finished = true; clearDraft(); sending = false;
     go(STEPS.length - 1);
   } catch (err) {
     sending = false;
@@ -813,29 +1008,34 @@ document.addEventListener("keydown", e => {
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
 
   if (e.key === "Enter"){
-    if (s.kind === "intro" || s.kind === "gut"){ e.preventDefault(); go(step + 1); return; }
+    if (s.kind === "intro" || s.kind === "card"){ e.preventDefault(); go(step + 1); return; }
     if (s.kind === "details"){ e.preventDefault(); submit(); return; }
-    if (s.kind === "q" && s.q.type === "text"){ e.preventDefault(); commitText(s.q); return; }
+    if (s.kind === "q"){
+      if (s.q.type === "text"){ e.preventDefault(); commitText(s.q); return; }
+      if (s.q.type === "date"){ e.preventDefault(); commitDate(s.q); return; }
+      if (s.q.type === "multi" && (answers[s.q.id] || []).length){ e.preventDefault(); go(step + 1); return; }
+    }
   }
   if (typing) return;                       // never hijack keys while a field has focus
 
   if ((e.key === "ArrowLeft" || e.key === "Backspace") && step > 0 && s.kind !== "done"){
     e.preventDefault(); go(step - 1); return;
   }
-  if (s.kind !== "q" || s.q.type === "text") return;
+  if (s.kind !== "q") return;
+  const q = s.q;
 
-  if (s.q.type === "scale"){
+  if (q.type === "scale"){
     // A 0–10 scale cannot be keyed unambiguously (1 vs 10), so it is click-only.
     const n = Number(e.key);
-    if (steps(s.q) <= 10 && e.key.length === 1 && n >= lo(s.q) && n <= s.q.max){
+    if (steps(q) <= 10 && e.key.length === 1 && n >= lo(q) && n <= q.max){
       const el = card.querySelector(`.dot[data-v="${n}"]`);
-      if (el) pick(s.q, n, el);
+      if (el) pick(q, n, el);
     }
-  } else {
+  } else if (q.type === "choice" || q.type === "rapid"){
     const i = LETTERS.indexOf(e.key.toUpperCase());
-    if (i > -1 && i < s.q.options.length){
-      const el = card.querySelector(`.choice[data-v="${i}"]`);
-      if (el) pick(s.q, i, el);
+    if (i > -1 && i < q.options.length){
+      const el = card.querySelector(`[data-v="${i}"]`);
+      if (el) pick(q, i, el);
     }
   }
 });
@@ -844,12 +1044,14 @@ back.onclick = () => { if (step > 0) go(step - 1); };
 
 /* ---------- boot ---------- */
 (() => {
-  const d = loadDraft();
-  if (d){
-    answers   = d.answers || {};
-    details   = Object.assign(details, d.details || {});
-    startedAt = d.startedAt || Date.now();
-  }
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (d){
+      answers   = d.answers || {};
+      details   = Object.assign(details, d.details || {});
+      startedAt = d.startedAt || Date.now();
+    }
+  } catch (e) {}
   render();                     // always open on the intro, which offers to resume
   card.classList.add("is-in");
 })();

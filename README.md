@@ -52,37 +52,81 @@ is fixed and permanent; it gains a translucent dark bar once you scroll.
 Slide 1 currently uses a darkened brand photo. To use a real film, swap the
 `.slide--cine .slide__bg > img` for a `<video autoplay muted loop playsinline>`.
 
-## Personality test (`personality-test.html`)
+## The form — find your table (`personality-test.html`)
 
-The join flow. One question per screen, a hairline progress bar with no counts,
-and a 7-second timer on the value-section multiple choice only. Self-contained —
-its own CSS and JS, no build step, no dependencies.
+The join flow: **61 questions across 7 sections**, transcribed from
+`TRYB_Form_Questions.docx`. One question per screen, self-contained (its own CSS
+and JS, no build step, no dependencies).
 
 Every "Join TRYB" entry point links to it: header nav, hero button, "take a
 personality test" (step 1), the first FAQ answer, and the footer.
 
-**Editing questions.** They live in the `QUESTIONS` array near the top of the
-`<script>`. Each entry is one of:
+### Progress is a walk to the table
+
+Instead of a bar or a counter, a fixed strip along the bottom shows a round
+table with five people and **one empty seat**. Each answer moves your token
+along a dotted path toward it, and the caption changes as you go — *setting
+out → on your way → getting closer → almost there → one seat away*. Answer the
+last question and you arrive: the empty seat fills, the five greet you, and the
+caption reads *you're at the table*. No numbers anywhere.
+
+### Sections
+
+| Section | Questions | Type |
+|---|---|---|
+| I see myself as someone who | 8 | scale 0–7 |
+| How strongly do you agree | 6 | scale 0–7 |
+| Where do you really land | 8 | single choice, **untimed** |
+| How well do you know yourself | 10 | scale 0–7, custom end labels |
+| A little more about you | 6 | multi-select |
+| Rapid fire | 7 | two tiles, **10-second clock** |
+| Essentials | 16 | mixed |
+
+Rapid fire is the only timed part. When its clock runs out the answer is
+recorded as blank and the form moves on. Revisiting a rapid-fire question via
+Back does not restart the clock.
+
+A short card introduces each section where the way you answer changes. **The
+"Join the waitlist" button appears once, on the final screen** — never after a
+section.
+
+### Editing questions
+
+They live in the `QUESTIONS` array near the top of the `<script>`:
 
 ```js
-{ id:"b1", part:0, type:"scale",  max:5, text:"…" }              // 1–5, 1–7
-{ id:"l1", part:3, type:"scale",  min:0, max:10, text:"…" }      // 0–10
-{ id:"c1", part:2, type:"choice", timed:true, text:"…",          // A–F
-  options:["…","…"] }
-{ id:"l3", part:3, type:"text",   text:"…", placeholder:"…" }    // short answer
+{ id:"s1",  s:0, type:"scale",  min:0, max:7, text:"…" }        // 0–7, 0–10
+{ id:"w1",  s:2, type:"choice", text:"…", options:["…","…"] }   // A–F, untimed
+{ id:"r1",  s:5, type:"rapid",  text:"…", options:["…","…"] }   // two tiles, timed
+{ id:"h1",  s:4, type:"multi",  text:"…", options:[…] }         // pick any number
+{ id:"e3",  s:6, type:"text",   text:"…", placeholder:"…" }     // short answer
+{ id:"e8",  s:6, type:"date",   text:"…" }                      // date of birth
 ```
 
-`part` indexes into `PARTS` (the section labels), `timed:true` turns on the
-7-second clock, `optional:true` lets a text question be skipped, and an optional
-`labels:["…","…","…"]` overrides the disagree/neutral/agree captions on a scale.
-Adding or removing questions needs no other change — the progress bar and its
-section ticks recompute from `QUESTIONS`.
+`s` indexes into `SECTIONS`, `labels:["…","…"]` or `["…","…","…"]` overrides a
+scale's end captions, and `SECTION_CARDS` holds the interstitials. Adding or
+removing questions needs no other change — the walk recomputes from `QUESTIONS`.
 
-Scales up to ten steps can be answered with the number keys; an 11-step 0–10
-scale is click-only, since `1` and `10` cannot be told apart on keydown.
+Scales up to ten steps take the number keys; the 0–10 scales are click-only,
+since `1` and `10` cannot be told apart on keydown. Answers persist through a
+refresh (`localStorage`); the intro then offers to resume or start over.
 
-Answers survive a refresh (saved to `localStorage`); the intro then offers to
-resume or start over. The draft is discarded once a response is sent.
+### Choices made while transcribing
+
+- **Rapid-fire titles were blank** in the form ("Type a question" placeholder) —
+  the seven titles here are written to fit the answer pairs and need your sign-off.
+- **Name and email are not in the Tally form.** A waitlist with no way to reach
+  anyone does not work, so the final screen asks for both. Remove
+  `{ kind:"details" }` from `STEPS` if you'd rather not.
+- **Date of birth gates at 18+** (`MIN_AGE`), given the alcohol and smoking
+  questions. Set it to `0` to remove the gate.
+- **Dietary preferences and preferable cuisines are multi-select**; the form has
+  them single-select, but both are worded plurally. Change `type:"multi"` to
+  `type:"choice"` to revert.
+- Fixed from the source: `1 yeear` → `1 year`, "How long have been living" →
+  "How long have you been living", and the placeholder `Option 13` in the
+  hobbies list was dropped.
+- Budget options are set as `₹1,000 – ₹2,000` rather than `Rs. 1000 - Rs. 2000`.
 
 ### Sending responses to Google Sheets
 
