@@ -52,6 +52,54 @@ is fixed and permanent; it gains a translucent dark bar once you scroll.
 Slide 1 currently uses a darkened brand photo. To use a real film, swap the
 `.slide--cine .slide__bg > img` for a `<video autoplay muted loop playsinline>`.
 
+## Personality test (`personality-test.html`)
+
+The join flow. One question per screen, a hairline progress bar with no counts,
+and a 7-second timer on the value-section multiple choice only. Self-contained —
+its own CSS and JS, no build step, no dependencies.
+
+Every "Join TRYB" entry point links to it: header nav, hero button, "take a
+personality test" (step 1), the first FAQ answer, and the footer.
+
+**Editing questions.** They live in the `QUESTIONS` array near the top of the
+`<script>`. Each entry is one of:
+
+```js
+{ id:"b1", part:0, type:"scale",  max:5, text:"…" }              // 1–5 or 1–7
+{ id:"c1", part:2, type:"choice", timed:true, text:"…",          // A/B/C/D
+  options:["…","…"] }
+```
+
+`part` indexes into `PARTS` (the section labels), `timed:true` turns on the
+7-second clock, and an optional `labels:["…","…","…"]` overrides the
+disagree/neutral/agree captions for one scale question. Adding or removing
+questions needs no other change — the progress bar and section ticks recompute.
+
+Answers survive a refresh (saved to `localStorage`); the intro then offers to
+resume or start over. The draft is discarded once a response is sent.
+
+### Sending responses to Google Sheets
+
+1. Create the spreadsheet, then **Extensions ▸ Apps Script**.
+2. Replace `Code.gs` with `apps-script/Code.gs` from this repo and save.
+3. **Deploy ▸ New deployment ▸ Web app** — *Execute as* **Me**, *Who has access*
+   **Anyone**. Authorise it when Google asks.
+4. Copy the `/exec` URL and paste it into `SHEET_ENDPOINT` at the top of the
+   `<script>` in `personality-test.html`.
+
+Until that URL is set the form runs in **preview mode**: nothing is sent, and
+the finish screen shows exactly what would have been recorded.
+
+A `Responses` tab is created on the first submission. Columns are built from the
+payload and matched by header name after that, so adding questions later just
+adds columns — existing rows stay aligned. `SUBMIT_TOKEN` must match on both
+sides; it plus a honeypot field keeps casual bots out. Note that the endpoint URL
+is visible in the page source, which is inherent to posting from a static site —
+the token deters scripted junk, it does not authenticate anyone.
+
+Re-deploy the Apps Script (**Deploy ▸ Manage deployments ▸ edit ▸ Version: New**)
+after any change to `Code.gs`, or the live URL keeps running the old version.
+
 ## Run locally
 
 ```bash

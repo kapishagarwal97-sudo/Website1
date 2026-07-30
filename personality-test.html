@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TRYB — Personality Test (preview)</title>
+<title>TRYB — Personality Test</title>
+<meta name="description" content="A few questions, so we can seat you with the right five." />
+<link rel="icon" href="assets/logo.png" type="image/png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
    TRYB — personality test
-   Standalone preview. Palette + type borrowed from the site.
+   Palette and type follow css/style.css.
    ============================================================ */
 :root{
   --ink:#1e2a44;
@@ -43,13 +45,15 @@ body{
 ::selection{background:var(--ember);color:var(--cream)}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
-/* soft light so the canvas isn't flat */
+/* two slow warm lights, so the canvas is never flat */
 body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(60vw 60vw at 78% -10%, rgba(176,122,75,.16), transparent 60%),
     radial-gradient(50vw 50vw at 8% 108%, rgba(235,100,46,.10), transparent 62%);
+  animation:drift 26s ease-in-out infinite alternate;
 }
+@keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-2%,1.5%,0)}}
 
 /* ---------- progress ---------- */
 .progress{
@@ -61,10 +65,7 @@ body::before{
   background:linear-gradient(90deg,var(--bronze),var(--ember));
   transition:width .55s var(--ease);
 }
-.progress__tick{
-  position:absolute;top:0;width:1px;height:100%;
-  background:var(--ink);opacity:.9;
-}
+.progress__tick{position:absolute;top:0;width:1px;height:100%;background:var(--ink);opacity:.9}
 
 /* ---------- shell ---------- */
 .wrap{
@@ -74,60 +75,35 @@ body::before{
   padding:clamp(1.1rem,3vw,2rem) var(--gutter);
 }
 .top{display:flex;align-items:center;justify-content:space-between;gap:1rem}
-.brand{font-family:var(--font-script);font-size:1.5rem;color:var(--cream);line-height:1}
-.part{
-  font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--sand);opacity:.55;
-}
+.brand{display:flex;align-items:center}
+.brand img{height:30px;width:auto}
+.part{font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;color:var(--sand);opacity:.55}
 
-.stage{
-  display:flex;align-items:center;
-  width:100%;max-width:760px;margin:0 auto;
-  padding:clamp(1.5rem,5vh,3rem) 0;
-}
-.card{width:100%}
+.stage{display:flex;align-items:center;width:100%;max-width:760px;margin:0 auto;padding:clamp(1.5rem,5vh,3rem) 0}
+.card{width:100%;transition:opacity .28s ease,transform .28s var(--ease),filter .28s ease}
 .card.is-out{opacity:0;transform:translateY(-18px);filter:blur(2px)}
 .card.is-in{animation:enter .6s var(--ease) both}
 @keyframes enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-.card{transition:opacity .28s ease,transform .28s var(--ease),filter .28s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
-.eyebrow{
-  font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;
-  color:var(--bronze);margin-bottom:1.1rem;
-}
+.eyebrow{font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--bronze);margin-bottom:1.1rem}
 .q{
   font-family:var(--font-display);font-weight:400;
   font-size:clamp(1.55rem,4.2vw,2.6rem);
-  line-height:1.14;letter-spacing:-.01em;
-  max-width:20ch;
+  line-height:1.14;letter-spacing:-.01em;max-width:20ch;
 }
-.q em{font-style:italic;color:var(--sand)}
-.lede{
-  margin-top:1.1rem;max-width:46ch;
-  color:var(--sand);font-size:clamp(.95rem,1.5vw,1.05rem);
-}
+.lede{margin-top:1.1rem;max-width:46ch;color:var(--sand);font-size:clamp(.95rem,1.5vw,1.05rem)}
 
 /* ---------- timer ---------- */
 .timer{
-  display:flex;align-items:center;gap:.7rem;
-  margin-top:1.4rem;
+  display:flex;align-items:center;gap:.7rem;margin-top:1.4rem;
   opacity:0;transform:translateY(6px);
   transition:opacity .4s ease,transform .4s var(--ease);
 }
 .timer.on{opacity:1;transform:none}
-.timer__track{
-  position:relative;flex:1;height:1px;max-width:320px;
-  background:rgba(215,206,195,.2);
-}
-.timer__bar{
-  position:absolute;inset:0 auto 0 0;width:100%;
-  background:var(--sand);transform-origin:left center;
-}
-.timer__num{
-  font-family:var(--font-display);font-size:.85rem;
-  color:var(--sand);opacity:.7;min-width:1.4ch;
-  font-variant-numeric:tabular-nums;
-}
+.timer__track{position:relative;flex:1;height:1px;max-width:320px;background:rgba(215,206,195,.2)}
+.timer__bar{position:absolute;inset:0 auto 0 0;width:100%;background:var(--sand);transform-origin:left center}
+.timer__num{font-family:var(--font-display);font-size:.85rem;color:var(--sand);opacity:.7;min-width:1.4ch;font-variant-numeric:tabular-nums}
 .timer.warn .timer__bar{background:var(--ember)}
 .timer.warn .timer__num{color:var(--ember);opacity:1}
 
@@ -135,65 +111,45 @@ body::before{
 .scale{margin-top:clamp(2rem,5vh,3rem);width:100%;--dot-base:38px}
 .scale--5{max-width:440px;--dot-step:9px}
 .scale--7{max-width:580px;--dot-step:6px}
-.dots{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:clamp(.3rem,1.6vw,.75rem);
-}
+.dots{display:flex;align-items:center;justify-content:space-between;gap:clamp(.3rem,1.6vw,.75rem)}
 .dot{
   position:relative;flex:0 0 auto;
   /* --k = distance from the middle, so the extremes read heavier */
   width:calc(var(--dot-base) + var(--k) * var(--dot-step));
   aspect-ratio:1;
-  display:grid;place-items:center;
-  border-radius:50%;
+  display:grid;place-items:center;border-radius:50%;
   border:1px solid rgba(215,206,195,.35);
   color:var(--sand);
   font-family:var(--font-display);font-size:.95rem;
-  transition:transform .35s var(--ease),background .25s ease,
-             border-color .25s ease,color .25s ease;
+  animation:rise .45s var(--ease) both;animation-delay:calc(var(--i) * 45ms);
+  transition:transform .35s var(--ease),background .25s ease,border-color .25s ease,color .25s ease;
 }
-.dot:hover,.dot:focus-visible{
-  border-color:var(--cream);color:var(--cream);
-  transform:translateY(-3px) scale(1.06);outline:none;
-}
-.dot.sel{
-  background:var(--ember);border-color:var(--ember);color:var(--cream);
-  transform:scale(1.08);
-}
+.dot:hover,.dot:focus-visible{border-color:var(--cream);color:var(--cream);transform:translateY(-3px) scale(1.06);outline:none}
+.dot.sel{background:var(--ember);border-color:var(--ember);color:var(--cream);transform:scale(1.08)}
 .dot.sel::after{
   content:"";position:absolute;inset:-7px;border-radius:50%;
-  border:1px solid rgba(235,100,46,.4);
-  animation:ping .5s var(--ease) both;
+  border:1px solid rgba(235,100,46,.4);animation:ping .5s var(--ease) both;
 }
 @keyframes ping{from{transform:scale(.8);opacity:1}to{transform:scale(1);opacity:1}}
 
 .ends{
-  display:flex;justify-content:space-between;gap:1rem;
-  margin-top:1.15rem;
-  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--sand);opacity:.55;
+  display:flex;justify-content:space-between;gap:1rem;margin-top:1.15rem;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sand);opacity:.55;
 }
 .ends span:nth-child(2){text-align:center}
 .ends span:last-child{text-align:right}
 
 /* ---------- choices ---------- */
-.choices{
-  margin-top:clamp(1.8rem,4.5vh,2.6rem);
-  display:grid;gap:.6rem;max-width:660px;
-}
+.choices{margin-top:clamp(1.8rem,4.5vh,2.6rem);display:grid;gap:.6rem;max-width:660px}
 .choice{
   display:flex;align-items:center;gap:1rem;width:100%;
   padding:1rem 1.15rem;text-align:left;
-  border:1px solid rgba(215,206,195,.22);
-  border-radius:2px;
-  color:var(--cream);
-  font-size:clamp(.95rem,1.6vw,1.08rem);line-height:1.35;
+  border:1px solid rgba(215,206,195,.22);border-radius:2px;
+  color:var(--cream);font-size:clamp(.95rem,1.6vw,1.08rem);line-height:1.35;
+  animation:rise .5s var(--ease) both;animation-delay:calc(var(--i) * 60ms);
   transition:border-color .25s ease,background .25s ease,transform .3s var(--ease);
 }
-.choice:hover,.choice:focus-visible{
-  border-color:var(--sand);background:rgba(247,242,234,.04);
-  transform:translateX(5px);outline:none;
-}
+.choice:hover,.choice:focus-visible{border-color:var(--sand);background:rgba(247,242,234,.04);transform:translateX(5px);outline:none}
 .choice__key{
   flex:0 0 auto;width:26px;height:26px;display:grid;place-items:center;
   border:1px solid rgba(215,206,195,.35);border-radius:50%;
@@ -204,45 +160,72 @@ body::before{
 .choice.sel .choice__key{background:var(--ember);border-color:var(--ember);color:var(--cream)}
 
 /* ---------- intro / interstitial / done ---------- */
-.big{
-  font-family:var(--font-display);font-weight:400;
-  font-size:clamp(2rem,6vw,3.6rem);line-height:1.06;letter-spacing:-.02em;
-}
+.big{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,6vw,3.6rem);line-height:1.06;letter-spacing:-.02em}
 .rule{width:44px;height:1px;background:var(--bronze);margin:1.6rem 0}
 .notes{display:grid;gap:.55rem;margin-top:1.6rem;max-width:44ch}
-.note{
-  display:flex;gap:.75rem;color:var(--sand);
-  font-size:.92rem;line-height:1.5;
-}
+.note{display:flex;gap:.75rem;color:var(--sand);font-size:.92rem;line-height:1.5}
 .note b{color:var(--bronze);font-family:var(--font-display);font-weight:400}
 .btn{
   display:inline-flex;align-items:center;gap:.7rem;margin-top:2.2rem;
   padding:.85rem 1.7rem;border-radius:999px;
   background:var(--ember);color:var(--cream);
   font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
-  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease),opacity .25s ease;
 }
 .btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(235,100,46,.28)}
+.btn[disabled]{opacity:.5;pointer-events:none}
 .btn--ghost{background:none;border:1px solid rgba(215,206,195,.35);color:var(--sand)}
 .btn--ghost:hover{border-color:var(--cream);color:var(--cream);box-shadow:none}
+.btn--sm{margin-top:1.2rem;padding:.7rem 1.3rem;font-size:.72rem}
+
+/* ---------- details ---------- */
+.fields{display:grid;gap:1.5rem;margin-top:2.2rem;max-width:460px}
+.field label{display:block;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);opacity:.65;margin-bottom:.5rem}
+.field input{
+  width:100%;padding:.55rem 0;
+  background:none;border:none;border-bottom:1px solid rgba(215,206,195,.3);
+  color:var(--cream);font-family:var(--font-display);font-size:1.15rem;font-weight:400;
+  border-radius:0;                                  /* iOS strips its own rounding */
+  transition:border-color .25s ease;
+}
+.field input::placeholder{color:rgba(215,206,195,.3)}
+.field input:focus{outline:none;border-bottom-color:var(--ember)}
+.field.bad input{border-bottom-color:var(--ember)}
+.field .err{display:none;margin-top:.4rem;font-size:.75rem;color:var(--ember)}
+.field.bad .err{display:block}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{
+  padding:.5rem 1rem;border-radius:999px;
+  border:1px solid rgba(215,206,195,.28);color:var(--sand);font-size:.85rem;
+  transition:border-color .25s ease,background .25s ease,color .25s ease,transform .3s var(--ease);
+}
+.chip:hover{border-color:var(--cream);color:var(--cream);transform:translateY(-2px)}
+.chip.sel{background:var(--ember);border-color:var(--ember);color:var(--cream)}
+
+.fineprint{margin-top:1.6rem;max-width:44ch;font-size:.78rem;line-height:1.5;color:var(--sand);opacity:.5}
+.status{margin-top:1.2rem;font-size:.85rem;color:var(--ember);max-width:44ch}
+
+/* ---------- preview panel (only when no endpoint is configured) ---------- */
+.dump{
+  margin-top:1.8rem;max-height:40vh;overflow:auto;
+  border:1px solid rgba(215,206,195,.2);border-radius:2px;
+  padding:1rem;font-size:.78rem;color:var(--sand);display:none;
+}
+.dump.on{display:block}
+.dump table{width:100%;border-collapse:collapse}
+.dump td{padding:.32rem 0;vertical-align:top;border-bottom:1px solid rgba(215,206,195,.1)}
+.dump td:last-child{text-align:right;color:var(--cream);white-space:nowrap;padding-left:1rem}
+.dump .miss{color:var(--ember)}
 
 /* ---------- footer ---------- */
-.foot{
-  display:flex;align-items:center;justify-content:space-between;gap:1rem;
-  font-size:.7rem;letter-spacing:.1em;color:var(--sand);opacity:.5;
-}
-.back{
-  display:inline-flex;align-items:center;gap:.5rem;
-  text-transform:uppercase;letter-spacing:.16em;font-size:.68rem;
-  transition:opacity .25s ease;opacity:0;pointer-events:none;
-}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:1rem;font-size:.7rem;letter-spacing:.1em;color:var(--sand);opacity:.5}
+.back{display:inline-flex;align-items:center;gap:.5rem;text-transform:uppercase;letter-spacing:.16em;font-size:.68rem;transition:opacity .25s ease;opacity:0;pointer-events:none}
 .back.on{opacity:1;pointer-events:auto}
 .back:hover{color:var(--cream)}
-.hint kbd{
-  font-family:var(--font-sans);font-size:.66rem;
-  border:1px solid rgba(215,206,195,.3);border-radius:3px;
-  padding:.1rem .34rem;margin:0 .12rem;
-}
+.hint kbd{font-family:var(--font-sans);font-size:.66rem;border:1px solid rgba(215,206,195,.3);border-radius:3px;padding:.1rem .34rem;margin:0 .12rem}
+
 @media (max-width:640px){
   .hint{display:none}
   .part{display:none}                     /* the eyebrow already names the section */
@@ -254,20 +237,6 @@ body::before{
   .dot{font-size:.82rem}
   .ends{font-size:.58rem;letter-spacing:.06em}
 }
-
-/* ---------- demo panel (preview only) ---------- */
-.dump{
-  margin-top:1.8rem;max-height:34vh;overflow:auto;
-  border:1px solid rgba(215,206,195,.2);border-radius:2px;
-  padding:1rem;font-size:.78rem;color:var(--sand);
-  display:none;
-}
-.dump.on{display:block}
-.dump table{width:100%;border-collapse:collapse}
-.dump td{padding:.32rem 0;vertical-align:top;border-bottom:1px solid rgba(215,206,195,.1)}
-.dump td:last-child{text-align:right;color:var(--cream);white-space:nowrap;padding-left:1rem}
-.dump .miss{color:var(--ember)}
-
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
@@ -283,7 +252,7 @@ body::before{
 
 <div class="wrap">
   <header class="top">
-    <div class="brand">tryb</div>
+    <a class="brand" href="index.html" aria-label="TRYB home"><img src="assets/logo.png" alt="tryb" /></a>
     <div class="part" id="partLabel"></div>
   </header>
 
@@ -299,10 +268,24 @@ body::before{
 
 <script>
 /* ============================================================
-   Questions
+   1 · SETUP
    ============================================================ */
-const SCALE5 = ["Strongly disagree","Neutral","Strongly agree"];
-const SCALE7 = ["Strongly disagree","Neutral","Strongly agree"];
+
+/* Paste the Apps Script Web App /exec URL here (see apps-script/Code.gs).
+   While it is empty the form runs in preview mode: nothing is sent anywhere
+   and the finish screen shows you exactly what would have been recorded. */
+const SHEET_ENDPOINT = "";
+
+/* Must match SUBMIT_TOKEN in Code.gs. */
+const SUBMIT_TOKEN = "tryb-2026";
+
+const TIMER_SECONDS = 7;
+const CITIES = ["Delhi","Gurgaon","Noida","Lucknow","Somewhere else"];
+
+/* ============================================================
+   2 · QUESTIONS
+   ============================================================ */
+const SCALE = ["Strongly disagree","Neutral","Strongly agree"];
 
 const QUESTIONS = [
   /* ---- Part one — 1 to 5 ---- */
@@ -356,23 +339,28 @@ const PARTS = [
   { label:"Value section · Where do you really land" }
 ];
 
-const TIMER_SECONDS = 7;
-
 /* ============================================================
-   Flow: intro -> questions -> interstitial before part 3 -> done
+   3 · FLOW
    ============================================================ */
 const STEPS = [{ kind:"intro" }];
 QUESTIONS.forEach((q,i) => {
   if (i > 0 && q.part === 2 && QUESTIONS[i-1].part !== 2) STEPS.push({ kind:"gut" });
   STEPS.push({ kind:"q", q });
 });
-STEPS.push({ kind:"done" });
+STEPS.push({ kind:"details" }, { kind:"done" });
 
-const TOTAL = QUESTIONS.length;
-const answers = {};        // id -> value | null (timed out)
-let step = 0;
-let ticker = null;
-let locked = false;        // ignores input mid-transition, so nothing double-advances
+const TOTAL   = QUESTIONS.length;
+const LETTERS = ["A","B","C","D","E","F"];
+const STORE   = "tryb-test-v1";
+
+let answers = {};          // question id -> value, or null when the clock ran out
+let details = { name:"", email:"", phone:"", city:"" };
+let step    = 0;
+let ticker  = null;
+let locked  = false;       // ignores input mid-transition, so nothing double-advances
+let sending = false;
+let finished = false;      // once sent, nothing may write the draft back
+let startedAt = Date.now();
 
 const card  = document.getElementById("card");
 const fill  = document.getElementById("fill");
@@ -380,7 +368,7 @@ const back  = document.getElementById("back");
 const hint  = document.getElementById("hint");
 const label = document.getElementById("partLabel");
 
-/* part boundary ticks on the progress bar */
+/* part boundaries on the progress bar */
 (() => {
   const counts = [0,0,0];
   QUESTIONS.forEach(q => counts[q.part]++);
@@ -388,10 +376,25 @@ const label = document.getElementById("partLabel");
   document.getElementById("tick2").style.left = ((counts[0] + counts[1]) / TOTAL * 100) + "%";
 })();
 
+/* ---------- draft, so a refresh mid-test is not fatal ---------- */
+function saveDraft(){
+  if (finished) return;
+  try { localStorage.setItem(STORE, JSON.stringify({ answers, details, step, startedAt })); } catch (e) {}
+}
+function loadDraft(){
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (!d || typeof d.step !== "number") return null;
+    return d;
+  } catch (e) { return null; }
+}
+function clearDraft(){ try { localStorage.removeItem(STORE); } catch (e) {} }
+
 const answeredCount = () => Object.keys(answers).length;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 
 function paintProgress(){
-  fill.style.width = (answeredCount() / TOTAL * 100).toFixed(2) + "%";
+  fill.style.width = (Math.min(answeredCount(), TOTAL) / TOTAL * 100).toFixed(2) + "%";
 }
 
 function go(next){
@@ -401,9 +404,9 @@ function go(next){
   card.classList.add("is-out");
   setTimeout(() => {
     step = next;
+    saveDraft();
     render();
-    card.classList.remove("is-out");
-    card.classList.remove("is-in");
+    card.classList.remove("is-out","is-in");
     void card.offsetWidth;
     card.classList.add("is-in");
     locked = false;
@@ -417,26 +420,46 @@ function render(){
   hint.innerHTML = "";
   paintProgress();
 
-  if (s.kind === "intro")  return renderIntro();
-  if (s.kind === "gut")    return renderGut();
-  if (s.kind === "done")   return renderDone();
+  if (s.kind === "intro")   return renderIntro();
+  if (s.kind === "gut")     return renderGut();
+  if (s.kind === "details") return renderDetails();
+  if (s.kind === "done")    return renderDone();
   return s.q.type === "scale" ? renderScale(s.q) : renderChoice(s.q);
 }
 
-/* ---------- screens ---------- */
+/* ============================================================
+   4 · SCREENS
+   ============================================================ */
 function renderIntro(){
+  const resumable = answeredCount() > 0;
   card.innerHTML = `
     <p class="eyebrow">Before you join</p>
     <h1 class="big">A few questions,<br />so we can seat you<br />with the right five.</h1>
     <div class="rule"></div>
     <div class="notes">
-      <p class="note"><b>01</b> Twenty-three questions. Around four minutes.</p>
+      <p class="note"><b>01</b> ${TOTAL} questions. Around four minutes.</p>
       <p class="note"><b>02</b> One at a time. There are no right answers.</p>
       <p class="note"><b>03</b> The last section is timed — seven seconds each. Answer on instinct.</p>
     </div>
-    <button class="btn" id="start">Begin <span>&rarr;</span></button>`;
-  card.querySelector("#start").onclick = () => go(step + 1);
+    <button class="btn" id="start">${resumable ? "Pick up where you left off" : "Begin"} <span>&rarr;</span></button>
+    ${resumable ? `<div><button class="btn btn--ghost btn--sm" id="restart">Start over</button></div>` : ""}`;
+
+  card.querySelector("#start").onclick = () => go(resumable ? firstUnanswered() : step + 1);
+  const r = card.querySelector("#restart");
+  if (r) r.onclick = () => {
+    answers = {}; details = { name:"", email:"", phone:"", city:"" };
+    startedAt = Date.now(); clearDraft(); paintProgress(); render();
+  };
   hint.innerHTML = `press <kbd>enter</kbd> to begin`;
+}
+
+/** Index of the first step whose question has no answer yet. */
+function firstUnanswered(){
+  for (let i = 1; i < STEPS.length; i++){
+    const s = STEPS[i];
+    if (s.kind === "q" && !(s.q.id in answers)) return i;
+  }
+  return STEPS.findIndex(s => s.kind === "details");
 }
 
 function renderGut(){
@@ -451,86 +474,143 @@ function renderGut(){
 }
 
 function renderScale(q){
-  const labels = q.labels || (q.max === 5 ? SCALE5 : SCALE7);
+  const labels = q.labels || SCALE;
   const mid = (q.max + 1) / 2;
   const dots = Array.from({ length:q.max }, (_,i) => {
     const v = i + 1;
     const sel = answers[q.id] === v ? " sel" : "";
-    return `<button class="dot${sel}" data-v="${v}" style="--k:${Math.abs(v - mid)}"
+    return `<button class="dot${sel}" data-v="${v}" style="--k:${Math.abs(v - mid)};--i:${i}"
               aria-label="${v} out of ${q.max}">${v}</button>`;
   }).join("");
 
   card.innerHTML = `
-    <p class="eyebrow">${PARTS[q.part].label.split(" · ")[1]}</p>
-    <h2 class="q">${q.text}</h2>
+    <p class="eyebrow">${esc(PARTS[q.part].label.split(" · ")[1])}</p>
+    <h2 class="q">${esc(q.text)}</h2>
     <div class="scale scale--${q.max}">
       <div class="dots">${dots}</div>
-      <div class="ends"><span>${labels[0]}</span><span>${labels[1]}</span><span>${labels[2]}</span></div>
+      <div class="ends"><span>${esc(labels[0])}</span><span>${esc(labels[1])}</span><span>${esc(labels[2])}</span></div>
     </div>`;
 
-  card.querySelectorAll(".dot").forEach(b => {
-    b.onclick = () => pick(q, Number(b.dataset.v), b);
-  });
+  card.querySelectorAll(".dot").forEach(b => { b.onclick = () => pick(q, Number(b.dataset.v), b); });
   hint.innerHTML = `<kbd>1</kbd>–<kbd>${q.max}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
 }
 
 function renderChoice(q){
-  const letters = ["A","B","C","D"];
   const opts = q.options.map((o,i) => {
     const sel = answers[q.id] === i ? " sel" : "";
-    return `<button class="choice${sel}" data-v="${i}">
-              <span class="choice__key">${letters[i]}</span><span>${o}</span>
+    return `<button class="choice${sel}" data-v="${i}" style="--i:${i}">
+              <span class="choice__key">${LETTERS[i]}</span><span>${esc(o)}</span>
             </button>`;
   }).join("");
 
   const answered = q.id in answers;   // revisits are untimed — the clock only runs once
   card.innerHTML = `
     <p class="eyebrow">Where do you really land</p>
-    <h2 class="q">${q.text}</h2>
+    <h2 class="q">${esc(q.text)}</h2>
     <div class="timer" id="timer">
       <div class="timer__track"><div class="timer__bar" id="tbar"></div></div>
       <div class="timer__num" id="tnum">${TIMER_SECONDS}</div>
     </div>
     <div class="choices">${opts}</div>`;
 
-  card.querySelectorAll(".choice").forEach(b => {
-    b.onclick = () => pick(q, Number(b.dataset.v), b);
-  });
-  hint.innerHTML = `<kbd>${letters.slice(0, q.options.length).join("</kbd> <kbd>")}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+  card.querySelectorAll(".choice").forEach(b => { b.onclick = () => pick(q, Number(b.dataset.v), b); });
+  hint.innerHTML = `<kbd>${LETTERS.slice(0, q.options.length).join("</kbd> <kbd>")}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
 
   if (q.timed && !answered) startTimer(q);
 }
 
+function renderDetails(){
+  const chips = CITIES.map(c =>
+    `<button type="button" class="chip${details.city === c ? " sel" : ""}" data-city="${esc(c)}">${esc(c)}</button>`
+  ).join("");
+
+  card.innerHTML = `
+    <p class="eyebrow">Last thing</p>
+    <h2 class="big">Where do we<br />send the invitation?</h2>
+    <form class="fields" id="form" novalidate>
+      <div class="field" id="f-name">
+        <label for="i-name">Your name</label>
+        <input id="i-name" name="name" type="text" autocomplete="name" placeholder="First and last" value="${esc(details.name)}" />
+        <p class="err">Please tell us your name.</p>
+      </div>
+      <div class="field" id="f-email">
+        <label for="i-email">Email</label>
+        <input id="i-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(details.email)}" />
+        <p class="err">That email doesn't look right.</p>
+      </div>
+      <div class="field" id="f-phone">
+        <label for="i-phone">Phone <span style="opacity:.6">(optional)</span></label>
+        <input id="i-phone" name="phone" type="tel" autocomplete="tel" placeholder="+91" value="${esc(details.phone)}" />
+        <p class="err">That number doesn't look right.</p>
+      </div>
+      <div class="field" id="f-city">
+        <label>Where are you?</label>
+        <div class="chips">${chips}</div>
+        <p class="err">Pick a city.</p>
+      </div>
+      <div class="hp"><label>Leave this empty<input id="i-hp" type="text" tabindex="-1" autocomplete="off" /></label></div>
+    </form>
+    <button class="btn" id="submit">Send it in <span>&rarr;</span></button>
+    <p class="fineprint">We use this only to match you to a table and send your invitation.
+      Nothing is shared with the other four before you both say yes.</p>
+    <p class="status" id="status"></p>`;
+
+  card.querySelectorAll(".chip").forEach(c => {
+    c.onclick = () => {
+      details.city = c.dataset.city;
+      card.querySelectorAll(".chip").forEach(x => x.classList.toggle("sel", x === c));
+      card.querySelector("#f-city").classList.remove("bad");
+      saveDraft();
+    };
+  });
+  ["name","email","phone"].forEach(k => {
+    const el = card.querySelector("#i-" + k);
+    el.oninput = () => {
+      details[k] = el.value;
+      card.querySelector("#f-" + k).classList.remove("bad");
+      saveDraft();
+    };
+  });
+  card.querySelector("#submit").onclick = submit;
+  card.querySelector("#form").onsubmit = e => { e.preventDefault(); submit(); };
+  hint.innerHTML = `<kbd>enter</kbd> to send`;
+}
+
 function renderDone(){
-  const missed = QUESTIONS.filter(q => answers[q.id] === null).length;
+  const missed  = QUESTIONS.filter(q => answers[q.id] === null).length;
+  const preview = !SHEET_ENDPOINT;
   card.innerHTML = `
     <p class="eyebrow">That's everything</p>
-    <h2 class="big">Thank you.<br />We'll take it<br />from here.</h2>
+    <h2 class="big">Thank you${details.name ? ", " + esc(details.name.split(" ")[0]) : ""}.<br />We'll take it<br />from here.</h2>
     <div class="rule"></div>
     <p class="lede">Your answers help us put you at a table with people you'll actually
       want to sit with. We'll be in touch with your first invitation.
       ${missed ? `<br /><span style="opacity:.65">(${missed} timed question${missed>1?"s":""} ran out — that's fine, it tells us something too.)</span>` : ""}</p>
-    <button class="btn btn--ghost" id="peek">Preview: see captured answers</button>
-    <div class="dump" id="dump"></div>`;
+    ${preview ? `<button class="btn btn--ghost" id="peek">Preview mode: see what would be sent</button><div class="dump" id="dump"></div>`
+              : `<a class="btn btn--ghost" href="index.html">Back to TRYB</a>`}`;
   fill.style.width = "100%";
+  back.classList.remove("on");
 
-  card.querySelector("#peek").onclick = () => {
+  const peek = card.querySelector("#peek");
+  if (peek) peek.onclick = () => {
     const dump = card.querySelector("#dump");
     dump.classList.toggle("on");
     if (!dump.innerHTML){
-      dump.innerHTML = "<table>" + QUESTIONS.map(q => {
-        const a = answers[q.id];
-        const v = a === null || a === undefined
-          ? `<span class="miss">no answer</span>`
-          : (q.type === "scale" ? `${a} / ${q.max}` : ["A","B","C","D"][a]);
-        return `<tr><td>${q.text}</td><td>${v}</td></tr>`;
-      }).join("") + "</table>";
+      const rows = [
+        ["Name", details.name], ["Email", details.email],
+        ["Phone", details.phone || "—"], ["City", details.city]
+      ].concat(QUESTIONS.map(q => [q.text, answerLabel(q)]));
+      dump.innerHTML = "<table>" + rows.map(([k,v]) =>
+        `<tr><td>${esc(k)}</td><td>${v === "—" ? '<span class="miss">no answer</span>' : esc(v)}</td></tr>`
+      ).join("") + "</table>";
     }
   };
   hint.innerHTML = "";
 }
 
-/* ---------- answering ---------- */
+/* ============================================================
+   5 · ANSWERING
+   ============================================================ */
 function pick(q, value, el){
   if (locked) return;
   locked = true;                       // hold input while the answer registers
@@ -539,10 +619,18 @@ function pick(q, value, el){
   card.querySelectorAll(".dot,.choice").forEach(n => n.classList.remove("sel"));
   el.classList.add("sel");
   paintProgress();
+  saveDraft();
   setTimeout(() => { locked = false; go(step + 1); }, 340);
 }
 
-/* ---------- 7-second timer ---------- */
+function answerLabel(q){
+  const a = answers[q.id];
+  if (a === null || a === undefined) return "—";
+  if (q.type === "scale") return a + " / " + q.max;
+  return LETTERS[a] + " — " + q.options[a];
+}
+
+/* ---------- the 7-second clock ---------- */
 function startTimer(q){
   const wrap = card.querySelector("#timer");
   const bar  = card.querySelector("#tbar");
@@ -559,6 +647,7 @@ function startTimer(q){
       ticker = null;
       answers[q.id] = null;              // ran out — recorded as a non-answer
       paintProgress();
+      saveDraft();
       go(step + 1);
       return;
     }
@@ -571,14 +660,94 @@ function clearTimer(){
   ticker = null;
 }
 
-/* ---------- keyboard ---------- */
+/* ============================================================
+   6 · SUBMIT
+   ============================================================ */
+function validate(){
+  let ok = true;
+  const bad = id => { card.querySelector("#f-" + id).classList.add("bad"); ok = false; };
+  if (!details.name.trim()) bad("name");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(details.email.trim())) bad("email");
+  if (details.phone.trim() && !/^[+\d][\d\s()-]{6,}$/.test(details.phone.trim())) bad("phone");
+  if (!details.city) bad("city");
+  return ok;
+}
+
+function payload(){
+  return {
+    token: SUBMIT_TOKEN,
+    website: (document.querySelector("#i-hp") || {}).value || "",   // honeypot
+    submittedAt: new Date().toISOString(),
+    name: details.name.trim(),
+    email: details.email.trim(),
+    phone: details.phone.trim(),
+    city: details.city,
+    answers: QUESTIONS.map(q => ({ id:q.id, question:q.text, answer:answerLabel(q) })),
+    timedOut: QUESTIONS.filter(q => answers[q.id] === null).length,
+    durationSeconds: Math.round((Date.now() - startedAt) / 1000)
+  };
+}
+
+async function submit(){
+  if (sending) return;
+  const status = card.querySelector("#status");
+  if (!validate()){
+    status.textContent = "A couple of fields need a look.";
+    return;
+  }
+
+  // No endpoint configured yet — go straight to the finish screen in preview mode.
+  if (!SHEET_ENDPOINT){
+    finished = true;
+    clearDraft();
+    go(STEPS.length - 1);
+    return;
+  }
+
+  sending = true;
+  const btn = card.querySelector("#submit");
+  btn.disabled = true;
+  btn.innerHTML = "Sending…";
+  status.textContent = "";
+
+  try {
+    // text/plain keeps this a "simple" request, so the browser skips the CORS
+    // preflight that Apps Script cannot answer.
+    const res  = await fetch(SHEET_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload())
+    });
+    const data = await res.json().catch(() => ({ ok: res.ok }));
+    if (!data.ok) throw new Error(data.error || "The sheet turned it down.");
+
+    finished = true;
+    clearDraft();
+    sending = false;
+    go(STEPS.length - 1);
+  } catch (err) {
+    sending = false;
+    btn.disabled = false;
+    btn.innerHTML = 'Try again <span>&rarr;</span>';
+    status.innerHTML = `That didn't send — your answers are saved, so nothing is lost.
+      Try once more, or email us at <a href="mailto:team@jointryb.in" style="color:var(--ember)">team@jointryb.in</a>.`;
+  }
+}
+
+/* ============================================================
+   7 · KEYBOARD
+   ============================================================ */
 document.addEventListener("keydown", e => {
   if (locked) return;
   const s = STEPS[step];
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
 
-  if (e.key === "Enter" && (s.kind === "intro" || s.kind === "gut")){
-    e.preventDefault(); go(step + 1); return;
+  if (e.key === "Enter"){
+    if (s.kind === "intro" || s.kind === "gut"){ e.preventDefault(); go(step + 1); return; }
+    if (s.kind === "details"){ e.preventDefault(); submit(); return; }
   }
+  if (typing) return;                       // never hijack keys while a field has focus
+
   if ((e.key === "ArrowLeft" || e.key === "Backspace") && step > 0 && s.kind !== "done"){
     e.preventDefault(); go(step - 1); return;
   }
@@ -591,7 +760,7 @@ document.addEventListener("keydown", e => {
       if (el) pick(s.q, n, el);
     }
   } else {
-    const i = ["a","b","c","d"].indexOf(e.key.toLowerCase());
+    const i = LETTERS.indexOf(e.key.toUpperCase());
     if (i > -1 && i < s.q.options.length){
       const el = card.querySelector(`.choice[data-v="${i}"]`);
       if (el) pick(s.q, i, el);
@@ -601,8 +770,17 @@ document.addEventListener("keydown", e => {
 
 back.onclick = () => { if (step > 0) go(step - 1); };
 
-render();
-card.classList.add("is-in");
+/* ---------- boot ---------- */
+(() => {
+  const d = loadDraft();
+  if (d){
+    answers   = d.answers || {};
+    details   = Object.assign(details, d.details || {});
+    startedAt = d.startedAt || Date.now();
+  }
+  render();                     // always open on the intro, which offers to resume
+  card.classList.add("is-in");
+})();
 </script>
 </body>
 </html>
