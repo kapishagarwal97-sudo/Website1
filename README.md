@@ -52,6 +52,111 @@ is fixed and permanent; it gains a translucent dark bar once you scroll.
 Slide 1 currently uses a darkened brand photo. To use a real film, swap the
 `.slide--cine .slide__bg > img` for a `<video autoplay muted loop playsinline>`.
 
+## The form — find your table (`personality-test.html`)
+
+The join flow: **61 questions across 7 sections**, transcribed from
+`TRYB_Form_Questions.docx`. One question per screen, self-contained (its own CSS
+and JS, no build step, no dependencies).
+
+Every "Join TRYB" entry point links to it: header nav, hero button, "take a
+personality test" (step 1), the first FAQ answer, and the footer.
+
+### Progress is a walk to the table
+
+Instead of a bar or a counter, a fixed strip along the bottom shows a round
+table with five people and **one empty seat**. Each answer moves your token
+along a dotted path toward it, and the caption changes as you go — *setting
+out → on your way → getting closer → almost there → one seat away*. Answer the
+last question and you arrive: the empty seat fills, the five greet you, and the
+caption reads *you're at the table*. No numbers anywhere.
+
+### Sections
+
+| Section | Questions | Type |
+|---|---|---|
+| I see myself as someone who | 8 | scale 0–7 |
+| How strongly do you agree | 6 | scale 0–7 |
+| Where do you really land | 8 | single choice, **untimed** |
+| How well do you know yourself | 10 | scale 0–7, custom end labels |
+| A little more about you | 6 | multi-select |
+| Rapid fire | 7 | two tiles, **10-second clock** |
+| Essentials | 16 | mixed |
+
+Rapid fire is the only timed part. When its clock runs out the answer is
+recorded as blank and the form moves on. Revisiting a rapid-fire question via
+Back does not restart the clock.
+
+A short card introduces each section where the way you answer changes. **The
+"Join the waitlist" button appears once, on the final screen** — never after a
+section.
+
+### Editing questions
+
+They live in the `QUESTIONS` array near the top of the `<script>`:
+
+```js
+{ id:"s1",  s:0, type:"scale",  min:0, max:7, text:"…" }        // 0–7, 0–10
+{ id:"w1",  s:2, type:"choice", text:"…", options:["…","…"] }   // A–F, untimed
+{ id:"r1",  s:5, type:"rapid",  text:"…", options:["…","…"] }   // two tiles, timed
+{ id:"h1",  s:4, type:"multi",  text:"…", options:[…] }         // pick any number
+{ id:"e3",  s:6, type:"text",   text:"…", placeholder:"…" }     // short answer
+{ id:"e8",  s:6, type:"date",   text:"…" }                      // date of birth
+```
+
+`s` indexes into `SECTIONS`, `labels:["…","…"]` or `["…","…","…"]` overrides a
+scale's end captions, and `SECTION_CARDS` holds the interstitials. Adding or
+removing questions needs no other change — the walk recomputes from `QUESTIONS`.
+
+Scales up to ten steps take the number keys; the 0–10 scales are click-only,
+since `1` and `10` cannot be told apart on keydown. Answers persist through a
+refresh (`localStorage`); the intro then offers to resume or start over.
+
+### Choices made while transcribing
+
+- **Rapid-fire titles were blank** in the form ("Type a question" placeholder) —
+  the seven titles here are written to fit the answer pairs and need your sign-off.
+- **Name, email and phone were not in the source questionnaire.** A waitlist
+  with no way to reach anyone does not work, so the final screen asks for all
+  three (phone optional). These are not counted among the 61 questions. Remove
+  `{ kind:"details" }` from `STEPS` if you'd rather not.
+- **Date of birth gates at 18+** (`MIN_AGE`), given the alcohol and smoking
+  questions. Set it to `0` to remove the gate.
+- **Dietary preferences and preferable cuisines are multi-select**; the form has
+  them single-select, but both are worded plurally. Change `type:"multi"` to
+  `type:"choice"` to revert.
+- Fixed from the source: `1 yeear` → `1 year`, "How long have been living" →
+  "How long have you been living", and the placeholder `Option 13` in the
+  hobbies list was dropped.
+- Budget options are set as `₹1,000 – ₹2,000` rather than `Rs. 1000 - Rs. 2000`.
+
+### Sending responses to Google Sheets
+
+1. Create the spreadsheet, then **Extensions ▸ Apps Script**.
+2. Replace `Code.gs` with `apps-script/Code.gs` from this repo and save.
+3. **Deploy ▸ New deployment ▸ Web app** — *Execute as* **Me**, *Who has access*
+   **Anyone**. Authorise it when Google asks.
+4. Copy the `/exec` URL and paste it into `SHEET_ENDPOINT` at the top of the
+   `<script>` in `personality-test.html`.
+
+Until that URL is set the form runs in **preview mode**: nothing is sent, and
+the finish screen shows exactly what would have been recorded.
+
+The sheet is set in `SPREADSHEET_ID` (already pointing at the TRYB responses
+sheet), and a `Responses` tab is created on the first submission. Each new
+response is inserted at **row 2**, directly under the frozen header, so the
+newest is always the row you see — set `NEWEST_FIRST = false` to append instead.
+
+Columns are `Submitted at · Name · Email · Phone` + one per question +
+`Unanswered (timed out)` · `Time taken (s)` — **67 in total**. Columns are built from the
+payload and matched by header name after that, so adding questions later just
+adds columns — existing rows stay aligned. `SUBMIT_TOKEN` must match on both
+sides; it plus a honeypot field keeps casual bots out. Note that the endpoint URL
+is visible in the page source, which is inherent to posting from a static site —
+the token deters scripted junk, it does not authenticate anyone.
+
+Re-deploy the Apps Script (**Deploy ▸ Manage deployments ▸ edit ▸ Version: New**)
+after any change to `Code.gs`, or the live URL keeps running the old version.
+
 ## Run locally
 
 ```bash
