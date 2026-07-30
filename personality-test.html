@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TRYB — Personality Test (preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   TRYB — personality test
+   Standalone preview. Palette + type borrowed from the site.
+   ============================================================ */
+:root{
+  --ink:#1e2a44;
+  --ink-2:#182238;
+  --bronze:#b07a4b;
+  --sand:#d7cec3;
+  --cream:#f7f2ea;
+  --ember:#eb642e;
+
+  --font-script:"Pacifico",cursive;
+  --font-display:"Fraunces","Times New Roman",serif;
+  --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+  --ease:cubic-bezier(.16,1,.3,1);
+  --gutter:clamp(1.25rem,5vw,6rem);
+}
+*,*::before,*::after{box-sizing:border-box}
+*{margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{
+  min-height:100vh;min-height:100dvh;
+  background:var(--ink);
+  color:var(--cream);
+  font-family:var(--font-sans);
+  font-weight:300;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+::selection{background:var(--ember);color:var(--cream)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+/* soft light so the canvas isn't flat */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(60vw 60vw at 78% -10%, rgba(176,122,75,.16), transparent 60%),
+    radial-gradient(50vw 50vw at 8% 108%, rgba(235,100,46,.10), transparent 62%);
+}
+
+/* ---------- progress ---------- */
+.progress{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:40;
+  background:rgba(215,206,195,.14);
+}
+.progress__fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--bronze),var(--ember));
+  transition:width .55s var(--ease);
+}
+.progress__tick{
+  position:absolute;top:0;width:1px;height:100%;
+  background:var(--ink);opacity:.9;
+}
+
+/* ---------- shell ---------- */
+.wrap{
+  position:relative;z-index:1;
+  min-height:100vh;min-height:100dvh;
+  display:grid;grid-template-rows:auto 1fr auto;
+  padding:clamp(1.1rem,3vw,2rem) var(--gutter);
+}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand{font-family:var(--font-script);font-size:1.5rem;color:var(--cream);line-height:1}
+.part{
+  font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--sand);opacity:.55;
+}
+
+.stage{
+  display:flex;align-items:center;
+  width:100%;max-width:760px;margin:0 auto;
+  padding:clamp(1.5rem,5vh,3rem) 0;
+}
+.card{width:100%}
+.card.is-out{opacity:0;transform:translateY(-18px);filter:blur(2px)}
+.card.is-in{animation:enter .6s var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.card{transition:opacity .28s ease,transform .28s var(--ease),filter .28s ease}
+
+.eyebrow{
+  font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--bronze);margin-bottom:1.1rem;
+}
+.q{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(1.55rem,4.2vw,2.6rem);
+  line-height:1.14;letter-spacing:-.01em;
+  max-width:20ch;
+}
+.q em{font-style:italic;color:var(--sand)}
+.lede{
+  margin-top:1.1rem;max-width:46ch;
+  color:var(--sand);font-size:clamp(.95rem,1.5vw,1.05rem);
+}
+
+/* ---------- timer ---------- */
+.timer{
+  display:flex;align-items:center;gap:.7rem;
+  margin-top:1.4rem;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .4s ease,transform .4s var(--ease);
+}
+.timer.on{opacity:1;transform:none}
+.timer__track{
+  position:relative;flex:1;height:1px;max-width:320px;
+  background:rgba(215,206,195,.2);
+}
+.timer__bar{
+  position:absolute;inset:0 auto 0 0;width:100%;
+  background:var(--sand);transform-origin:left center;
+}
+.timer__num{
+  font-family:var(--font-display);font-size:.85rem;
+  color:var(--sand);opacity:.7;min-width:1.4ch;
+  font-variant-numeric:tabular-nums;
+}
+.timer.warn .timer__bar{background:var(--ember)}
+.timer.warn .timer__num{color:var(--ember);opacity:1}
+
+/* ---------- likert ---------- */
+.scale{margin-top:clamp(2rem,5vh,3rem);width:100%;--dot-base:38px}
+.scale--5{max-width:440px;--dot-step:9px}
+.scale--7{max-width:580px;--dot-step:6px}
+.dots{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(.3rem,1.6vw,.75rem);
+}
+.dot{
+  position:relative;flex:0 0 auto;
+  /* --k = distance from the middle, so the extremes read heavier */
+  width:calc(var(--dot-base) + var(--k) * var(--dot-step));
+  aspect-ratio:1;
+  display:grid;place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(215,206,195,.35);
+  color:var(--sand);
+  font-family:var(--font-display);font-size:.95rem;
+  transition:transform .35s var(--ease),background .25s ease,
+             border-color .25s ease,color .25s ease;
+}
+.dot:hover,.dot:focus-visible{
+  border-color:var(--cream);color:var(--cream);
+  transform:translateY(-3px) scale(1.06);outline:none;
+}
+.dot.sel{
+  background:var(--ember);border-color:var(--ember);color:var(--cream);
+  transform:scale(1.08);
+}
+.dot.sel::after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:1px solid rgba(235,100,46,.4);
+  animation:ping .5s var(--ease) both;
+}
+@keyframes ping{from{transform:scale(.8);opacity:1}to{transform:scale(1);opacity:1}}
+
+.ends{
+  display:flex;justify-content:space-between;gap:1rem;
+  margin-top:1.15rem;
+  font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--sand);opacity:.55;
+}
+.ends span:nth-child(2){text-align:center}
+.ends span:last-child{text-align:right}
+
+/* ---------- choices ---------- */
+.choices{
+  margin-top:clamp(1.8rem,4.5vh,2.6rem);
+  display:grid;gap:.6rem;max-width:660px;
+}
+.choice{
+  display:flex;align-items:center;gap:1rem;width:100%;
+  padding:1rem 1.15rem;text-align:left;
+  border:1px solid rgba(215,206,195,.22);
+  border-radius:2px;
+  color:var(--cream);
+  font-size:clamp(.95rem,1.6vw,1.08rem);line-height:1.35;
+  transition:border-color .25s ease,background .25s ease,transform .3s var(--ease);
+}
+.choice:hover,.choice:focus-visible{
+  border-color:var(--sand);background:rgba(247,242,234,.04);
+  transform:translateX(5px);outline:none;
+}
+.choice__key{
+  flex:0 0 auto;width:26px;height:26px;display:grid;place-items:center;
+  border:1px solid rgba(215,206,195,.35);border-radius:50%;
+  font-family:var(--font-display);font-size:.72rem;color:var(--sand);
+  transition:background .25s ease,border-color .25s ease,color .25s ease;
+}
+.choice.sel{border-color:var(--ember);background:rgba(235,100,46,.1)}
+.choice.sel .choice__key{background:var(--ember);border-color:var(--ember);color:var(--cream)}
+
+/* ---------- intro / interstitial / done ---------- */
+.big{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(2rem,6vw,3.6rem);line-height:1.06;letter-spacing:-.02em;
+}
+.rule{width:44px;height:1px;background:var(--bronze);margin:1.6rem 0}
+.notes{display:grid;gap:.55rem;margin-top:1.6rem;max-width:44ch}
+.note{
+  display:flex;gap:.75rem;color:var(--sand);
+  font-size:.92rem;line-height:1.5;
+}
+.note b{color:var(--bronze);font-family:var(--font-display);font-weight:400}
+.btn{
+  display:inline-flex;align-items:center;gap:.7rem;margin-top:2.2rem;
+  padding:.85rem 1.7rem;border-radius:999px;
+  background:var(--ember);color:var(--cream);
+  font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(235,100,46,.28)}
+.btn--ghost{background:none;border:1px solid rgba(215,206,195,.35);color:var(--sand)}
+.btn--ghost:hover{border-color:var(--cream);color:var(--cream);box-shadow:none}
+
+/* ---------- footer ---------- */
+.foot{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  font-size:.7rem;letter-spacing:.1em;color:var(--sand);opacity:.5;
+}
+.back{
+  display:inline-flex;align-items:center;gap:.5rem;
+  text-transform:uppercase;letter-spacing:.16em;font-size:.68rem;
+  transition:opacity .25s ease;opacity:0;pointer-events:none;
+}
+.back.on{opacity:1;pointer-events:auto}
+.back:hover{color:var(--cream)}
+.hint kbd{
+  font-family:var(--font-sans);font-size:.66rem;
+  border:1px solid rgba(215,206,195,.3);border-radius:3px;
+  padding:.1rem .34rem;margin:0 .12rem;
+}
+@media (max-width:640px){
+  .hint{display:none}
+  .part{display:none}                     /* the eyebrow already names the section */
+}
+@media (max-width:560px){
+  .scale{--dot-base:30px}
+  .scale--5{--dot-step:6px}
+  .scale--7{--dot-step:3px}
+  .dot{font-size:.82rem}
+  .ends{font-size:.58rem;letter-spacing:.06em}
+}
+
+/* ---------- demo panel (preview only) ---------- */
+.dump{
+  margin-top:1.8rem;max-height:34vh;overflow:auto;
+  border:1px solid rgba(215,206,195,.2);border-radius:2px;
+  padding:1rem;font-size:.78rem;color:var(--sand);
+  display:none;
+}
+.dump.on{display:block}
+.dump table{width:100%;border-collapse:collapse}
+.dump td{padding:.32rem 0;vertical-align:top;border-bottom:1px solid rgba(215,206,195,.1)}
+.dump td:last-child{text-align:right;color:var(--cream);white-space:nowrap;padding-left:1rem}
+.dump .miss{color:var(--ember)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" aria-hidden="true">
+  <div class="progress__fill" id="fill"></div>
+  <i class="progress__tick" id="tick1"></i>
+  <i class="progress__tick" id="tick2"></i>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">tryb</div>
+    <div class="part" id="partLabel"></div>
+  </header>
+
+  <main class="stage">
+    <section class="card" id="card" aria-live="polite"></section>
+  </main>
+
+  <footer class="foot">
+    <button class="back" id="back" type="button">&larr; Back</button>
+    <div class="hint" id="hint"></div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   Questions
+   ============================================================ */
+const SCALE5 = ["Strongly disagree","Neutral","Strongly agree"];
+const SCALE7 = ["Strongly disagree","Neutral","Strongly agree"];
+
+const QUESTIONS = [
+  /* ---- Part one — 1 to 5 ---- */
+  { id:"b1",  part:0, type:"scale", max:5, text:"I see myself as someone who is reserved." },
+  { id:"b2",  part:0, type:"scale", max:5, text:"I see myself as someone who is trusting." },
+  { id:"b3",  part:0, type:"scale", max:5, text:"I see myself as someone who tends to be lazy." },
+  { id:"b4",  part:0, type:"scale", max:5, text:"I see myself as someone who is relaxed, handles stress well." },
+  { id:"b5",  part:0, type:"scale", max:5, text:"I see myself as someone who is artistic." },
+  { id:"b6",  part:0, type:"scale", max:5, text:"I see myself as someone who is outgoing, sociable." },
+  { id:"b7",  part:0, type:"scale", max:5, text:"I see myself as someone who tends to find fault with others." },
+  { id:"b8",  part:0, type:"scale", max:5, text:"I see myself as someone who has an active imagination." },
+  { id:"b9",  part:0, type:"scale", max:5, text:"I generally follow the rules." },
+
+  /* ---- Part two — 1 to 7 ---- */
+  { id:"v1", part:1, type:"scale", max:7, text:"Taking risk in pursuit of adventure is a fundamental part of who I am." },
+  { id:"v2", part:1, type:"scale", max:7, text:"Wearing designer brands is important to me." },
+  { id:"v3", part:1, type:"scale", max:7, text:"I enjoy talking about work when meeting new people." },
+  { id:"v4", part:1, type:"scale", max:7, text:"One of my core character traits is a desire to learn new things." },
+  { id:"v5", part:1, type:"scale", max:7, text:"Even in a joke, some things should never be said." },
+  { id:"v6", part:1, type:"scale", max:7, text:"How important to you is physical attraction?",
+    labels:["Not at all","Somewhat","Extremely"] },
+
+  /* ---- Part three — timed multiple choice ---- */
+  { id:"c1", part:2, type:"choice", timed:true, text:"More important in a close friend:",
+    options:["They stay, even when it's hard","They tell you what you need to hear"] },
+  { id:"c2", part:2, type:"choice", timed:true, text:"A good life leans more toward…",
+    options:["Comfort and security","Novelty and risk"] },
+  { id:"c3", part:2, type:"choice", timed:true, text:"When a group makes a decision, it matters more that…",
+    options:["Everyone had a fair say","We respect whoever's leading"] },
+  { id:"c4", part:2, type:"choice", timed:true, text:"You're drawn more to people who are…",
+    options:["Ambitious and driven","Content and present"] },
+  { id:"c5", part:2, type:"choice", timed:true, text:"You'd rather be known as someone who is…",
+    options:["Kind","Real"] },
+  { id:"c6", part:2, type:"choice", timed:true, text:"You'd rather spend a free evening…",
+    options:["Deep in conversation with one person","In the middle of a lively group"] },
+  { id:"c7", part:2, type:"choice", timed:true, text:"A stronger pull for you:",
+    options:["There's wisdom in how things have always been done","The old ways are made to be questioned"] },
+  { id:"c8", part:2, type:"choice", timed:true,
+    text:"Your group's at a restaurant and the server messes up the order twice. You're most likely to:",
+    options:[
+      "Wave it off — it's genuinely not a big deal",
+      "Be polite, but let them know it needs fixing",
+      "Get visibly annoyed — you're paying for this",
+      "Quietly make sure everyone else's is right first"
+    ] }
+];
+
+const PARTS = [
+  { label:"Part one · How you see yourself" },
+  { label:"Part two · What you lean toward" },
+  { label:"Value section · Where do you really land" }
+];
+
+const TIMER_SECONDS = 7;
+
+/* ============================================================
+   Flow: intro -> questions -> interstitial before part 3 -> done
+   ============================================================ */
+const STEPS = [{ kind:"intro" }];
+QUESTIONS.forEach((q,i) => {
+  if (i > 0 && q.part === 2 && QUESTIONS[i-1].part !== 2) STEPS.push({ kind:"gut" });
+  STEPS.push({ kind:"q", q });
+});
+STEPS.push({ kind:"done" });
+
+const TOTAL = QUESTIONS.length;
+const answers = {};        // id -> value | null (timed out)
+let step = 0;
+let ticker = null;
+let locked = false;        // ignores input mid-transition, so nothing double-advances
+
+const card  = document.getElementById("card");
+const fill  = document.getElementById("fill");
+const back  = document.getElementById("back");
+const hint  = document.getElementById("hint");
+const label = document.getElementById("partLabel");
+
+/* part boundary ticks on the progress bar */
+(() => {
+  const counts = [0,0,0];
+  QUESTIONS.forEach(q => counts[q.part]++);
+  document.getElementById("tick1").style.left = (counts[0] / TOTAL * 100) + "%";
+  document.getElementById("tick2").style.left = ((counts[0] + counts[1]) / TOTAL * 100) + "%";
+})();
+
+const answeredCount = () => Object.keys(answers).length;
+
+function paintProgress(){
+  fill.style.width = (answeredCount() / TOTAL * 100).toFixed(2) + "%";
+}
+
+function go(next){
+  if (locked) return;
+  locked = true;
+  clearTimer();
+  card.classList.add("is-out");
+  setTimeout(() => {
+    step = next;
+    render();
+    card.classList.remove("is-out");
+    card.classList.remove("is-in");
+    void card.offsetWidth;
+    card.classList.add("is-in");
+    locked = false;
+  }, 240);
+}
+
+function render(){
+  const s = STEPS[step];
+  label.textContent = s.kind === "q" ? PARTS[s.q.part].label : "";
+  back.classList.toggle("on", step > 0 && s.kind !== "done");
+  hint.innerHTML = "";
+  paintProgress();
+
+  if (s.kind === "intro")  return renderIntro();
+  if (s.kind === "gut")    return renderGut();
+  if (s.kind === "done")   return renderDone();
+  return s.q.type === "scale" ? renderScale(s.q) : renderChoice(s.q);
+}
+
+/* ---------- screens ---------- */
+function renderIntro(){
+  card.innerHTML = `
+    <p class="eyebrow">Before you join</p>
+    <h1 class="big">A few questions,<br />so we can seat you<br />with the right five.</h1>
+    <div class="rule"></div>
+    <div class="notes">
+      <p class="note"><b>01</b> Twenty-three questions. Around four minutes.</p>
+      <p class="note"><b>02</b> One at a time. There are no right answers.</p>
+      <p class="note"><b>03</b> The last section is timed — seven seconds each. Answer on instinct.</p>
+    </div>
+    <button class="btn" id="start">Begin <span>&rarr;</span></button>`;
+  card.querySelector("#start").onclick = () => go(step + 1);
+  hint.innerHTML = `press <kbd>enter</kbd> to begin`;
+}
+
+function renderGut(){
+  card.innerHTML = `
+    <p class="eyebrow">Value section</p>
+    <h2 class="big">Where do you<br />really land?</h2>
+    <p class="lede">Eight quick calls, seven seconds each. Don't weigh them —
+      the first answer is usually the true one. If the clock runs out, we simply move on.</p>
+    <button class="btn" id="ready">I'm ready <span>&rarr;</span></button>`;
+  card.querySelector("#ready").onclick = () => go(step + 1);
+  hint.innerHTML = `press <kbd>enter</kbd> when ready`;
+}
+
+function renderScale(q){
+  const labels = q.labels || (q.max === 5 ? SCALE5 : SCALE7);
+  const mid = (q.max + 1) / 2;
+  const dots = Array.from({ length:q.max }, (_,i) => {
+    const v = i + 1;
+    const sel = answers[q.id] === v ? " sel" : "";
+    return `<button class="dot${sel}" data-v="${v}" style="--k:${Math.abs(v - mid)}"
+              aria-label="${v} out of ${q.max}">${v}</button>`;
+  }).join("");
+
+  card.innerHTML = `
+    <p class="eyebrow">${PARTS[q.part].label.split(" · ")[1]}</p>
+    <h2 class="q">${q.text}</h2>
+    <div class="scale scale--${q.max}">
+      <div class="dots">${dots}</div>
+      <div class="ends"><span>${labels[0]}</span><span>${labels[1]}</span><span>${labels[2]}</span></div>
+    </div>`;
+
+  card.querySelectorAll(".dot").forEach(b => {
+    b.onclick = () => pick(q, Number(b.dataset.v), b);
+  });
+  hint.innerHTML = `<kbd>1</kbd>–<kbd>${q.max}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+}
+
+function renderChoice(q){
+  const letters = ["A","B","C","D"];
+  const opts = q.options.map((o,i) => {
+    const sel = answers[q.id] === i ? " sel" : "";
+    return `<button class="choice${sel}" data-v="${i}">
+              <span class="choice__key">${letters[i]}</span><span>${o}</span>
+            </button>`;
+  }).join("");
+
+  const answered = q.id in answers;   // revisits are untimed — the clock only runs once
+  card.innerHTML = `
+    <p class="eyebrow">Where do you really land</p>
+    <h2 class="q">${q.text}</h2>
+    <div class="timer" id="timer">
+      <div class="timer__track"><div class="timer__bar" id="tbar"></div></div>
+      <div class="timer__num" id="tnum">${TIMER_SECONDS}</div>
+    </div>
+    <div class="choices">${opts}</div>`;
+
+  card.querySelectorAll(".choice").forEach(b => {
+    b.onclick = () => pick(q, Number(b.dataset.v), b);
+  });
+  hint.innerHTML = `<kbd>${letters.slice(0, q.options.length).join("</kbd> <kbd>")}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+
+  if (q.timed && !answered) startTimer(q);
+}
+
+function renderDone(){
+  const missed = QUESTIONS.filter(q => answers[q.id] === null).length;
+  card.innerHTML = `
+    <p class="eyebrow">That's everything</p>
+    <h2 class="big">Thank you.<br />We'll take it<br />from here.</h2>
+    <div class="rule"></div>
+    <p class="lede">Your answers help us put you at a table with people you'll actually
+      want to sit with. We'll be in touch with your first invitation.
+      ${missed ? `<br /><span style="opacity:.65">(${missed} timed question${missed>1?"s":""} ran out — that's fine, it tells us something too.)</span>` : ""}</p>
+    <button class="btn btn--ghost" id="peek">Preview: see captured answers</button>
+    <div class="dump" id="dump"></div>`;
+  fill.style.width = "100%";
+
+  card.querySelector("#peek").onclick = () => {
+    const dump = card.querySelector("#dump");
+    dump.classList.toggle("on");
+    if (!dump.innerHTML){
+      dump.innerHTML = "<table>" + QUESTIONS.map(q => {
+        const a = answers[q.id];
+        const v = a === null || a === undefined
+          ? `<span class="miss">no answer</span>`
+          : (q.type === "scale" ? `${a} / ${q.max}` : ["A","B","C","D"][a]);
+        return `<tr><td>${q.text}</td><td>${v}</td></tr>`;
+      }).join("") + "</table>";
+    }
+  };
+  hint.innerHTML = "";
+}
+
+/* ---------- answering ---------- */
+function pick(q, value, el){
+  if (locked) return;
+  locked = true;                       // hold input while the answer registers
+  clearTimer();
+  answers[q.id] = value;
+  card.querySelectorAll(".dot,.choice").forEach(n => n.classList.remove("sel"));
+  el.classList.add("sel");
+  paintProgress();
+  setTimeout(() => { locked = false; go(step + 1); }, 340);
+}
+
+/* ---------- 7-second timer ---------- */
+function startTimer(q){
+  const wrap = card.querySelector("#timer");
+  const bar  = card.querySelector("#tbar");
+  const num  = card.querySelector("#tnum");
+  requestAnimationFrame(() => wrap.classList.add("on"));
+
+  const end = performance.now() + TIMER_SECONDS * 1000;
+  const tick = now => {
+    const left = Math.max(0, end - now);
+    bar.style.transform = `scaleX(${left / (TIMER_SECONDS * 1000)})`;
+    num.textContent = Math.ceil(left / 1000);
+    wrap.classList.toggle("warn", left <= 2000);
+    if (left <= 0){
+      ticker = null;
+      answers[q.id] = null;              // ran out — recorded as a non-answer
+      paintProgress();
+      go(step + 1);
+      return;
+    }
+    ticker = requestAnimationFrame(tick);
+  };
+  ticker = requestAnimationFrame(tick);
+}
+function clearTimer(){
+  if (ticker) cancelAnimationFrame(ticker);
+  ticker = null;
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener("keydown", e => {
+  if (locked) return;
+  const s = STEPS[step];
+
+  if (e.key === "Enter" && (s.kind === "intro" || s.kind === "gut")){
+    e.preventDefault(); go(step + 1); return;
+  }
+  if ((e.key === "ArrowLeft" || e.key === "Backspace") && step > 0 && s.kind !== "done"){
+    e.preventDefault(); go(step - 1); return;
+  }
+  if (s.kind !== "q") return;
+
+  if (s.q.type === "scale"){
+    const n = Number(e.key);
+    if (n >= 1 && n <= s.q.max){
+      const el = card.querySelector(`.dot[data-v="${n}"]`);
+      if (el) pick(s.q, n, el);
+    }
+  } else {
+    const i = ["a","b","c","d"].indexOf(e.key.toLowerCase());
+    if (i > -1 && i < s.q.options.length){
+      const el = card.querySelector(`.choice[data-v="${i}"]`);
+      if (el) pick(s.q, i, el);
+    }
+  }
+});
+
+back.onclick = () => { if (step > 0) go(step - 1); };
+
+render();
+card.classList.add("is-in");
+</script>
+</body>
+</html>
