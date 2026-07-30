@@ -111,6 +111,7 @@ body::before{
 .scale{margin-top:clamp(2rem,5vh,3rem);width:100%;--dot-base:38px}
 .scale--5{max-width:440px;--dot-step:9px}
 .scale--7{max-width:580px;--dot-step:6px}
+.scale--11{max-width:660px;--dot-step:2.4px}
 .dots{display:flex;align-items:center;justify-content:space-between;gap:clamp(.3rem,1.6vw,.75rem)}
 .dot{
   position:relative;flex:0 0 auto;
@@ -234,7 +235,11 @@ body::before{
   .scale{--dot-base:30px}
   .scale--5{--dot-step:6px}
   .scale--7{--dot-step:3px}
+  /* eleven dots have to survive a 320px screen, so they track the viewport */
+  .scale--11{--dot-base:clamp(17px,5.6vw,26px);--dot-step:1px}
+  .dots{gap:clamp(.12rem,.8vw,.25rem)}
   .dot{font-size:.82rem}
+  .scale--11 .dot{font-size:.68rem}
   .ends{font-size:.58rem;letter-spacing:.06em}
 }
 @media (prefers-reduced-motion:reduce){
@@ -246,8 +251,6 @@ body::before{
 
 <div class="progress" aria-hidden="true">
   <div class="progress__fill" id="fill"></div>
-  <i class="progress__tick" id="tick1"></i>
-  <i class="progress__tick" id="tick2"></i>
 </div>
 
 <div class="wrap">
@@ -330,13 +333,25 @@ const QUESTIONS = [
       "Be polite, but let them know it needs fixing",
       "Get visibly annoyed — you're paying for this",
       "Quietly make sure everyone else's is right first"
-    ] }
+    ] },
+
+  /* ---- Part four — from the last screen of the Tally form ---- */
+  { id:"l1", part:3, type:"scale", min:0, max:10, text:"How often do you smoke?",
+    labels:["Never","Once a week","Almost daily"] },
+  { id:"l2", part:3, type:"choice", text:"What's your usual budget for a quality evening out with friends?",
+    options:["Below ₹1,000","₹1,000 – ₹2,000","₹2,000 – ₹3,000","₹3,000 – ₹4,000","₹4,000 +"] },
+  { id:"l3", part:3, type:"text", text:"Instagram", placeholder:"@yourhandle" },
+  { id:"l4", part:3, type:"text", text:"LinkedIn", placeholder:"linkedin.com/in/…" },
+  { id:"l5", part:3, type:"text", optional:true,
+    text:"Add your best friend's contact, to see if chance takes you to the same table.",
+    placeholder:"Their number or email" }
 ];
 
 const PARTS = [
   { label:"Part one · How you see yourself" },
   { label:"Part two · What you lean toward" },
-  { label:"Value section · Where do you really land" }
+  { label:"Value section · Where do you really land" },
+  { label:"Part four · A little about your world" }
 ];
 
 /* ============================================================
@@ -368,12 +383,18 @@ const back  = document.getElementById("back");
 const hint  = document.getElementById("hint");
 const label = document.getElementById("partLabel");
 
-/* part boundaries on the progress bar */
+/* part boundaries on the progress bar — one tick per part change */
 (() => {
-  const counts = [0,0,0];
-  QUESTIONS.forEach(q => counts[q.part]++);
-  document.getElementById("tick1").style.left = (counts[0] / TOTAL * 100) + "%";
-  document.getElementById("tick2").style.left = ((counts[0] + counts[1]) / TOTAL * 100) + "%";
+  const bar = document.querySelector(".progress");
+  let seen = 0;
+  PARTS.forEach((_, i) => {
+    seen += QUESTIONS.filter(q => q.part === i).length;
+    if (i === PARTS.length - 1) return;                 // no tick at the very end
+    const tick = document.createElement("i");
+    tick.className = "progress__tick";
+    tick.style.left = (seen / TOTAL * 100) + "%";
+    bar.appendChild(tick);
+  });
 })();
 
 /* ---------- draft, so a refresh mid-test is not fatal ---------- */
@@ -424,7 +445,9 @@ function render(){
   if (s.kind === "gut")     return renderGut();
   if (s.kind === "details") return renderDetails();
   if (s.kind === "done")    return renderDone();
-  return s.q.type === "scale" ? renderScale(s.q) : renderChoice(s.q);
+  if (s.q.type === "scale") return renderScale(s.q);
+  if (s.q.type === "text")  return renderText(s.q);
+  return renderChoice(s.q);
 }
 
 /* ============================================================
@@ -473,26 +496,72 @@ function renderGut(){
   hint.innerHTML = `press <kbd>enter</kbd> when ready`;
 }
 
+/** Scales run lo…hi — usually 1–5 or 1–7, but Tally's smoking question is 0–10. */
+const lo = q => (q.min === undefined ? 1 : q.min);
+const steps = q => q.max - lo(q) + 1;
+
 function renderScale(q){
   const labels = q.labels || SCALE;
-  const mid = (q.max + 1) / 2;
-  const dots = Array.from({ length:q.max }, (_,i) => {
-    const v = i + 1;
+  const mid = (lo(q) + q.max) / 2;
+  const dots = Array.from({ length:steps(q) }, (_,i) => {
+    const v = lo(q) + i;
     const sel = answers[q.id] === v ? " sel" : "";
     return `<button class="dot${sel}" data-v="${v}" style="--k:${Math.abs(v - mid)};--i:${i}"
-              aria-label="${v} out of ${q.max}">${v}</button>`;
+              aria-label="${v} of ${q.max}">${v}</button>`;
   }).join("");
 
   card.innerHTML = `
     <p class="eyebrow">${esc(PARTS[q.part].label.split(" · ")[1])}</p>
     <h2 class="q">${esc(q.text)}</h2>
-    <div class="scale scale--${q.max}">
+    <div class="scale scale--${steps(q)}">
       <div class="dots">${dots}</div>
       <div class="ends"><span>${esc(labels[0])}</span><span>${esc(labels[1])}</span><span>${esc(labels[2])}</span></div>
     </div>`;
 
   card.querySelectorAll(".dot").forEach(b => { b.onclick = () => pick(q, Number(b.dataset.v), b); });
-  hint.innerHTML = `<kbd>1</kbd>–<kbd>${q.max}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+  hint.innerHTML = steps(q) > 10
+    ? `click to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`
+    : `<kbd>${lo(q)}</kbd>–<kbd>${q.max}</kbd> to answer &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+}
+
+function renderText(q){
+  const val = answers[q.id] || "";
+  card.innerHTML = `
+    <p class="eyebrow">${esc(PARTS[q.part].label.split(" · ")[1])}</p>
+    <h2 class="q">${esc(q.text)}</h2>
+    <div class="fields" style="margin-top:2rem">
+      <div class="field" id="f-free">
+        <input id="i-free" type="text" autocomplete="off" autocapitalize="none"
+               placeholder="${esc(q.placeholder || "")}" value="${esc(val)}" />
+        <p class="err">This one we do need.</p>
+      </div>
+    </div>
+    <button class="btn" id="next">${q.optional && !val ? "Skip" : "Continue"} <span>&rarr;</span></button>`;
+
+  const input = card.querySelector("#i-free");
+  const btn   = card.querySelector("#next");
+  input.oninput = () => {
+    card.querySelector("#f-free").classList.remove("bad");
+    btn.innerHTML = (q.optional && !input.value.trim() ? "Skip" : "Continue") + ' <span>&rarr;</span>';
+  };
+  btn.onclick = () => commitText(q);
+  setTimeout(() => input.focus(), 320);
+  hint.innerHTML = `<kbd>enter</kbd> to continue &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
+}
+
+function commitText(q){
+  if (locked) return;
+  const input = card.querySelector("#i-free");
+  const v = input.value.trim();
+  if (!v && !q.optional){
+    card.querySelector("#f-free").classList.add("bad");
+    input.focus();
+    return;
+  }
+  answers[q.id] = v || null;      // an skipped optional field reads the same as no answer
+  paintProgress();
+  saveDraft();
+  go(step + 1);
 }
 
 function renderChoice(q){
@@ -625,7 +694,8 @@ function pick(q, value, el){
 
 function answerLabel(q){
   const a = answers[q.id];
-  if (a === null || a === undefined) return "—";
+  if (a === null || a === undefined || a === "") return "—";
+  if (q.type === "text")  return a;
   if (q.type === "scale") return a + " / " + q.max;
   return LETTERS[a] + " — " + q.options[a];
 }
@@ -745,17 +815,19 @@ document.addEventListener("keydown", e => {
   if (e.key === "Enter"){
     if (s.kind === "intro" || s.kind === "gut"){ e.preventDefault(); go(step + 1); return; }
     if (s.kind === "details"){ e.preventDefault(); submit(); return; }
+    if (s.kind === "q" && s.q.type === "text"){ e.preventDefault(); commitText(s.q); return; }
   }
   if (typing) return;                       // never hijack keys while a field has focus
 
   if ((e.key === "ArrowLeft" || e.key === "Backspace") && step > 0 && s.kind !== "done"){
     e.preventDefault(); go(step - 1); return;
   }
-  if (s.kind !== "q") return;
+  if (s.kind !== "q" || s.q.type === "text") return;
 
   if (s.q.type === "scale"){
+    // A 0–10 scale cannot be keyed unambiguously (1 vs 10), so it is click-only.
     const n = Number(e.key);
-    if (n >= 1 && n <= s.q.max){
+    if (steps(s.q) <= 10 && e.key.length === 1 && n >= lo(s.q) && n <= s.q.max){
       const el = card.querySelector(`.dot[data-v="${n}"]`);
       if (el) pick(s.q, n, el);
     }

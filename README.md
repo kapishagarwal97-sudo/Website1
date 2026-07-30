@@ -65,15 +65,21 @@ personality test" (step 1), the first FAQ answer, and the footer.
 `<script>`. Each entry is one of:
 
 ```js
-{ id:"b1", part:0, type:"scale",  max:5, text:"…" }              // 1–5 or 1–7
-{ id:"c1", part:2, type:"choice", timed:true, text:"…",          // A/B/C/D
+{ id:"b1", part:0, type:"scale",  max:5, text:"…" }              // 1–5, 1–7
+{ id:"l1", part:3, type:"scale",  min:0, max:10, text:"…" }      // 0–10
+{ id:"c1", part:2, type:"choice", timed:true, text:"…",          // A–F
   options:["…","…"] }
+{ id:"l3", part:3, type:"text",   text:"…", placeholder:"…" }    // short answer
 ```
 
 `part` indexes into `PARTS` (the section labels), `timed:true` turns on the
-7-second clock, and an optional `labels:["…","…","…"]` overrides the
-disagree/neutral/agree captions for one scale question. Adding or removing
-questions needs no other change — the progress bar and section ticks recompute.
+7-second clock, `optional:true` lets a text question be skipped, and an optional
+`labels:["…","…","…"]` overrides the disagree/neutral/agree captions on a scale.
+Adding or removing questions needs no other change — the progress bar and its
+section ticks recompute from `QUESTIONS`.
+
+Scales up to ten steps can be answered with the number keys; an 11-step 0–10
+scale is click-only, since `1` and `10` cannot be told apart on keydown.
 
 Answers survive a refresh (saved to `localStorage`); the intro then offers to
 resume or start over. The draft is discarded once a response is sent.
