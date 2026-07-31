@@ -3,9 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TRYB — Find your table</title>
-<meta name="description" content="A few questions, so we can seat you with the right five." />
-<link rel="icon" href="assets/logo.png" type="image/png" />
+<title>TRYB — Request an invitation</title>
+<meta name="description" content="A few questions, so we can choose the evening — and the five people — that suit you." />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#1e2a44" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
@@ -372,7 +375,7 @@ const MIN_AGE = 18;
 const AGREE = ["Strongly disagree","Neutral","Strongly agree"];
 
 const SECTIONS = [
-  { key:"self",   label:"I see myself as someone who" },
+  { key:"self",   label:"How you see yourself" },
   { key:"agree",  label:"How strongly do you agree" },
   { key:"land",   label:"Where do you really land" },
   { key:"know",   label:"How well do you know yourself" },
@@ -386,7 +389,7 @@ const SECTION_CARDS = {
   land: { title:"Where do you<br />really land?", lede:"No scales here — just pick the one that's more you. Nothing is timed, so take the moment you need." },
   you:  { title:"Tell us what<br />you're into.", lede:"Pick as many as you like on these — the more you choose, the better we can seat you." },
   rapid:{ title:"Rapid fire.", lede:"Seven snap calls, ten seconds each. Don't think — the first answer is usually the true one. If the clock runs out we simply move on." },
-  basics:{ title:"Last stretch.", lede:"The practical things: where you are, what you eat, how to reach you." }
+  basics:{ title:"Last stretch.", lede:"The practical things: where you are, what you eat, and where an invitation should find you." }
 };
 
 const QUESTIONS = [
@@ -425,7 +428,10 @@ const QUESTIONS = [
   { id:"w7", s:2, type:"choice", text:"A stronger pull for you is when",
     options:["there's belief in old wisdom","the old ways are questioned"] },
   { id:"w8", s:2, type:"choice", text:"Your group is at a restaurant, and the server messes up the order twice. You're most likely to:",
-    options:["wave it off — it's genuinely not a big deal","be polite, but let them know it needs fixing"] },
+    options:["Wave it off — it's genuinely not a big deal",
+             "Be polite, but let them know it needs fixing",
+             "Get visibly annoyed — you're paying for this",
+             "Quietly make sure everyone else's is right first"] },
 
   /* ---- Page 5 · How well do you know yourself ---- */
   { id:"k1",  s:3, type:"scale", min:0, max:7, text:"I find it easy to get close to people." },
@@ -616,11 +622,11 @@ function render(){
 function renderIntro(){
   const resumable = answeredCount() > 0;
   card.innerHTML = `
-    <p class="eyebrow">Before you join</p>
-    <h1 class="big">There's a table<br />with one seat left.<br />Let's see if it's yours.</h1>
+    <p class="eyebrow">By invitation only</p>
+    <h1 class="big">Some evenings<br />you don't book.<br />You're invited to.</h1>
     <div class="rule"></div>
     <div class="notes">
-      <p class="note"><b>01</b> Answer as you go and you'll walk toward the table at the bottom of the screen.</p>
+      <p class="note"><b>01</b> This is how we come to know you. Every guest is chosen by hand.</p>
       <p class="note"><b>02</b> No right answers, and nothing is timed — except rapid fire, which is ten seconds a call.</p>
       <p class="note"><b>03</b> Around eight minutes. Your answers save as you go.</p>
     </div>
@@ -826,10 +832,10 @@ function commitDate(q){
 
 function renderDetails(){
   card.innerHTML = `
-    <p class="eyebrow">You've reached the table</p>
+    <p class="eyebrow">You've arrived</p>
     <h2 class="big">Save your seat.</h2>
-    <p class="lede">You're on the list once we know where to reach you.
-      We'll send your first invitation when a table near you comes together.</p>
+    <p class="lede">Every guest is selected, and every evening is put together by hand.
+      When an experience is right for you, your invitation will find you here.</p>
     <form class="fields" id="form" novalidate>
       <div class="field" id="f-name">
         <label for="i-name">Your name</label>
@@ -842,15 +848,15 @@ function renderDetails(){
         <p class="err">That email doesn't look right.</p>
       </div>
       <div class="field" id="f-phone">
-        <label for="i-phone">Phone <span style="opacity:.6">(optional)</span></label>
+        <label for="i-phone">Phone</label>
         <input id="i-phone" name="phone" type="tel" autocomplete="tel" placeholder="+91" value="${esc(details.phone)}" />
-        <p class="err">That number doesn't look right.</p>
+        <p class="err">We need a number we can reach you on.</p>
       </div>
       <div class="hp"><label>Leave this empty<input id="i-hp" type="text" tabindex="-1" autocomplete="off" /></label></div>
     </form>
     <button class="btn" id="submit">Join the waitlist <span>&rarr;</span></button>
-    <p class="fineprint">We use this only to match you to a table and send your invitation.
-      Nothing is shared with the other four before you both say yes.</p>
+    <p class="fineprint">We use this only to choose the experience that suits you, and to send your invitation.
+      Nothing is shared with the other guests before you both say yes.</p>
     <p class="status" id="status"></p>`;
 
   ["name","email","phone"].forEach(k => {
@@ -866,11 +872,11 @@ function renderDone(){
   const missed  = QUESTIONS.filter(q => answers[q.id] === null).length;
   const preview = !SHEET_ENDPOINT;
   card.innerHTML = `
-    <p class="eyebrow">You're on the list</p>
-    <h2 class="big">Welcome${details.name ? ", " + esc(details.name.split(" ")[0]) : ""}.<br />The seat is yours.</h2>
+    <p class="eyebrow">Received</p>
+    <h2 class="big">Thank you${details.name ? ", " + esc(details.name.split(" ")[0]) : ""}.<br />We'll take it from here.</h2>
     <div class="rule"></div>
-    <p class="lede">We'll be in touch when a table near you comes together — five people
-      picked because of what you just told us.
+    <p class="lede">Your answers now sit with us. When an experience is right for you,
+      an invitation will follow — five guests chosen because of what you've just told us.
       ${missed ? `<br /><span style="opacity:.65">(${missed} rapid-fire call${missed>1?"s":""} ran out — that tells us something too.)</span>` : ""}</p>
     ${preview ? `<button class="btn btn--ghost" id="peek">Preview mode: see what would be sent</button><div class="dump" id="dump"></div>`
               : `<a class="btn btn--ghost" href="index.html">Back to TRYB</a>`}`;
@@ -953,7 +959,7 @@ function validate(){
   const bad = id => { card.querySelector("#f-" + id).classList.add("bad"); ok = false; };
   if (!details.name.trim()) bad("name");
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(details.email.trim())) bad("email");
-  if (details.phone.trim() && !/^[+\d][\d\s()-]{6,}$/.test(details.phone.trim())) bad("phone");
+  if (!/^[+\d][\d\s()-]{6,}$/.test(details.phone.trim())) bad("phone");
   return ok;
 }
 
@@ -986,23 +992,49 @@ async function submit(){
   btn.innerHTML = "Joining…";
   status.textContent = "";
 
+  let reason = "";
   try {
     // text/plain keeps this a "simple" request, so the browser skips the CORS
     // preflight that Apps Script cannot answer.
-    const res  = await fetch(SHEET_ENDPOINT, {
+    const res = await fetch(SHEET_ENDPOINT, {
       method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify(payload())
     });
-    const data = await res.json().catch(() => ({ ok: res.ok }));
-    if (!data.ok) throw new Error(data.error || "The sheet turned it down.");
+
+    const text = await res.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch (e) {}
+
+    if (!data){
+      // Apps Script answered with something that is not our JSON — almost always
+      // its own error page, which means the deployment is not running this script.
+      reason = "the endpoint replied with " + res.status + ", not JSON";
+      console.error("[tryb] unexpected response from SHEET_ENDPOINT:", res.status, text.slice(0, 400));
+      throw new Error(reason);
+    }
+    if (!data.ok){
+      reason = data.error || "the script rejected it";
+      console.error("[tryb] script returned an error:", data);
+      throw new Error(reason);
+    }
+
     finished = true; clearDraft(); sending = false;
     go(STEPS.length - 1);
   } catch (err) {
+    // A TypeError here is the browser refusing the response: the deployment is
+    // not set to "Anyone", so Google redirects to a sign-in page with no CORS.
+    if (!reason){
+      reason = (err instanceof TypeError)
+        ? "the browser was blocked — the web app is probably not shared with “Anyone”"
+        : err.message;
+      console.error("[tryb] submit failed:", err);
+    }
     sending = false;
     btn.disabled = false;
     btn.innerHTML = 'Try again <span>&rarr;</span>';
     status.innerHTML = `That didn't send — your answers are saved, so nothing is lost.
-      Try once more, or email us at <a href="mailto:team@jointryb.in" style="color:var(--ember)">team@jointryb.in</a>.`;
+      Try once more, or email us at <a href="mailto:team@jointryb.in" style="color:var(--ember)">team@jointryb.in</a>.
+      <br /><span style="opacity:.6;font-size:.78em">Reason: ${esc(reason)}</span>`;
   }
 }
 
