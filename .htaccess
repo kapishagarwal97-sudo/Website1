@@ -1,0 +1,3 @@
+# Short links for social. 301 so search engines fold them into the real page.
+RedirectMatch 301 ^/invite/?$  /personality-test.html
+RedirectMatch 301 ^/tribe/?$   /personality-test.html

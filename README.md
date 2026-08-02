@@ -157,6 +157,27 @@ the token deters scripted junk, it does not authenticate anyone.
 Re-deploy the Apps Script (**Deploy ▸ Manage deployments ▸ edit ▸ Version: New**)
 after any change to `Code.gs`, or the live URL keeps running the old version.
 
+
+## Short links for social
+
+`jointryb.in/invite` and `jointryb.in/tribe` both lead to the form. Whether the
+browser gets a real 301 depends on the host, so the config for each is committed:
+
+| Host | File |
+|---|---|
+| Netlify · Cloudflare Pages | `_redirects` |
+| Vercel | `vercel.json` |
+| Apache · cPanel · Hostinger | `.htaccess` |
+| Anything else (incl. GitHub Pages) | `invite/index.html`, `tribe/index.html` |
+
+The folder fallbacks are only reached when the host ignores the config files —
+where a server 301 is available it fires first. They carry `rel=canonical` to
+`/personality-test.html` plus `noindex`, so search engines credit the real page
+rather than the shortcut.
+
+To add another short link, copy the two lines in each config and duplicate one
+of the folders.
+
 ## Run locally
 
 ```bash
