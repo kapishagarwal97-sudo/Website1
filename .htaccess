@@ -1,3 +1,9 @@
-# Short links for social. 301 so search engines fold them into the real page.
-RedirectMatch 301 ^/invite/?$  /personality-test.html
-RedirectMatch 301 ^/tribe/?$   /personality-test.html
+# ---------------------------------------------------------------
+# TRYB — short links for social
+# Hostinger (Apache/LiteSpeed) reads this file from public_html.
+# If an .htaccess already exists there, append this block to it
+# rather than replacing the file.
+# (?i) makes the match case-insensitive, so /Invite works too.
+# ---------------------------------------------------------------
+RedirectMatch 301 (?i)^/invite/?$  /personality-test.html
+RedirectMatch 301 (?i)^/tribe/?$   /personality-test.html

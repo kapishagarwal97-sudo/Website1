@@ -160,23 +160,28 @@ after any change to `Code.gs`, or the live URL keeps running the old version.
 
 ## Short links for social
 
-`jointryb.in/invite` and `jointryb.in/tribe` both lead to the form. Whether the
-browser gets a real 301 depends on the host, so the config for each is committed:
+`jointryb.in/invite` (and `/tribe`) lead to the form. The site is on **Hostinger**,
+which is Apache/LiteSpeed, so `.htaccess` does the work — a genuine 301.
 
-| Host | File |
-|---|---|
-| Netlify · Cloudflare Pages | `_redirects` |
-| Vercel | `vercel.json` |
-| Apache · cPanel · Hostinger | `.htaccess` |
-| Anything else (incl. GitHub Pages) | `invite/index.html`, `tribe/index.html` |
+```apache
+RedirectMatch 301 (?i)^/invite/?$  /personality-test.html
+RedirectMatch 301 (?i)^/tribe/?$   /personality-test.html
+```
 
-The folder fallbacks are only reached when the host ignores the config files —
-where a server 301 is available it fires first. They carry `rel=canonical` to
-`/personality-test.html` plus `noindex`, so search engines credit the real page
-rather than the shortcut.
+`.htaccess` must sit in **`public_html`**, next to `index.html`. It is a hidden
+dotfile: turn on *Show hidden files* in Hostinger's File Manager, and note that
+many FTP clients skip dotfiles unless told not to. If `public_html` already has
+an `.htaccess`, **append** the block rather than overwriting the file.
 
-To add another short link, copy the two lines in each config and duplicate one
-of the folders.
+The `invite/` and `tribe/` folders are a fallback for hosts with no `.htaccess`
+support. On Hostinger the 301 fires first and they are never served, so they can
+be deleted — they are kept only in case the site moves. They carry
+`rel=canonical` to `/personality-test.html` plus `noindex`.
+
+To add another short link, copy one line and duplicate one of the folders.
+
+Browsers cache 301s hard, so test in a private window — otherwise an early wrong
+result can stick around.
 
 ## Run locally
 

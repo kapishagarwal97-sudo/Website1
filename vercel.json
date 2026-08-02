@@ -1,6 +1,0 @@
-{
-  "redirects": [
-    { "source": "/invite", "destination": "/personality-test.html", "permanent": true },
-    { "source": "/tribe",  "destination": "/personality-test.html", "permanent": true }
-  ]
-}
