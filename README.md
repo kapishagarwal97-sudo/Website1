@@ -129,6 +129,29 @@ refresh (`localStorage`); the intro then offers to resume or start over.
   hobbies list was dropped.
 - Budget options are set as `₹1,000 – ₹2,000` rather than `Rs. 1000 - Rs. 2000`.
 
+### Seeing where people drop out
+
+The form reports the furthest point each visitor reached, so you can tell which
+question is costing you people.
+
+A single `navigator.sendBeacon` fires when the page is closed or backgrounded,
+carrying the last question reached, how many were answered, time spent, device
+and referrer. It is fire-and-forget and wrapped in try/catch — analytics can
+never block or break a submission. Nothing is sent once someone has finished.
+
+Two tabs appear in the spreadsheet:
+
+- **Funnel log** — one row per visitor, updated in place as they get further.
+  `Completed` flips to `yes` when their response arrives, so the same row shows
+  how far they got *and* whether they made it.
+- **Funnel** — a summary. In the Apps Script editor choose `buildFunnel` from
+  the function dropdown and press **Run**; it rebuilds a table of each question
+  and how many people stopped there. Re-run whenever you want fresh numbers.
+
+Visitors are identified by a random id in `localStorage` — no cookie, no
+third-party tracker, nothing that identifies a person before they submit. Worth
+a line in the privacy policy all the same (the footer link is still `#`).
+
 ### Sending responses to Google Sheets
 
 1. Create the spreadsheet, then **Extensions ▸ Apps Script**.
