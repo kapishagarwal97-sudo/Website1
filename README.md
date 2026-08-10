@@ -129,6 +129,36 @@ refresh (`localStorage`); the intro then offers to resume or start over.
   hobbies list was dropped.
 - Budget options are set as `₹1,000 – ₹2,000` rather than `Rs. 1000 - Rs. 2000`.
 
+### Seeing where people drop out
+
+The form reports the furthest point each visitor reached, so you can tell which
+question is costing you people.
+
+A single `navigator.sendBeacon` fires when the page is closed or backgrounded,
+carrying the last question reached, how many were answered, time spent, device
+and referrer. It is fire-and-forget and wrapped in try/catch — analytics can
+never block or break a submission. Nothing is sent once someone has finished.
+
+Two tabs appear in the spreadsheet:
+
+- **Funnel log** — one row per visitor, updated in place as they get further.
+  `Completed` flips to `yes` when their response arrives, so the same row shows
+  how far they got *and* whether they made it.
+- **Funnel** — a summary. In the Apps Script editor choose `buildFunnel` from
+  the function dropdown and press **Run**; it rebuilds a table of each question
+  and how many people stopped there. Re-run whenever you want fresh numbers.
+  It is the only thing here that clears a tab, so it checks first: if a sheet
+  called *Funnel* already exists with something else in it, the summary goes to
+  *TRYB funnel* instead and your sheet is left alone.
+
+Updating the script never touches existing data. `Responses` is only ever
+appended to — new questions add columns on the right, and rows already in the
+sheet keep their values. The funnel tabs are created alongside it.
+
+Visitors are identified by a random id in `localStorage` — no cookie, no
+third-party tracker, nothing that identifies a person before they submit. Worth
+a line in the privacy policy all the same (the footer link is still `#`).
+
 ### Sending responses to Google Sheets
 
 1. Create the spreadsheet, then **Extensions ▸ Apps Script**.
@@ -156,6 +186,32 @@ the token deters scripted junk, it does not authenticate anyone.
 
 Re-deploy the Apps Script (**Deploy ▸ Manage deployments ▸ edit ▸ Version: New**)
 after any change to `Code.gs`, or the live URL keeps running the old version.
+
+
+## Short links for social
+
+`jointryb.in/invite` (and `/tribe`) lead to the form. The site is on **Hostinger**,
+which is Apache/LiteSpeed, so `.htaccess` does the work — a genuine 301.
+
+```apache
+RedirectMatch 301 (?i)^/invite/?$  /personality-test.html
+RedirectMatch 301 (?i)^/tribe/?$   /personality-test.html
+```
+
+`.htaccess` must sit in **`public_html`**, next to `index.html`. It is a hidden
+dotfile: turn on *Show hidden files* in Hostinger's File Manager, and note that
+many FTP clients skip dotfiles unless told not to. If `public_html` already has
+an `.htaccess`, **append** the block rather than overwriting the file.
+
+The `invite/` and `tribe/` folders are a fallback for hosts with no `.htaccess`
+support. On Hostinger the 301 fires first and they are never served, so they can
+be deleted — they are kept only in case the site moves. They carry
+`rel=canonical` to `/personality-test.html` plus `noindex`.
+
+To add another short link, copy one line and duplicate one of the folders.
+
+Browsers cache 301s hard, so test in a private window — otherwise an early wrong
+result can stick around.
 
 ## Run locally
 

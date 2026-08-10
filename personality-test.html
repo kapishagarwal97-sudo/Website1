@@ -536,6 +536,8 @@ let answers = {};          // id -> value, [] for multi, or null when a clock ra
 let details = { name:"", email:"", phone:"" };
 let step = 0, ticker = null, locked = false, sending = false, finished = false;
 let startedAt = Date.now();
+let sessionId = "";        // one per visitor journey, so drop-offs can be counted
+let furthest  = 0;         // highest step index reached
 
 const card  = document.getElementById("card");
 const back  = document.getElementById("back");
@@ -548,7 +550,7 @@ const note  = document.getElementById("hudNote");
 /* ---------- draft ---------- */
 function saveDraft(){
   if (finished) return;
-  try { localStorage.setItem(STORE, JSON.stringify({ answers, details, startedAt })); } catch (e) {}
+  try { localStorage.setItem(STORE, JSON.stringify({ answers, details, startedAt, sessionId, furthest })); } catch (e) {}
 }
 function clearDraft(){ try { localStorage.removeItem(STORE); } catch (e) {} }
 
@@ -587,6 +589,7 @@ function go(next){
   card.classList.add("is-out");
   setTimeout(() => {
     step = next;
+    if (step > furthest) furthest = step;
     render();
     card.classList.remove("is-out","is-in");
     void card.offsetWidth;
@@ -966,6 +969,7 @@ function validate(){
 function payload(){
   return {
     token: SUBMIT_TOKEN,
+    session: sessionId,
     website: (document.querySelector("#i-hp") || {}).value || "",   // honeypot
     submittedAt: new Date().toISOString(),
     name: details.name.trim(),
@@ -1079,6 +1083,51 @@ document.addEventListener("keydown", e => {
   }
 });
 
+
+/* ============================================================
+   8 · WHERE PEOPLE LEAVE
+   A single fire-and-forget beacon when the page is closed or
+   backgrounded, recording the furthest point reached. Upserted by
+   session, so one row per visitor. Never blocks or breaks the form.
+   ============================================================ */
+function stepLabel(i){
+  const s = STEPS[i];
+  if (!s) return { id:"", text:"", section:"" };
+  if (s.kind === "intro")   return { id:"intro",   text:"Intro screen",        section:"—" };
+  if (s.kind === "card")    return { id:"card",    text:"Section card: " + SECTIONS[s.s].label, section:SECTIONS[s.s].label };
+  if (s.kind === "details") return { id:"details", text:"Name / email / phone", section:"Waitlist" };
+  if (s.kind === "done")    return { id:"done",    text:"Finished",             section:"—" };
+  return { id:s.q.id, text:s.q.text, section:SECTIONS[s.q.s].label };
+}
+
+let beaconSent = false;
+function reportExit(){
+  if (beaconSent || finished || !SHEET_ENDPOINT) return;
+  beaconSent = true;                       // one report per page life
+  try {
+    const at = stepLabel(furthest);
+    navigator.sendBeacon(SHEET_ENDPOINT, JSON.stringify({
+      token: SUBMIT_TOKEN,
+      type: "dropoff",
+      session: sessionId,
+      lastStep: furthest,
+      lastQuestionId: at.id,
+      lastQuestion: at.text,
+      section: at.section,
+      answered: answeredCount(),
+      total: TOTAL,
+      seconds: Math.round((Date.now() - startedAt) / 1000),
+      viewport: innerWidth + "x" + innerHeight,
+      ua: navigator.userAgent,
+      referrer: document.referrer || ""
+    }));
+  } catch (e) {}                           // analytics must never break the form
+}
+
+// pagehide is the reliable one on mobile Safari; visibilitychange covers tab switches.
+addEventListener("pagehide", reportExit);
+addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") reportExit(); });
+
 back.onclick = () => { if (step > 0) go(step - 1); };
 
 /* ---------- boot ---------- */
@@ -1089,8 +1138,14 @@ back.onclick = () => { if (step > 0) go(step - 1); };
       answers   = d.answers || {};
       details   = Object.assign(details, d.details || {});
       startedAt = d.startedAt || Date.now();
+      sessionId = d.sessionId || "";
+      furthest  = d.furthest  || 0;
     }
   } catch (e) {}
+  if (!sessionId){
+    sessionId = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  }
+  saveDraft();
   render();                     // always open on the intro, which offers to resume
   card.classList.add("is-in");
 })();

@@ -34,7 +34,14 @@ function doPost(e) {
     if (SUBMIT_TOKEN && body.token !== SUBMIT_TOKEN) return json({ ok: false, error: 'bad token' });
     if (body.website) return json({ ok: true });   // honeypot filled → silently drop
 
+    // A beacon fired when someone closes the page part-way through.
+    if (body.type === 'dropoff') {
+      recordProgress(body, false);
+      return json({ ok: true });
+    }
+
     appendRow(flatten(body));
+    recordProgress(body, true);            // close the loop: this session finished
     return json({ ok: true });
   } catch (err) {
     return json({ ok: false, error: String(err) });
@@ -112,4 +119,118 @@ function json(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ===============================================================
+ * Funnel — where people leave
+ * =============================================================== */
+
+var FUNNEL_SHEET = 'Funnel log';
+
+/**
+ * One row per visitor, updated in place as they get further. `completed`
+ * is set when their finished response arrives, so the same row shows both
+ * how far they got and whether they made it.
+ */
+function recordProgress(body, completed) {
+  if (!body.session) return;
+
+  var ss    = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                             : SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(FUNNEL_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(FUNNEL_SHEET);
+    var head = sheet.getRange(1, 1, 1, 12);
+    head.setValues([[
+      'Session', 'First seen', 'Last seen', 'Left at (step)', 'Question id',
+      'Question they stopped on', 'Section', 'Answered', 'Of', 'Seconds',
+      'Completed', 'Device'
+    ]]);
+    head.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+
+  var device = /Mobi|Android|iPhone|iPad/.test(body.ua || '') ? 'Mobile' : 'Desktop';
+  var now    = new Date();
+
+  // Find this visitor's existing row, if any.
+  var last = sheet.getLastRow();
+  var ids  = last > 1 ? sheet.getRange(2, 1, last - 1, 1).getValues() : [];
+  var at   = -1;
+  for (var i = 0; i < ids.length; i++) {
+    if (ids[i][0] === body.session) { at = i + 2; break; }
+  }
+
+  var row = [
+    body.session, now, now,
+    body.lastStep === undefined ? '' : body.lastStep,
+    body.lastQuestionId || (completed ? 'done' : ''),
+    body.lastQuestion   || (completed ? 'Finished' : ''),
+    body.section        || '',
+    body.answered === undefined ? (body.answers ? body.answers.length : '') : body.answered,
+    body.total || (body.answers ? body.answers.length : ''),
+    body.seconds || body.durationSeconds || '',
+    completed ? 'yes' : 'no',
+    device
+  ];
+
+  if (at === -1) {
+    sheet.appendRow(row);
+  } else {
+    var existing = sheet.getRange(at, 1, 1, 12).getValues()[0];
+    row[1] = existing[1] || now;                      // keep the original first-seen
+    if (existing[10] === 'yes') row[10] = 'yes';      // a completion is never undone
+    sheet.getRange(at, 1, 1, 12).setValues([row]);
+  }
+}
+
+/**
+ * Run this from the Apps Script editor (Run ▸ buildFunnel) to write a
+ * "Funnel" tab: how many people reached each question, and how many stopped
+ * there. Re-run any time; it rebuilds from scratch.
+ */
+function buildFunnel() {
+  var ss    = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                             : SpreadsheetApp.getActiveSpreadsheet();
+  var log   = ss.getSheetByName(FUNNEL_SHEET);
+  if (!log || log.getLastRow() < 2) return;
+
+  var rows  = log.getRange(2, 1, log.getLastRow() - 1, 12).getValues();
+  var stops = {}, order = {}, sections = {}, total = rows.length, completed = 0;
+
+  rows.forEach(function (r) {
+    if (r[10] === 'yes') { completed++; return; }     // finishers stopped nowhere
+    var key = r[5] || 'Unknown';
+    stops[key]    = (stops[key] || 0) + 1;
+    order[key]    = r[3];
+    sections[key] = r[6];
+  });
+
+  // This rebuilds its tab from scratch, so never clear a sheet that is not ours:
+  // if something called "Funnel" already exists with other content, write beside it.
+  var HEAD = 'Question they stopped on';
+  var name = 'Funnel';
+  var out  = ss.getSheetByName(name);
+  if (out && out.getLastRow() > 0 && out.getRange(1, 1).getValue() !== HEAD) {
+    name = 'TRYB funnel';
+    out  = ss.getSheetByName(name);
+  }
+  if (!out) out = ss.insertSheet(name);
+  out.clear();
+  var fhead = out.getRange(1, 1, 1, 4);
+  fhead.setValues([['Question they stopped on', 'Section', 'People who stopped here', '% of visitors']]);
+  fhead.setFontWeight('bold');
+  out.setFrozenRows(1);
+
+  var keys = Object.keys(stops).sort(function (a, b) { return order[a] - order[b]; });
+  var data = keys.map(function (k) {
+    return [k, sections[k], stops[k], total ? (stops[k] / total) : 0];
+  });
+  data.push(['— FINISHED —', '', completed, total ? completed / total : 0]);
+
+  if (data.length) {
+    out.getRange(2, 1, data.length, 4).setValues(data);
+    out.getRange(2, 4, data.length, 1).setNumberFormat('0.0%');
+  }
+  out.autoResizeColumns(1, 4);
 }
