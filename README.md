@@ -147,6 +147,13 @@ Two tabs appear in the spreadsheet:
 - **Funnel** — a summary. In the Apps Script editor choose `buildFunnel` from
   the function dropdown and press **Run**; it rebuilds a table of each question
   and how many people stopped there. Re-run whenever you want fresh numbers.
+  It is the only thing here that clears a tab, so it checks first: if a sheet
+  called *Funnel* already exists with something else in it, the summary goes to
+  *TRYB funnel* instead and your sheet is left alone.
+
+Updating the script never touches existing data. `Responses` is only ever
+appended to — new questions add columns on the right, and rows already in the
+sheet keep their values. The funnel tabs are created alongside it.
 
 Visitors are identified by a random id in `localStorage` — no cookie, no
 third-party tracker, nothing that identifies a person before they submit. Worth

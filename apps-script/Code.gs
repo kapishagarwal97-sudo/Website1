@@ -206,7 +206,16 @@ function buildFunnel() {
     sections[key] = r[6];
   });
 
-  var out = ss.getSheetByName('Funnel') || ss.insertSheet('Funnel');
+  // This rebuilds its tab from scratch, so never clear a sheet that is not ours:
+  // if something called "Funnel" already exists with other content, write beside it.
+  var HEAD = 'Question they stopped on';
+  var name = 'Funnel';
+  var out  = ss.getSheetByName(name);
+  if (out && out.getLastRow() > 0 && out.getRange(1, 1).getValue() !== HEAD) {
+    name = 'TRYB funnel';
+    out  = ss.getSheetByName(name);
+  }
+  if (!out) out = ss.insertSheet(name);
   out.clear();
   var fhead = out.getRange(1, 1, 1, 4);
   fhead.setValues([['Question they stopped on', 'Section', 'People who stopped here', '% of visitors']]);
