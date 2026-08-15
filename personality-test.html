@@ -511,7 +511,8 @@ const QUESTIONS = [
   { id:"e13", s:6, type:"choice", text:"What's your usual budget for a quality evening out with friends?",
     options:["Below ₹1,000","₹1,000 – ₹2,000","₹2,000 – ₹3,000","₹3,000 – ₹4,000","₹4,000 +"] },
   { id:"e14", s:6, type:"text",   text:"Instagram", placeholder:"@yourhandle", optional:true },
-  { id:"e15", s:6, type:"text",   text:"LinkedIn",  placeholder:"linkedin.com/in/…" },
+  { id:"e15", s:6, type:"text",   text:"LinkedIn",  placeholder:"linkedin.com/in/…",
+    note:"Used only to verify you're real. We never post, message or share anything." },
   { id:"e16", s:6, type:"text",   text:"Add your best friend's contact, to see if chance takes you to the same table at TRYB.",
     placeholder:"Their number or email" }
 ];
@@ -775,6 +776,7 @@ function renderText(q){
         <p class="err">This one we do need.</p>
       </div>
     </div>
+    ${q.note ? `<p class="sub">${esc(q.note)}</p>` : ""}
     ${q.optional ? `<p class="sub">Optional — skip it if you'd rather not</p>` : ""}
     <button class="btn" id="next">${q.optional && !val ? "Skip" : "Continue"} <span>&rarr;</span></button>`;
   const input = card.querySelector("#i-free");
