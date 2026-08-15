@@ -100,10 +100,11 @@ They live in the `QUESTIONS` array near the top of the `<script>`:
 { id:"r1",  s:5, type:"rapid",  text:"…", options:["…","…"] }   // two tiles, timed
 { id:"h1",  s:4, type:"multi",  text:"…", options:[…] }         // pick any number
 { id:"e3",  s:6, type:"text",   text:"…", placeholder:"…" }     // short answer
+{ id:"e14", s:6, type:"text",   text:"…", optional:true }       // skippable
 { id:"e8",  s:6, type:"date",   text:"…" }                      // date of birth
 ```
 
-`s` indexes into `SECTIONS`, `labels:["…","…"]` or `["…","…","…"]` overrides a
+Only Instagram is optional; everything else must be answered. `s` indexes into `SECTIONS`, `labels:["…","…"]` or `["…","…","…"]` overrides a
 scale's end captions, and `SECTION_CARDS` holds the interstitials. Adding or
 removing questions needs no other change — the walk recomputes from `QUESTIONS`.
 

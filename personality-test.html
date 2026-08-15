@@ -510,7 +510,7 @@ const QUESTIONS = [
     labels:["Never","Once a week","Almost daily"] },
   { id:"e13", s:6, type:"choice", text:"What's your usual budget for a quality evening out with friends?",
     options:["Below ₹1,000","₹1,000 – ₹2,000","₹2,000 – ₹3,000","₹3,000 – ₹4,000","₹4,000 +"] },
-  { id:"e14", s:6, type:"text",   text:"Instagram", placeholder:"@yourhandle" },
+  { id:"e14", s:6, type:"text",   text:"Instagram", placeholder:"@yourhandle", optional:true },
   { id:"e15", s:6, type:"text",   text:"LinkedIn",  placeholder:"linkedin.com/in/…" },
   { id:"e16", s:6, type:"text",   text:"Add your best friend's contact, to see if chance takes you to the same table at TRYB.",
     placeholder:"Their number or email" }
@@ -775,10 +775,15 @@ function renderText(q){
         <p class="err">This one we do need.</p>
       </div>
     </div>
-    <button class="btn" id="next">Continue <span>&rarr;</span></button>`;
+    ${q.optional ? `<p class="sub">Optional — skip it if you'd rather not</p>` : ""}
+    <button class="btn" id="next">${q.optional && !val ? "Skip" : "Continue"} <span>&rarr;</span></button>`;
   const input = card.querySelector("#i-free");
-  input.oninput = () => card.querySelector("#f-free").classList.remove("bad");
-  card.querySelector("#next").onclick = () => commitText(q);
+  const btn   = card.querySelector("#next");
+  input.oninput = () => {
+    card.querySelector("#f-free").classList.remove("bad");
+    if (q.optional) btn.innerHTML = (input.value.trim() ? "Continue" : "Skip") + ' <span>&rarr;</span>';
+  };
+  btn.onclick = () => commitText(q);
   setTimeout(() => input.focus(), 320);
   hint.innerHTML = `<kbd>enter</kbd> to continue &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
 }
@@ -787,8 +792,8 @@ function commitText(q){
   if (locked) return;
   const input = card.querySelector("#i-free");
   const v = input.value.trim();
-  if (!v){ card.querySelector("#f-free").classList.add("bad"); input.focus(); return; }
-  answers[q.id] = v;
+  if (!v && !q.optional){ card.querySelector("#f-free").classList.add("bad"); input.focus(); return; }
+  answers[q.id] = v || null;      // a skipped optional field reads as no answer
   paintProgress(true); saveDraft();
   go(step + 1);
 }
