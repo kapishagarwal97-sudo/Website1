@@ -259,6 +259,18 @@ body::before{
 
 /* ---------- fields ---------- */
 .fields{display:grid;gap:1.4rem;margin-top:1.9rem;max-width:460px}
+
+/* intro: email sits to the left of the CTA */
+.startrow{display:flex;align-items:flex-end;gap:1.4rem;margin-top:1.9rem;max-width:620px;flex-wrap:wrap}
+.startrow .field{position:relative;flex:1 1 260px;min-width:220px;margin:0}
+.startrow .field .err{position:absolute;top:100%;left:0;margin-top:.35rem}
+.startrow .btn{margin-top:0;flex:0 0 auto}
+@media (max-width:560px){
+  /* stacked: flex-basis would otherwise become a height and stretch the field */
+  .startrow{flex-direction:column;align-items:stretch;gap:1.6rem}
+  .startrow .field{flex:0 0 auto}
+  .startrow .btn{align-self:flex-start}
+}
 .field label{display:block;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--sand);opacity:.65;margin-bottom:.5rem}
 .field input{
   width:100%;padding:.55rem 0;background:none;border:none;
@@ -510,8 +522,9 @@ const QUESTIONS = [
     labels:["Never","Once a week","Almost daily"] },
   { id:"e13", s:6, type:"choice", text:"What's your usual budget for a quality evening out with friends?",
     options:["Below ₹1,000","₹1,000 – ₹2,000","₹2,000 – ₹3,000","₹3,000 – ₹4,000","₹4,000 +"] },
-  { id:"e14", s:6, type:"text",   text:"Instagram", placeholder:"@yourhandle" },
-  { id:"e15", s:6, type:"text",   text:"LinkedIn",  placeholder:"linkedin.com/in/…" },
+  { id:"e14", s:6, type:"text",   text:"Instagram", placeholder:"@yourhandle", optional:true },
+  { id:"e15", s:6, type:"text",   text:"LinkedIn",  placeholder:"linkedin.com/in/…",
+    note:"Needed for verification purposes only." },
   { id:"e16", s:6, type:"text",   text:"Add your best friend's contact, to see if chance takes you to the same table at TRYB.",
     placeholder:"Their number or email" }
 ];
@@ -633,16 +646,64 @@ function renderIntro(){
       <p class="note"><b>02</b> No right answers, and nothing is timed — except rapid fire, which is ten seconds a call.</p>
       <p class="note"><b>03</b> Around eight minutes. Your answers save as you go.</p>
     </div>
-    <button class="btn" id="start">${resumable ? "Pick up where you left off" : "Start walking"} <span>&rarr;</span></button>
+    <div class="startrow">
+      <div class="field" id="f-lead">
+        <label for="i-lead">Your email</label>
+        <input id="i-lead" type="email" inputmode="email" autocomplete="email"
+               placeholder="you@example.com" value="${esc(details.email)}" />
+        <p class="err">We need an email we can send your invitation to.</p>
+      </div>
+      <button class="btn" id="start">${resumable ? "Pick up where you left off" : "Start walking"} <span>&rarr;</span></button>
+    </div>
     ${resumable ? `<div><button class="btn btn--ghost btn--sm" id="restart">Start over</button></div>` : ""}`;
 
-  card.querySelector("#start").onclick = () => go(resumable ? firstUnanswered() : step + 1);
+  const lead = card.querySelector("#i-lead");
+  lead.oninput = () => card.querySelector("#f-lead").classList.remove("bad");
+  card.querySelector("#start").onclick = () => startWalking(resumable);
   const r = card.querySelector("#restart");
   if (r) r.onclick = () => {
     answers = {}; details = { name:"", email:"", phone:"" };
-    startedAt = Date.now(); clearDraft(); paintProgress(); render();
+    startedAt = Date.now(); leadSent = false; clearDraft(); paintProgress(); render();
   };
   hint.innerHTML = `press <kbd>enter</kbd> to begin`;
+}
+
+/**
+ * Take the email before the first question, so someone who never finishes is
+ * still reachable. Recorded to its own tab; the walk itself is unchanged.
+ */
+function startWalking(resumable){
+  const field = card.querySelector("#f-lead");
+  const input = card.querySelector("#i-lead");
+  const email = (input.value || "").trim();
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+    field.classList.add("bad");
+    input.focus();
+    return;
+  }
+  details.email = email;          // the final screen is then already filled in
+  saveDraft();
+  captureLead(email);             // fire and forget — never delays the form
+  go(resumable ? firstUnanswered() : step + 1);
+}
+
+let leadSent = false;
+function captureLead(email){
+  if (leadSent || !SHEET_ENDPOINT) return;
+  leadSent = true;
+  try {
+    fetch(SHEET_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        token: SUBMIT_TOKEN, type: "lead",
+        session: sessionId, email: email,
+        referrer: document.referrer || ""
+      }),
+      keepalive: true
+    }).catch(function(){});
+  } catch (e) {}
 }
 
 function firstUnanswered(){
@@ -775,10 +836,16 @@ function renderText(q){
         <p class="err">This one we do need.</p>
       </div>
     </div>
-    <button class="btn" id="next">Continue <span>&rarr;</span></button>`;
+    ${q.note ? `<p class="sub">${esc(q.note)}</p>` : ""}
+    ${q.optional ? `<p class="sub">Optional — skip it if you'd rather not</p>` : ""}
+    <button class="btn" id="next">${q.optional && !val ? "Skip" : "Continue"} <span>&rarr;</span></button>`;
   const input = card.querySelector("#i-free");
-  input.oninput = () => card.querySelector("#f-free").classList.remove("bad");
-  card.querySelector("#next").onclick = () => commitText(q);
+  const btn   = card.querySelector("#next");
+  input.oninput = () => {
+    card.querySelector("#f-free").classList.remove("bad");
+    if (q.optional) btn.innerHTML = (input.value.trim() ? "Continue" : "Skip") + ' <span>&rarr;</span>';
+  };
+  btn.onclick = () => commitText(q);
   setTimeout(() => input.focus(), 320);
   hint.innerHTML = `<kbd>enter</kbd> to continue &nbsp;·&nbsp; <kbd>←</kbd> to go back`;
 }
@@ -787,8 +854,8 @@ function commitText(q){
   if (locked) return;
   const input = card.querySelector("#i-free");
   const v = input.value.trim();
-  if (!v){ card.querySelector("#f-free").classList.add("bad"); input.focus(); return; }
-  answers[q.id] = v;
+  if (!v && !q.optional){ card.querySelector("#f-free").classList.add("bad"); input.focus(); return; }
+  answers[q.id] = v || null;      // a skipped optional field reads as no answer
   paintProgress(true); saveDraft();
   go(step + 1);
 }
@@ -1051,7 +1118,8 @@ document.addEventListener("keydown", e => {
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
 
   if (e.key === "Enter"){
-    if (s.kind === "intro" || s.kind === "card"){ e.preventDefault(); go(step + 1); return; }
+    if (s.kind === "intro"){ e.preventDefault(); startWalking(answeredCount() > 0); return; }
+    if (s.kind === "card"){ e.preventDefault(); go(step + 1); return; }
     if (s.kind === "details"){ e.preventDefault(); submit(); return; }
     if (s.kind === "q"){
       if (s.q.type === "text"){ e.preventDefault(); commitText(s.q); return; }

@@ -100,10 +100,11 @@ They live in the `QUESTIONS` array near the top of the `<script>`:
 { id:"r1",  s:5, type:"rapid",  text:"…", options:["…","…"] }   // two tiles, timed
 { id:"h1",  s:4, type:"multi",  text:"…", options:[…] }         // pick any number
 { id:"e3",  s:6, type:"text",   text:"…", placeholder:"…" }     // short answer
+{ id:"e14", s:6, type:"text",   text:"…", optional:true }       // skippable
 { id:"e8",  s:6, type:"date",   text:"…" }                      // date of birth
 ```
 
-`s` indexes into `SECTIONS`, `labels:["…","…"]` or `["…","…","…"]` overrides a
+Only Instagram is optional; everything else must be answered. `s` indexes into `SECTIONS`, `labels:["…","…"]` or `["…","…","…"]` overrides a
 scale's end captions, and `SECTION_CARDS` holds the interstitials. Adding or
 removing questions needs no other change — the walk recomputes from `QUESTIONS`.
 
@@ -128,6 +129,22 @@ refresh (`localStorage`); the intro then offers to resume or start over.
   "How long have you been living", and the placeholder `Option 13` in the
   hobbies list was dropped.
 - Budget options are set as `₹1,000 – ₹2,000` rather than `Rs. 1000 - Rs. 2000`.
+
+### Email taken up front
+
+The intro screen asks for an email beside the **Start walking** button — side by
+side on desktop, stacked on phones. It must be valid before the walk begins.
+
+The moment they start, that address is posted to an **Emails** tab
+(`Started at · Email · Session`), newest first, so someone who never reaches the
+end is still reachable. It is one row per visitor: coming back updates rather
+than duplicates. The address is also carried through and pre-filled on the final
+screen, so nobody types it twice, and the full response still lands in
+`Responses` on submit exactly as before.
+
+The send is fire-and-forget with `keepalive`, so it never delays the first
+question. To make the email optional instead, drop the validation check in
+`startWalking()`.
 
 ### Seeing where people drop out
 

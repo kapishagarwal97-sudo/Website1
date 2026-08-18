@@ -34,6 +34,12 @@ function doPost(e) {
     if (SUBMIT_TOKEN && body.token !== SUBMIT_TOKEN) return json({ ok: false, error: 'bad token' });
     if (body.website) return json({ ok: true });   // honeypot filled → silently drop
 
+    // Email taken on the intro screen, before the first question.
+    if (body.type === 'lead') {
+      recordLead(body);
+      return json({ ok: true });
+    }
+
     // A beacon fired when someone closes the page part-way through.
     if (body.type === 'dropoff') {
       recordProgress(body, false);
@@ -233,4 +239,42 @@ function buildFunnel() {
     out.getRange(2, 4, data.length, 1).setNumberFormat('0.0%');
   }
   out.autoResizeColumns(1, 4);
+}
+
+/* ===============================================================
+ * Emails captured on the intro screen
+ * =============================================================== */
+
+var LEADS_SHEET = 'Emails';
+
+/**
+ * Written the moment someone starts the form, so an address is on record even
+ * if they never reach the end. One row per visitor — restarting does not
+ * duplicate them.
+ */
+function recordLead(body) {
+  if (!body.email) return;
+
+  var ss    = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                             : SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(LEADS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(LEADS_SHEET);
+    var head = sheet.getRange(1, 1, 1, 3);
+    head.setValues([['Started at', 'Email', 'Session']]);
+    head.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+
+  // Same visitor coming back should update, not pile up.
+  var last = sheet.getLastRow();
+  var ids  = last > 1 ? sheet.getRange(2, 3, last - 1, 1).getValues() : [];
+  for (var i = 0; i < ids.length; i++) {
+    if (ids[i][0] && ids[i][0] === body.session) {
+      sheet.getRange(i + 2, 1, 1, 3).setValues([[new Date(), body.email, body.session]]);
+      return;
+    }
+  }
+  sheet.insertRowAfter(1);                    // newest first, like Responses
+  sheet.getRange(2, 1, 1, 3).setValues([[new Date(), body.email, body.session || '']]);
 }
