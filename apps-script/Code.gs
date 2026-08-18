@@ -46,6 +46,12 @@ function doPost(e) {
       return json({ ok: true });
     }
 
+    // Guard: only a finished form has answers. Anything else reaching here is a
+    // stray or mis-shaped POST, and must not land in Responses as a blank row.
+    if (!body.answers || !body.answers.length) {
+      return json({ ok: false, error: 'no answers in payload — not a submission' });
+    }
+
     appendRow(flatten(body));
     recordProgress(body, true);            // close the loop: this session finished
     return json({ ok: true });
@@ -56,9 +62,18 @@ function doPost(e) {
   }
 }
 
-/** Lets you confirm the deployment is live by opening the /exec URL in a browser. */
+/** Bumped whenever this file changes, so opening /exec proves which version is
+ *  actually deployed — a paste that was never redeployed shows the old value. */
+var VERSION = '4 — leads + funnel';
+
+/** Open the /exec URL in a browser to see what is live. */
 function doGet() {
-  return json({ ok: true, service: 'tryb-personality-test' });
+  return json({
+    ok: true,
+    service: 'tryb-personality-test',
+    version: VERSION,
+    handles: ['lead', 'dropoff', 'submission']
+  });
 }
 
 /**
