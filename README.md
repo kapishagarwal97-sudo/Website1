@@ -146,6 +146,12 @@ The send is fire-and-forget with `keepalive`, so it never delays the first
 question. To make the email optional instead, drop the validation check in
 `startWalking()`.
 
+The tab is created lazily, on the first person who starts — so it will not exist
+until then. To create `Emails` and `Funnel log` with their headers immediately,
+pick `setupSheets` in the Apps Script editor and press **Run**. It only adds a
+missing tab or header row and never touches existing rows, so it is safe to run
+more than once.
+
 ### Seeing where people drop out
 
 The form reports the furthest point each visitor reached, so you can tell which
