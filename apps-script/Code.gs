@@ -278,3 +278,32 @@ function recordLead(body) {
   sheet.insertRowAfter(1);                    // newest first, like Responses
   sheet.getRange(2, 1, 1, 3).setValues([[new Date(), body.email, body.session || '']]);
 }
+
+/**
+ * Run this once from the editor (Run ▸ setupSheets) to create the Emails and
+ * Funnel log tabs with their headers straight away, instead of waiting for the
+ * first visitor. Safe to run any time — it only ever adds a missing tab or a
+ * missing header row, and never touches existing rows.
+ */
+function setupSheets() {
+  var ss = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                          : SpreadsheetApp.getActiveSpreadsheet();
+
+  var tabs = [
+    { name: LEADS_SHEET,  head: ['Started at', 'Email', 'Session'] },
+    { name: FUNNEL_SHEET, head: ['Session', 'First seen', 'Last seen', 'Left at (step)',
+                                 'Question id', 'Question they stopped on', 'Section',
+                                 'Answered', 'Of', 'Seconds', 'Completed', 'Device'] }
+  ];
+
+  tabs.forEach(function (t) {
+    var sheet = ss.getSheetByName(t.name);
+    if (!sheet) sheet = ss.insertSheet(t.name);
+    if (sheet.getLastRow() === 0) {                  // only when genuinely empty
+      var head = sheet.getRange(1, 1, 1, t.head.length);
+      head.setValues([t.head]);
+      head.setFontWeight('bold');
+      sheet.setFrozenRows(1);
+    }
+  });
+}
