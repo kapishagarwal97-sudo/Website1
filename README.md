@@ -152,6 +152,25 @@ pick `setupSheets` in the Apps Script editor and press **Run**. It only adds a
 missing tab or header row and never touches existing rows, so it is safe to run
 more than once.
 
+### Consent to be contacted
+
+The final screen carries an unticked checkbox:
+
+> Yes, send me invitations and updates from TRYB on WhatsApp and email. You can
+> stop them any time.
+
+Three rules shape it, and they are worth keeping if the wording changes:
+
+- **Unticked by default.** Pre-ticked boxes are not valid consent under the DPDP
+  Act, and Meta rejects them for WhatsApp opt-in.
+- **Optional.** Joining the waitlist does not depend on it — consent bundled
+  into a service is not freely given, so it is not consent.
+- **Names the sender and the channels.** "TRYB", "WhatsApp" and "email" all
+  appear; "keep me updated" would not be specific enough for WhatsApp opt-in.
+
+Two columns record it: `Consent — WhatsApp + email` (yes/no) and
+`Consent given at`, since an opt-in record needs its timestamp.
+
 ### Seeing where people drop out
 
 The form reports the furthest point each visitor reached, so you can tell which

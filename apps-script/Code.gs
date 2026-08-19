@@ -64,7 +64,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '4 — leads + funnel';
+var VERSION = '5 — leads + funnel + consent';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -85,6 +85,9 @@ function flatten(body) {
   row['Name']          = body.name  || '';
   row['Email']         = body.email || '';
   row['Phone']         = body.phone || '';
+  // Consent is logged with the moment it was given, as opt-in records require.
+  row['Consent — WhatsApp + email'] = body.consent ? 'yes' : 'no';
+  row['Consent given at']           = body.consentAt ? new Date(body.consentAt) : '';
 
   (body.answers || []).forEach(function (a) {
     // Sheets evaluates a leading =, + or -, so those are quoted defensively.

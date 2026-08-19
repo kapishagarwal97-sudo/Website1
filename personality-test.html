@@ -285,6 +285,28 @@ body::before{
 .field.bad .err{display:block}
 input[type="date"]{color-scheme:dark}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+/* consent — unticked by default, never a condition of joining */
+.consent{display:flex;align-items:flex-start;gap:.8rem;margin-top:1.6rem;max-width:46ch;cursor:pointer}
+.consent input{position:absolute;width:1px;height:1px;opacity:0}
+.consent__box{
+  flex:0 0 auto;width:20px;height:20px;margin-top:.15rem;
+  border:1px solid rgba(215,206,195,.45);border-radius:3px;
+  display:grid;place-items:center;
+  transition:background .2s ease,border-color .2s ease;
+}
+.consent__box::after{
+  content:"";width:10px;height:6px;
+  border-left:2px solid var(--cream);border-bottom:2px solid var(--cream);
+  transform:rotate(-45deg) scale(.5);transform-origin:center;
+  opacity:0;transition:opacity .18s ease,transform .18s var(--spring);
+  margin-top:-3px;
+}
+.consent:hover .consent__box{border-color:var(--sand)}
+.consent input:checked + .consent__box{background:var(--ember);border-color:var(--ember)}
+.consent input:checked + .consent__box::after{opacity:1;transform:rotate(-45deg) scale(1)}
+.consent input:focus-visible + .consent__box{border-color:var(--cream);box-shadow:0 0 0 3px rgba(235,100,46,.28)}
+.consent__text{font-size:.85rem;line-height:1.5;color:var(--sand)}
+
 .fineprint{margin-top:1.4rem;max-width:46ch;font-size:.78rem;line-height:1.5;color:var(--sand);opacity:.5}
 .status{margin-top:1rem;font-size:.85rem;color:var(--ember);max-width:46ch}
 
@@ -546,7 +568,7 @@ const LETTERS = ["A","B","C","D","E","F"];
 const STORE   = "tryb-form-v2";
 
 let answers = {};          // id -> value, [] for multi, or null when a clock ran out
-let details = { name:"", email:"", phone:"" };
+let details = { name:"", email:"", phone:"", consent:false };
 let step = 0, ticker = null, locked = false, sending = false, finished = false;
 let startedAt = Date.now();
 let sessionId = "";        // one per visitor journey, so drop-offs can be counted
@@ -662,7 +684,7 @@ function renderIntro(){
   card.querySelector("#start").onclick = () => startWalking(resumable);
   const r = card.querySelector("#restart");
   if (r) r.onclick = () => {
-    answers = {}; details = { name:"", email:"", phone:"" };
+    answers = {}; details = { name:"", email:"", phone:"", consent:false };
     startedAt = Date.now(); leadSent = false; clearDraft(); paintProgress(); render();
   };
   hint.innerHTML = `press <kbd>enter</kbd> to begin`;
@@ -924,6 +946,12 @@ function renderDetails(){
       </div>
       <div class="hp"><label>Leave this empty<input id="i-hp" type="text" tabindex="-1" autocomplete="off" /></label></div>
     </form>
+    <label class="consent" for="i-consent">
+      <input type="checkbox" id="i-consent" ${details.consent ? "checked" : ""} />
+      <span class="consent__box" aria-hidden="true"></span>
+      <span class="consent__text">Yes, send me invitations and updates from TRYB on
+        WhatsApp and email. You can stop them any time.</span>
+    </label>
     <button class="btn" id="submit">Join the waitlist <span>&rarr;</span></button>
     <p class="fineprint">We use this only to choose the experience that suits you, and to send your invitation.
       Nothing is shared with the other guests before you both say yes.</p>
@@ -933,6 +961,8 @@ function renderDetails(){
     const el = card.querySelector("#i-" + k);
     el.oninput = () => { details[k] = el.value; card.querySelector("#f-" + k).classList.remove("bad"); saveDraft(); };
   });
+  const consent = card.querySelector("#i-consent");
+  consent.onchange = () => { details.consent = consent.checked; saveDraft(); };
   card.querySelector("#submit").onclick = submit;
   card.querySelector("#form").onsubmit = e => { e.preventDefault(); submit(); };
   hint.innerHTML = `<kbd>enter</kbd> to join`;
@@ -1042,6 +1072,8 @@ function payload(){
     name: details.name.trim(),
     email: details.email.trim(),
     phone: details.phone.trim(),
+    consent: !!details.consent,
+    consentAt: details.consent ? new Date().toISOString() : "",
     answers: QUESTIONS.map(q => ({ id:q.id, question:q.text, answer:answerLabel(q) })),
     timedOut: QUESTIONS.filter(q => answers[q.id] === null).length,
     durationSeconds: Math.round((Date.now() - startedAt) / 1000)
