@@ -307,7 +307,6 @@ input[type="date"]{color-scheme:dark}
 .consent input:focus-visible + .consent__box{border-color:var(--cream);box-shadow:0 0 0 3px rgba(235,100,46,.28)}
 .consent__text{font-size:.85rem;line-height:1.5;color:var(--sand)}
 
-.fineprint{margin-top:1.4rem;max-width:46ch;font-size:.78rem;line-height:1.5;color:var(--sand);opacity:.5}
 .status{margin-top:1rem;font-size:.85rem;color:var(--ember);max-width:46ch}
 
 /* ---------- preview panel ---------- */
@@ -953,8 +952,6 @@ function renderDetails(){
         WhatsApp and email. You can stop them any time.</span>
     </label>
     <button class="btn" id="submit">Join the waitlist <span>&rarr;</span></button>
-    <p class="fineprint">We use this only to choose the experience that suits you, and to send your invitation.
-      Nothing is shared with the other guests before you both say yes.</p>
     <p class="status" id="status"></p>`;
 
   ["name","email","phone"].forEach(k => {
