@@ -58,6 +58,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
       </button>
     </div>
+
+    <div class="detail__other">
+      <a href="invite-agama.html">See the other invitation · Workshop &amp; dinner →</a>
+    </div>
   </main>
 
   <!-- Payment modal -->
@@ -72,6 +76,17 @@
       <div class="modal__amount">
         <span class="lbl">Amount</span>
         <span class="amt" data-price>₹1,200</span>
+      </div>
+
+      <div class="modal__field" id="nameField">
+        <label for="pName">Full name <span class="req">*</span></label>
+        <input id="pName" type="text" autocomplete="name" placeholder="Your name" required />
+        <span class="modal__err">Please enter your name.</span>
+      </div>
+      <div class="modal__field" id="phoneField">
+        <label for="pPhone">Phone number <span class="req">*</span></label>
+        <input id="pPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" maxlength="15" required />
+        <span class="modal__err">Enter a valid 10-digit mobile number.</span>
       </div>
 
       <button class="btn" type="button" id="payBtn">
@@ -120,11 +135,27 @@
       modal.querySelectorAll("[data-close]").forEach(function(el){el.addEventListener("click",closeModal);});
       document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
 
+      // Require name + a valid Indian mobile number before payment
+      var nameEl=document.getElementById("pName"), phoneEl=document.getElementById("pPhone");
+      var nameField=document.getElementById("nameField"), phoneField=document.getElementById("phoneField");
+      function validPhone(v){return /^(?:\+?91[-\s]?)?[6-9]\d{9}$/.test((v||"").replace(/[\s-]/g,""));}
+      [nameEl,phoneEl].forEach(function(el){el.addEventListener("input",function(){el.closest(".modal__field").classList.remove("invalid");});});
+
       document.getElementById("payBtn").addEventListener("click",function(){
+        var okName=nameEl.value.trim().length>=2;
+        var okPhone=validPhone(phoneEl.value);
+        nameField.classList.toggle("invalid",!okName);
+        phoneField.classList.toggle("invalid",!okPhone);
+        if(!okName){nameEl.focus();return;}
+        if(!okPhone){phoneEl.focus();return;}
+        var name=nameEl.value.trim();
+        var phone=phoneEl.value.replace(/[\s-]/g,"").replace(/^\+?91/,"");
         if(PAY_LINK){
-          window.open(PAY_LINK,"_blank","noopener,noreferrer");
+          var sep=PAY_LINK.indexOf("?")>-1?"&":"?";
+          var url=PAY_LINK+sep+"prefill[name]="+encodeURIComponent(name)+"&prefill[contact]="+encodeURIComponent("+91"+phone);
+          window.open(url,"_blank","noopener,noreferrer");
         }else{
-          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Please share the payment link.";
+          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Phone: +91 "+phone+". Please share the payment link.";
           window.open("https://wa.me/917042903139?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer");
         }
       });
