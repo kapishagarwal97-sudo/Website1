@@ -254,5 +254,9 @@ body::before{ background:radial-gradient(70% 45% at 50% -5%,rgba(247,242,234,.07
 .inv-grid{ max-width:720px; margin-inline:auto; gap:clamp(1rem,2vw,1.6rem); }
 .inv-card{ min-height:380px; padding:clamp(1.4rem,2.4vw,2rem); }
 .inv-card__title{ font-size:clamp(1.5rem,2.8vw,2rem); padding:1.1rem 0; }
-.inv-card__kicker{ padding-right:2.8rem; }
+.inv-card__kicker{ font-size:.62rem; letter-spacing:.14em; padding-right:2.6rem; }
 @media(max-width:760px){ .inv-grid{ max-width:420px; } }
+
+/* keep footer flush to the bottom — no empty band below it on tall screens */
+body{ display:flex; flex-direction:column; }
+.inv-foot{ margin-top:auto; }
