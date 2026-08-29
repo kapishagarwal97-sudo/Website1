@@ -202,3 +202,24 @@ body::before{
 .detail__other a{display:inline-flex;align-items:center;gap:.55rem;padding:.7rem 1.3rem;border:1px solid var(--line);border-radius:100px;
   font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--sand);transition:border-color .3s var(--ease),color .3s var(--ease);}
 .detail__other a:hover{border-color:var(--bronze);color:var(--cream);}
+
+/* ===== requested tweaks ===== */
+/* portrait cards (taller than wide) */
+.inv-card{ aspect-ratio:4 / 5; min-height:420px; }
+/* 'view details & reserve' + 'Reserve the spot' use the bronze of the when/where labels */
+.inv-card__cta{ color:var(--bronze); }
+.reserve-bar .btn{ background:var(--bronze); }
+.reserve-bar .btn:hover{ background:#9a6a3f; }
+/* shorter, left-aligned footer */
+.inv-foot{ text-align:left; padding:1.3rem var(--gutter); margin-top:2.4rem; }
+.inv-foot img{ display:none; }
+.inv-foot p{ font-size:.76rem; }
+/* detail page: smaller headings, wider content column */
+.detail{ max-width:1040px; }
+.detail__eyebrow{ font-size:.68rem; }
+.detail h1{ font-size:clamp(1.9rem,4vw,2.8rem); }
+.detail__venue{ font-size:clamp(1rem,1.8vw,1.2rem); }
+.detail h2{ font-size:clamp(1.1rem,1.9vw,1.4rem); margin:2rem 0 .7rem; }
+.detail p, .detail li{ font-size:.97rem; }
+.fact .val{ font-size:1rem; }
+.reserve-bar .price .amt{ font-size:clamp(1.7rem,3.6vw,2.2rem); }
