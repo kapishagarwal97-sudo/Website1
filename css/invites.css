@@ -260,3 +260,26 @@ body::before{ background:radial-gradient(70% 45% at 50% -5%,rgba(247,242,234,.07
 /* keep footer flush to the bottom — no empty band below it on tall screens */
 body{ display:flex; flex-direction:column; }
 .inv-foot{ margin-top:auto; }
+
+/* ===== terms & conditions (collapsible) ===== */
+.terms{ margin-top:2rem; border:1px solid var(--line); border-radius:12px;
+  background:linear-gradient(180deg,var(--ink-3),var(--ink-2)); overflow:hidden; }
+.terms>summary{ cursor:pointer; list-style:none; padding:1.1rem 1.3rem;
+  font-family:var(--font-display); font-size:1.02rem; color:var(--cream);
+  display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.terms>summary::-webkit-details-marker{ display:none; }
+.terms>summary::after{ content:"+"; font-size:1.3rem; line-height:1; color:var(--sand); }
+.terms[open]>summary::after{ content:"–"; }
+.terms__list{ margin:0; padding:.2rem 1.4rem 1.3rem 2.7rem; display:flex; flex-direction:column; gap:.7rem; }
+.terms__list li{ color:var(--sand); font-size:.9rem; line-height:1.6; }
+.terms__list li::marker{ color:var(--bronze); }
+.terms__list strong{ color:var(--cream); font-weight:500; }
+
+/* ===== checkout extras (aadhaar hint + terms agreement) ===== */
+.modal__hint{ display:block; margin-top:.4rem; font-size:.72rem; color:var(--sand); opacity:.8; line-height:1.4; }
+.modal__agree{ display:flex; align-items:flex-start; gap:.6rem; margin:.2rem 0 1rem;
+  font-size:.82rem; line-height:1.45; color:var(--sand); cursor:pointer; text-align:left; }
+.modal__agree input{ margin-top:.15rem; width:16px; height:16px; accent-color:var(--cream); flex:0 0 auto; }
+.modal__agree a{ color:var(--cream); text-decoration:underline; text-underline-offset:2px; }
+.modal__agree.invalid{ color:var(--cream); }
+.modal__agree.invalid input{ outline:2px solid var(--cream); outline-offset:2px; border-radius:3px; }
