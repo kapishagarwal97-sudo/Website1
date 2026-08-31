@@ -283,3 +283,15 @@ body{ display:flex; flex-direction:column; }
 .modal__agree a{ color:var(--cream); text-decoration:underline; text-underline-offset:2px; }
 .modal__agree.invalid{ color:var(--cream); }
 .modal__agree.invalid input{ outline:2px solid var(--cream); outline-offset:2px; border-radius:3px; }
+
+/* ===== "your table" social-proof strip ===== */
+.matches{ margin-top:2rem; padding:1.4rem; border:1px solid var(--line); border-radius:12px;
+  background:linear-gradient(180deg,var(--ink-3),var(--ink-2)); }
+.matches__top{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.85rem; flex-wrap:wrap; }
+.matches__eyebrow{ font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--bronze); }
+.matches__seats{ display:flex; gap:.4rem; }
+.matches__seats .seat{ width:18px; height:18px; border-radius:50%; border:1.5px solid var(--sand); opacity:.45; }
+.matches__seats .seat.is-filled{ background:var(--cream); border-color:var(--cream); opacity:1; }
+.matches__lead{ font-size:.98rem; color:var(--cream); line-height:1.45; }
+.matches__lead strong{ font-weight:500; }
+.matches__sub{ font-size:.85rem; color:var(--sand); margin-top:.3rem; line-height:1.5; }
