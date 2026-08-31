@@ -46,6 +46,13 @@ function doPost(e) {
       return json({ ok: true });
     }
 
+    // A seat reservation from the standalone invite pages → its own tab.
+    // Kept entirely separate from Responses/Emails/Funnel.
+    if (body.type === 'invite') {
+      recordInvite(body);
+      return json({ ok: true });
+    }
+
     // Guard: only a finished form has answers. Anything else reaching here is a
     // stray or mis-shaped POST, and must not land in Responses as a blank row.
     if (!body.answers || !body.answers.length) {
@@ -64,7 +71,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '5 — leads + funnel + consent';
+var VERSION = '6 — leads + funnel + consent + invites';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -72,7 +79,7 @@ function doGet() {
     ok: true,
     service: 'tryb-personality-test',
     version: VERSION,
-    handles: ['lead', 'dropoff', 'submission']
+    handles: ['lead', 'dropoff', 'submission', 'invite']
   });
 }
 
@@ -295,6 +302,40 @@ function recordLead(body) {
   }
   sheet.insertRowAfter(1);                    // newest first, like Responses
   sheet.getRange(2, 1, 1, 3).setValues([[new Date(), body.email, body.session || '']]);
+}
+
+/* ===============================================================
+ * Invite seat reservations
+ * =============================================================== */
+
+var INVITES_SHEET = 'Invites';
+
+/**
+ * One row per "Pay now" from the standalone invite pages. Captures the
+ * intent to pay (name + phone) so you have the guest even if they drop off
+ * at the payment step; Razorpay remains the record of who actually paid.
+ * Writes only to the Invites tab — Responses/Emails/Funnel are untouched.
+ */
+function recordInvite(body) {
+  var ss    = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                             : SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(INVITES_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(INVITES_SHEET);
+    var head = sheet.getRange(1, 1, 1, 6);
+    head.setValues([['Reserved at', 'Event', 'When', 'Amount', 'Name', 'Phone']]);
+    head.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  sheet.insertRowAfter(1);                    // newest first, like the other tabs
+  sheet.getRange(2, 1, 1, 6).setValues([[
+    new Date(),
+    body.event  || '',
+    body.when   || '',
+    body.amount || '',
+    body.name   || '',
+    body.phone  || ''
+  ]]);
 }
 
 /**
