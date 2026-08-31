@@ -275,7 +275,7 @@ body{ display:flex; flex-direction:column; }
 .terms__list li::marker{ color:var(--bronze); }
 .terms__list strong{ color:var(--cream); font-weight:500; }
 
-/* ===== checkout extras (aadhaar hint + terms agreement) ===== */
+/* ===== checkout extras (terms agreement) ===== */
 .modal__hint{ display:block; margin-top:.4rem; font-size:.72rem; color:var(--sand); opacity:.8; line-height:1.4; }
 .modal__agree{ display:flex; align-items:flex-start; gap:.6rem; margin:.2rem 0 1rem;
   font-size:.82rem; line-height:1.45; color:var(--sand); cursor:pointer; text-align:left; }
