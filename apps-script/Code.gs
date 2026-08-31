@@ -71,7 +71,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '6 — leads + funnel + consent + invites';
+var VERSION = '7 — leads + funnel + consent + invites (name + aadhaar)';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -312,7 +312,7 @@ var INVITES_SHEET = 'Invites';
 
 /**
  * One row per "Pay now" from the standalone invite pages. Captures the
- * intent to pay (name + phone) so you have the guest even if they drop off
+ * intent to pay (name + Aadhaar) so you have the guest even if they drop off
  * at the payment step; Razorpay remains the record of who actually paid.
  * Writes only to the Invites tab — Responses/Emails/Funnel are untouched.
  */
@@ -323,10 +323,12 @@ function recordInvite(body) {
   if (!sheet) {
     sheet = ss.insertSheet(INVITES_SHEET);
     var head = sheet.getRange(1, 1, 1, 6);
-    head.setValues([['Reserved at', 'Event', 'When', 'Amount', 'Name', 'Phone']]);
+    head.setValues([['Reserved at', 'Event', 'When', 'Amount', 'Name', 'Aadhaar']]);
     head.setFontWeight('bold');
     sheet.setFrozenRows(1);
   }
+  // Leading apostrophe keeps the 12-digit Aadhaar as exact text (never a number).
+  var aadhaar = body.aadhaar ? "'" + String(body.aadhaar) : '';
   sheet.insertRowAfter(1);                    // newest first, like the other tabs
   sheet.getRange(2, 1, 1, 6).setValues([[
     new Date(),
@@ -334,7 +336,7 @@ function recordInvite(body) {
     body.when   || '',
     body.amount || '',
     body.name   || '',
-    body.phone  || ''
+    aadhaar
   ]]);
 }
 

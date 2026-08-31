@@ -277,12 +277,14 @@ body{ display:flex; flex-direction:column; }
 
 /* ===== checkout extras (terms agreement) ===== */
 .modal__hint{ display:block; margin-top:.4rem; font-size:.72rem; color:var(--sand); opacity:.8; line-height:1.4; }
-.modal__agree{ display:flex; align-items:flex-start; gap:.6rem; margin:.2rem 0 1rem;
+.modal__agree{ margin:.2rem 0 1rem; }
+.modal__agree-row{ display:flex; align-items:flex-start; gap:.6rem;
   font-size:.82rem; line-height:1.45; color:var(--sand); cursor:pointer; text-align:left; }
-.modal__agree input{ margin-top:.15rem; width:16px; height:16px; accent-color:var(--cream); flex:0 0 auto; }
-.modal__agree a{ color:var(--cream); text-decoration:underline; text-underline-offset:2px; }
-.modal__agree.invalid{ color:var(--cream); }
-.modal__agree.invalid input{ outline:2px solid var(--cream); outline-offset:2px; border-radius:3px; }
+.modal__agree-row input{ margin-top:.15rem; width:16px; height:16px; accent-color:var(--cream); flex:0 0 auto; }
+.modal__agree-row a{ color:var(--cream); text-decoration:underline; text-underline-offset:2px; }
+.modal__agree .modal__err{ margin-top:.45rem; }
+.modal__agree.invalid .modal__err{ display:block; }
+.modal__agree.invalid .modal__agree-row input{ outline:2px solid var(--cream); outline-offset:2px; border-radius:3px; }
 
 /* ===== "your table" social-proof strip ===== */
 .matches{ margin-top:2rem; padding:1.4rem; border:1px solid var(--line); border-radius:12px;

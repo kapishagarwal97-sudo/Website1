@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/invites.css?v=5" />
+<link rel="stylesheet" href="css/invites.css?v=6" />
 </head>
 <body>
   <div class="inv-top"><a href="invites.html"><img src="assets/logo.png" alt="tryb" /></a></div>
@@ -54,8 +54,7 @@
           <span class="seat"></span><span class="seat"></span><span class="seat"></span>
         </div>
       </div>
-      <p class="matches__lead"><strong>3 of your closest matches</strong> have already reserved their seat.</p>
-      <p class="matches__sub">6 more are being matched for the final 3 seats — reserve now to hold yours.</p>
+      <p class="matches__lead"><strong>3 of your closest matches</strong> have already reserved their seat — reserve now to hold yours.</p>
     </div>
 
     <details class="terms" id="terms">
@@ -117,15 +116,19 @@
         <input id="pName" type="text" autocomplete="name" placeholder="Your name" required />
         <span class="modal__err">Please enter your name.</span>
       </div>
-      <div class="modal__field" id="phoneField">
-        <label for="pPhone">Phone number <span class="req">*</span></label>
-        <input id="pPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" maxlength="15" required />
-        <span class="modal__err">Enter a valid 10-digit mobile number.</span>
+      <div class="modal__field" id="aadhaarField">
+        <label for="pAadhaar">Aadhaar number <span class="req">*</span></label>
+        <input id="pAadhaar" type="text" inputmode="numeric" autocomplete="off" placeholder="12-digit Aadhaar number" maxlength="14" required />
+        <span class="modal__err">Enter a valid 12-digit Aadhaar number.</span>
       </div>
-      <label class="modal__agree" id="agreeField">
-        <input type="checkbox" id="pAgree" />
-        <span>I have read and agree to the <a href="#terms" data-openterms>Terms &amp; Conditions</a>.</span>
-      </label>
+
+      <div class="modal__agree" id="agreeField">
+        <label class="modal__agree-row">
+          <input type="checkbox" id="pAgree" />
+          <span>I have read and agree to the <a href="#terms" data-openterms>Terms &amp; Conditions</a>.</span>
+        </label>
+        <span class="modal__err">Please accept the Terms &amp; Conditions to continue.</span>
+      </div>
 
       <button class="btn" type="button" id="payBtn">
         Pay now
@@ -167,7 +170,7 @@
       // (the Apps Script routes these to their own tab; nothing else is touched).
       var SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKdfw00pO9l9JQAcpCiDvQciVJAE5_dbDZAnYrv9jH_jMeR5EWgX6tQA/exec";
       var SUBMIT_TOKEN = "tryb-2026";
-      function recordReservation(name, phone){
+      function recordReservation(name, aadhaar){
         if(!SHEET_ENDPOINT) return;
         try{
           fetch(SHEET_ENDPOINT,{
@@ -176,7 +179,7 @@
             body:JSON.stringify({
               token:SUBMIT_TOKEN, type:"invite", website:"",
               event:EVENT.name, when:EVENT.when, amount:EVENT.amount,
-              name:name, phone:"+91"+phone, submittedAt:new Date().toISOString()
+              name:name, aadhaar:aadhaar, submittedAt:new Date().toISOString()
             }),
             keepalive:true
           }).catch(function(){});
@@ -202,35 +205,35 @@
       });
 
       // Required: name, a valid Indian mobile, and accepting the terms
-      var nameEl=document.getElementById("pName"), phoneEl=document.getElementById("pPhone"),
+      var nameEl=document.getElementById("pName"), aadhaarEl=document.getElementById("pAadhaar"),
           agreeEl=document.getElementById("pAgree");
-      var nameField=document.getElementById("nameField"), phoneField=document.getElementById("phoneField"),
+      var nameField=document.getElementById("nameField"), aadhaarField=document.getElementById("aadhaarField"),
           agreeField=document.getElementById("agreeField");
-      function validPhone(v){return /^(?:\+?91[-\s]?)?[6-9]\d{9}$/.test((v||"").replace(/[\s-]/g,""));}
       function digits(v){return (v||"").replace(/\D/g,"");}
-      [nameEl,phoneEl].forEach(function(el){el.addEventListener("input",function(){el.closest(".modal__field").classList.remove("invalid");});});
+      function validAadhaar(v){return /^\d{12}$/.test(digits(v));}
+      [nameEl,aadhaarEl].forEach(function(el){el.addEventListener("input",function(){el.closest(".modal__field").classList.remove("invalid");});});
       agreeEl.addEventListener("change",function(){agreeField.classList.remove("invalid");});
 
       document.getElementById("payBtn").addEventListener("click",function(){
         var okName=nameEl.value.trim().length>=2;
-        var okPhone=validPhone(phoneEl.value);
+        var okAadhaar=validAadhaar(aadhaarEl.value);
         var okAgree=agreeEl.checked;
         nameField.classList.toggle("invalid",!okName);
-        phoneField.classList.toggle("invalid",!okPhone);
+        aadhaarField.classList.toggle("invalid",!okAadhaar);
         agreeField.classList.toggle("invalid",!okAgree);
         if(!okName){nameEl.focus();return;}
-        if(!okPhone){phoneEl.focus();return;}
+        if(!okAadhaar){aadhaarEl.focus();return;}
         if(!okAgree){agreeEl.focus();return;}
         var name=nameEl.value.trim();
-        var phone=digits(phoneEl.value).replace(/^91(?=\d{10}$)/,"");
-        recordReservation(name, phone);   // fire-and-forget to the shared sheet
+        var aadhaar=digits(aadhaarEl.value);
+        recordReservation(name, aadhaar);   // fire-and-forget to the shared sheet
         if(PAY_LINK){
-          // Only name + contact are passed to the gateway.
+          // Only the name is passed to the gateway; Aadhaar is never put in the URL.
           var sep=PAY_LINK.indexOf("?")>-1?"&":"?";
-          var url=PAY_LINK+sep+"prefill[name]="+encodeURIComponent(name)+"&prefill[contact]="+encodeURIComponent("+91"+phone);
+          var url=PAY_LINK+sep+"prefill[name]="+encodeURIComponent(name);
           window.open(url,"_blank","noopener,noreferrer");
         }else{
-          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Phone: +91 "+phone+". Please share the payment link.";
+          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Aadhaar ending "+aadhaar.slice(-4)+". Please share the payment link.";
           window.open("https://wa.me/917042903139?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer");
         }
       });
