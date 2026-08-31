@@ -160,8 +160,28 @@
   <script>
     (function(){
       "use strict";
-      var EVENT = { name:"Board games & dinner", when:"6 Sep" };
+      var EVENT = { name:"Board games & dinner", when:"6 Sep", amount:"₹299" };
       var PAY_LINK = "https://rzp.io/rzp/zdEYZjA4";  // Agama · Board games & dinner (6 Sep)
+
+      // Reservations also flow to the shared TRYB sheet under type:"invite"
+      // (the Apps Script routes these to their own tab; nothing else is touched).
+      var SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKdfw00pO9l9JQAcpCiDvQciVJAE5_dbDZAnYrv9jH_jMeR5EWgX6tQA/exec";
+      var SUBMIT_TOKEN = "tryb-2026";
+      function recordReservation(name, phone){
+        if(!SHEET_ENDPOINT) return;
+        try{
+          fetch(SHEET_ENDPOINT,{
+            method:"POST",
+            headers:{ "Content-Type":"text/plain;charset=utf-8" },
+            body:JSON.stringify({
+              token:SUBMIT_TOKEN, type:"invite", website:"",
+              event:EVENT.name, when:EVENT.when, amount:EVENT.amount,
+              name:name, phone:"+91"+phone, submittedAt:new Date().toISOString()
+            }),
+            keepalive:true
+          }).catch(function(){});
+        }catch(e){}
+      }
 
       document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
 
@@ -203,6 +223,7 @@
         if(!okAgree){agreeEl.focus();return;}
         var name=nameEl.value.trim();
         var phone=digits(phoneEl.value).replace(/^91(?=\d{10}$)/,"");
+        recordReservation(name, phone);   // fire-and-forget to the shared sheet
         if(PAY_LINK){
           // Only name + contact are passed to the gateway.
           var sep=PAY_LINK.indexOf("?")>-1?"&":"?";
