@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/invites.css?v=3" />
+<link rel="stylesheet" href="css/invites.css?v=4" />
 </head>
 <body>
   <div class="inv-top"><a href="invites.html"><img src="assets/logo.png" alt="tryb" /></a></div>
@@ -96,18 +96,8 @@
       <p class="modal__sub">Sun, 6 Sep · 8:00 PM · Agama Cafe</p>
 
       <div class="modal__amount">
-        <span class="lbl">Total</span>
-        <span class="amt" id="payTotal">₹299</span>
-      </div>
-
-      <div class="modal__field" id="qtyField">
-        <label>Number of spots <span class="req">*</span></label>
-        <div class="stepper">
-          <button type="button" class="stepper__btn" data-step="-1" aria-label="Fewer spots">−</button>
-          <span class="stepper__val" id="pQty">1</span>
-          <button type="button" class="stepper__btn" data-step="1" aria-label="More spots">+</button>
-        </div>
-        <span class="modal__hint" id="qtyNote">1 spot × ₹299</span>
+        <span class="lbl">Curation fee</span>
+        <span class="amt" data-price>₹299</span>
       </div>
 
       <div class="modal__field" id="nameField">
@@ -167,22 +157,13 @@
       "use strict";
       var EVENT = { name:"Board games & dinner", when:"6 Sep" };
       var PAY_LINK = "";  // paste this event's secure Razorpay Payment Link here (https://rzp.io/... )
-      var FEE = 299, MAX_SPOTS = 6, qty = 1;
 
       document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
 
-      function money(n){return "₹"+n.toLocaleString("en-IN");}
-      function syncQty(){
-        document.getElementById("pQty").textContent=qty;
-        document.getElementById("payTotal").textContent=money(FEE*qty);
-        document.getElementById("qtyNote").textContent=qty+" spot"+(qty>1?"s":"")+" × ₹"+FEE;
-      }
-
       var modal=document.getElementById("payModal");
-      var openModal=function(){qty=1;syncQty();modal.classList.add("open");document.body.style.overflow="hidden";};
+      var openModal=function(){modal.classList.add("open");document.body.style.overflow="hidden";};
       var closeModal=function(){modal.classList.remove("open");document.body.style.overflow="";};
       document.getElementById("reserveBtn").addEventListener("click",openModal);
-      modal.querySelectorAll("[data-step]").forEach(function(b){b.addEventListener("click",function(){qty=Math.min(MAX_SPOTS,Math.max(1,qty+parseInt(b.getAttribute("data-step"),10)));syncQty();});});
       modal.querySelectorAll("[data-close]").forEach(function(el){el.addEventListener("click",closeModal);});
       document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
 
@@ -222,15 +203,14 @@
         var name=nameEl.value.trim();
         var phone=digits(phoneEl.value).replace(/^91(?=\d{10}$)/,"");
         var last4=digits(aadhaarEl.value).slice(-4);
-        var total=FEE*qty;
         if(PAY_LINK){
           // Only name + contact are passed to the gateway. Aadhaar is never sent in the URL.
           var sep=PAY_LINK.indexOf("?")>-1?"&":"?";
-          var url=PAY_LINK+sep+"prefill[name]="+encodeURIComponent(name)+"&prefill[contact]="+encodeURIComponent("+91"+phone)+"&spots="+qty;
+          var url=PAY_LINK+sep+"prefill[name]="+encodeURIComponent(name)+"&prefill[contact]="+encodeURIComponent("+91"+phone);
           window.open(url,"_blank","noopener,noreferrer");
         }else{
           // Fallback: only the last 4 digits of Aadhaar are referenced, never the full number.
-          var msg="Hi TRYB, I'd like to reserve "+qty+" spot"+(qty>1?"s":"")+" for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Phone: +91 "+phone+", Aadhaar ending "+last4+", Total: "+money(total)+". Please share the payment link.";
+          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Phone: +91 "+phone+", Aadhaar ending "+last4+". Please share the payment link.";
           window.open("https://wa.me/917042903139?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer");
         }
       });
