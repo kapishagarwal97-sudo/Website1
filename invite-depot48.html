@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&family=Pacifico&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/invites.css?v=6" />
+<link rel="stylesheet" href="css/invites.css?v=7" />
 </head>
 <body>
   <div class="inv-top"><a href="invites.html"><img src="assets/logo.png" alt="tryb" /></a></div>
@@ -49,13 +49,13 @@
 
     <div class="matches">
       <div class="matches__top">
-        <span class="matches__eyebrow">Your table · 3 seats left</span>
+        <span class="matches__eyebrow">This table · fully booked</span>
         <div class="matches__seats" aria-hidden="true">
           <span class="seat is-filled"></span><span class="seat is-filled"></span><span class="seat is-filled"></span>
-          <span class="seat"></span><span class="seat"></span><span class="seat"></span>
+          <span class="seat is-filled"></span><span class="seat is-filled"></span><span class="seat is-filled"></span>
         </div>
       </div>
-      <p class="matches__lead"><strong>3 of your closest matches</strong> have already reserved their seat — reserve now to hold yours.</p>
+      <p class="matches__lead"><strong>This table is full.</strong> A second Saturday, 5 September table is opening soon — join the waitlist to be first in line.</p>
     </div>
 
     <details class="terms" id="terms">
@@ -82,15 +82,15 @@
       </ol>
     </details>
 
-    <div class="reserve-bar">
+    <div class="reserve-bar reserve-bar--soldout">
       <div class="price">
-        <div class="lbl">Your seat</div>
-        <span class="amt" data-price>₹599</span><span class="per">curation fee</span>
+        <div class="lbl">This table</div>
+        <span class="amt">Sold out</span>
       </div>
-      <button class="btn" type="button" id="reserveBtn">
-        Reserve the spot
+      <a class="btn ghost" href="https://wa.me/917042903139?text=Hi%20TRYB%2C%20Depot%2048%20(5%20Sep)%20is%20sold%20out%20%E2%80%94%20please%20add%20me%20to%20the%20waitlist%20for%20the%20next%205%20September%20table." target="_blank" rel="noopener noreferrer">
+        Join the waitlist
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-      </button>
+      </a>
     </div>
 
     <div class="detail__other">
@@ -192,7 +192,8 @@
       var modal=document.getElementById("payModal");
       var openModal=function(){modal.classList.add("open");document.body.style.overflow="hidden";};
       var closeModal=function(){modal.classList.remove("open");document.body.style.overflow="";};
-      document.getElementById("reserveBtn").addEventListener("click",openModal);
+      var reserveBtn=document.getElementById("reserveBtn");
+      if(reserveBtn){ reserveBtn.addEventListener("click",openModal); }   // absent when the event is sold out
       modal.querySelectorAll("[data-close]").forEach(function(el){el.addEventListener("click",closeModal);});
       document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
 

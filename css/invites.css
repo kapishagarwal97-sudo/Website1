@@ -297,3 +297,8 @@ body{ display:flex; flex-direction:column; }
 .matches__lead{ font-size:.98rem; color:var(--cream); line-height:1.45; }
 .matches__lead strong{ font-weight:500; }
 .matches__sub{ font-size:.85rem; color:var(--sand); margin-top:.3rem; line-height:1.5; }
+
+/* ===== sold-out state ===== */
+.inv-card__badge{ align-self:flex-start; font-family:var(--font-sans); font-size:.62rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink); background:var(--cream); padding:.32rem .7rem; border-radius:100px; margin-bottom:.7rem; }
+.reserve-bar--soldout .price .amt{ font-size:clamp(1.3rem,3vw,1.7rem); }
