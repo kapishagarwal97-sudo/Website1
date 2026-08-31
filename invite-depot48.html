@@ -110,13 +110,6 @@
         <input id="pPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit mobile number" maxlength="15" required />
         <span class="modal__err">Enter a valid 10-digit mobile number.</span>
       </div>
-      <div class="modal__field" id="aadhaarField">
-        <label for="pAadhaar">Aadhaar number <span class="req">*</span></label>
-        <input id="pAadhaar" type="text" inputmode="numeric" autocomplete="off" placeholder="12-digit Aadhaar number" maxlength="14" required />
-        <span class="modal__err">Enter a valid 12-digit Aadhaar number.</span>
-        <span class="modal__hint">Used only to confirm your booking. We never share or sell it.</span>
-      </div>
-
       <label class="modal__agree" id="agreeField">
         <input type="checkbox" id="pAgree" />
         <span>I have read and agree to the <a href="#terms" data-openterms>Terms &amp; Conditions</a>.</span>
@@ -176,41 +169,35 @@
         });
       });
 
-      // Required: name, a valid Indian mobile, a valid Aadhaar, and accepting the terms
+      // Required: name, a valid Indian mobile, and accepting the terms
       var nameEl=document.getElementById("pName"), phoneEl=document.getElementById("pPhone"),
-          aadhaarEl=document.getElementById("pAadhaar"), agreeEl=document.getElementById("pAgree");
+          agreeEl=document.getElementById("pAgree");
       var nameField=document.getElementById("nameField"), phoneField=document.getElementById("phoneField"),
-          aadhaarField=document.getElementById("aadhaarField"), agreeField=document.getElementById("agreeField");
+          agreeField=document.getElementById("agreeField");
       function validPhone(v){return /^(?:\+?91[-\s]?)?[6-9]\d{9}$/.test((v||"").replace(/[\s-]/g,""));}
       function digits(v){return (v||"").replace(/\D/g,"");}
-      function validAadhaar(v){return /^\d{12}$/.test(digits(v));}
-      [nameEl,phoneEl,aadhaarEl].forEach(function(el){el.addEventListener("input",function(){el.closest(".modal__field").classList.remove("invalid");});});
+      [nameEl,phoneEl].forEach(function(el){el.addEventListener("input",function(){el.closest(".modal__field").classList.remove("invalid");});});
       agreeEl.addEventListener("change",function(){agreeField.classList.remove("invalid");});
 
       document.getElementById("payBtn").addEventListener("click",function(){
         var okName=nameEl.value.trim().length>=2;
         var okPhone=validPhone(phoneEl.value);
-        var okAadhaar=validAadhaar(aadhaarEl.value);
         var okAgree=agreeEl.checked;
         nameField.classList.toggle("invalid",!okName);
         phoneField.classList.toggle("invalid",!okPhone);
-        aadhaarField.classList.toggle("invalid",!okAadhaar);
         agreeField.classList.toggle("invalid",!okAgree);
         if(!okName){nameEl.focus();return;}
         if(!okPhone){phoneEl.focus();return;}
-        if(!okAadhaar){aadhaarEl.focus();return;}
         if(!okAgree){agreeEl.focus();return;}
         var name=nameEl.value.trim();
         var phone=digits(phoneEl.value).replace(/^91(?=\d{10}$)/,"");
-        var last4=digits(aadhaarEl.value).slice(-4);
         if(PAY_LINK){
-          // Only name + contact are passed to the gateway. Aadhaar is never sent in the URL.
+          // Only name + contact are passed to the gateway.
           var sep=PAY_LINK.indexOf("?")>-1?"&":"?";
           var url=PAY_LINK+sep+"prefill[name]="+encodeURIComponent(name)+"&prefill[contact]="+encodeURIComponent("+91"+phone);
           window.open(url,"_blank","noopener,noreferrer");
         }else{
-          // Fallback: only the last 4 digits of Aadhaar are referenced, never the full number.
-          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Phone: +91 "+phone+", Aadhaar ending "+last4+". Please share the payment link.";
+          var msg="Hi TRYB, I'd like to reserve a seat for "+EVENT.name+" ("+EVENT.when+"). Name: "+name+", Phone: +91 "+phone+". Please share the payment link.";
           window.open("https://wa.me/917042903139?text="+encodeURIComponent(msg),"_blank","noopener,noreferrer");
         }
       });
