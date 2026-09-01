@@ -251,7 +251,8 @@ body::before{ background:radial-gradient(70% 45% at 50% -5%,rgba(247,242,234,.07
 .modal__field input:focus{ border-color:var(--cream); box-shadow:0 0 0 2px rgba(247,242,234,.22); }
 
 /* ===== smaller, calmer invitation cards ===== */
-.inv-grid{ max-width:720px; margin-inline:auto; gap:clamp(1rem,2vw,1.6rem); }
+.inv-grid{ max-width:1040px; margin-inline:auto; gap:clamp(1rem,2vw,1.6rem);
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
 .inv-card{ min-height:380px; padding:clamp(1.4rem,2.4vw,2rem); }
 .inv-card__title{ font-size:clamp(1.5rem,2.8vw,2rem); padding:1.1rem 0; }
 .inv-card__kicker{ font-size:.62rem; letter-spacing:.14em; padding-right:2.6rem; }
