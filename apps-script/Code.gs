@@ -53,6 +53,13 @@ function doPost(e) {
       return json({ ok: true });
     }
 
+    // A page view from the invite pages → its own "Invite views" tab.
+    // Fire-and-forget beacon; no personal data, just which page was opened.
+    if (body.type === 'view') {
+      recordView(body);
+      return json({ ok: true });
+    }
+
     // Guard: only a finished form has answers. Anything else reaching here is a
     // stray or mis-shaped POST, and must not land in Responses as a blank row.
     if (!body.answers || !body.answers.length) {
@@ -71,7 +78,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '7 — leads + funnel + consent + invites (name + aadhaar)';
+var VERSION = '8 — leads + funnel + consent + invites + invite views';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -79,7 +86,7 @@ function doGet() {
     ok: true,
     service: 'tryb-personality-test',
     version: VERSION,
-    handles: ['lead', 'dropoff', 'submission', 'invite']
+    handles: ['lead', 'dropoff', 'submission', 'invite', 'view']
   });
 }
 
@@ -338,6 +345,84 @@ function recordInvite(body) {
     body.name   || '',
     aadhaar
   ]]);
+}
+
+/* ===============================================================
+ * Invite page views — who opened which page (funnel)
+ * =============================================================== */
+
+var VIEWS_SHEET = 'Invite views';
+
+/**
+ * One row per page load on any invite page. No personal data — just which
+ * page, a random per-browser visitor id, the referrer and device. Lets you
+ * see how many opened the invitations link and which events they opened.
+ */
+function recordView(body) {
+  var ss    = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                             : SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(VIEWS_SHEET);
+  if (!sheet) {
+    sheet = ss.insertSheet(VIEWS_SHEET);
+    var head = sheet.getRange(1, 1, 1, 6);
+    head.setValues([['Opened at', 'Page', 'Event', 'Referrer', 'Visitor', 'Device']]);
+    head.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  var device = /Mobi|Android|iPhone|iPad/.test(body.ua || '') ? 'Mobile' : 'Desktop';
+  sheet.insertRowAfter(1);                    // newest first
+  sheet.getRange(2, 1, 1, 6).setValues([[
+    new Date(),
+    body.page     || '',
+    body.event    || '',
+    body.referrer || '(direct / from link)',
+    body.session  || '',
+    device
+  ]]);
+}
+
+/**
+ * Run this from the editor (Run ▸ buildInviteFunnel) to write an
+ * "Invite funnel" tab: total views and unique visitors per page, so you can
+ * see the drop-off from the invitations landing to each event. Re-run any time.
+ */
+function buildInviteFunnel() {
+  var ss  = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                           : SpreadsheetApp.getActiveSpreadsheet();
+  var log = ss.getSheetByName(VIEWS_SHEET);
+  if (!log || log.getLastRow() < 2) return;
+
+  var rows  = log.getRange(2, 1, log.getLastRow() - 1, 6).getValues();
+  var views = {}, uniq = {};
+  rows.forEach(function (r) {
+    var p = r[1] || '(unknown)';
+    views[p] = (views[p] || 0) + 1;
+    uniq[p]  = uniq[p] || {};
+    if (r[4]) uniq[p][r[4]] = 1;
+  });
+
+  var order = ['invites', 'bowling', 'depot48', 'agama'];
+  var label = {
+    invites:  'Invitations (landing page)',
+    bowling:  'Bowling & dinner — Yes Minister',
+    depot48:  'Live music & dinner — Depot 48',
+    agama:    'Board games & dinner — Agama'
+  };
+  var keys = order.filter(function (k) { return views[k]; })
+    .concat(Object.keys(views).filter(function (k) { return order.indexOf(k) < 0; }));
+
+  var out = ss.getSheetByName('Invite funnel') || ss.insertSheet('Invite funnel');
+  out.clear();
+  var head = out.getRange(1, 1, 1, 3);
+  head.setValues([['Page', 'Total views', 'Unique visitors']]);
+  head.setFontWeight('bold');
+  out.setFrozenRows(1);
+
+  var data = keys.map(function (k) {
+    return [label[k] || k, views[k], Object.keys(uniq[k] || {}).length];
+  });
+  if (data.length) out.getRange(2, 1, data.length, 3).setValues(data);
+  out.autoResizeColumns(1, 3);
 }
 
 /**

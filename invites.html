@@ -98,6 +98,17 @@
     (function(){
       // year
       document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
+
+      // page-view beacon — logs that the invitations page was opened (funnel)
+      (function(){
+        try{
+          var EP="https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKdfw00pO9l9JQAcpCiDvQciVJAE5_dbDZAnYrv9jH_jMeR5EWgX6tQA/exec";
+          var sid=localStorage.getItem("tryb_sid");
+          if(!sid){ sid=Date.now().toString(36)+Math.random().toString(36).slice(2,8); localStorage.setItem("tryb_sid",sid); }
+          fetch(EP,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({token:"tryb-2026",type:"view",page:"invites",event:"",referrer:document.referrer||"",session:sid,ua:navigator.userAgent}),keepalive:true}).catch(function(){});
+        }catch(e){}
+      })();
       // copy-link chips (secure: only copies same-origin relative page URLs)
       document.querySelectorAll("[data-copy]").forEach(function(btn){
         btn.addEventListener("click",function(e){

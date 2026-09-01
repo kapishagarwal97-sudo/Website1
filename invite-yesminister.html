@@ -187,6 +187,16 @@
         }catch(e){}
       }
 
+      // page-view beacon — logs that this page was opened (funnel)
+      (function(){
+        try{
+          var sid=localStorage.getItem("tryb_sid");
+          if(!sid){ sid=Date.now().toString(36)+Math.random().toString(36).slice(2,8); localStorage.setItem("tryb_sid",sid); }
+          fetch(SHEET_ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body:JSON.stringify({token:SUBMIT_TOKEN,type:"view",page:"bowling",event:EVENT.name,referrer:document.referrer||"",session:sid,ua:navigator.userAgent}),keepalive:true}).catch(function(){});
+        }catch(e){}
+      })();
+
       document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
 
       var modal=document.getElementById("payModal");
