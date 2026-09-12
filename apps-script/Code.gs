@@ -78,7 +78,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '8 — leads + funnel + consent + invites + invite views';
+var VERSION = '9 — leads + funnel + consent + invites + invite views + campaign attribution';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -102,6 +102,12 @@ function flatten(body) {
   // Consent is logged with the moment it was given, as opt-in records require.
   row['Consent — WhatsApp + email'] = body.consent ? 'yes' : 'no';
   row['Consent given at']           = body.consentAt ? new Date(body.consentAt) : '';
+  // Where this registration came from — set when the ad URL carries ?utm_source=…
+  row['Campaign source']   = body.utmSource   || '';
+  row['Campaign medium']   = body.utmMedium   || '';
+  row['Campaign name']     = body.utmCampaign || '';
+  row['Campaign content']  = body.utmContent  || '';
+  row['Click ID (fbclid)'] = body.fbclid      || '';
 
   (body.answers || []).forEach(function (a) {
     // Sheets evaluates a leading =, + or -, so those are quoted defensively.

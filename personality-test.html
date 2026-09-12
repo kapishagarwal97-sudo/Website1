@@ -427,6 +427,25 @@ const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKd
 /* Must match SUBMIT_TOKEN in Code.gs. */
 const SUBMIT_TOKEN = "tryb-2026";
 
+/* Campaign attribution — read from the landing URL (?utm_source=…&fbclid=…) and
+ * remembered, so a registration finished hours later still credits the ad that
+ * brought them. Also survives the URL being rewritten on the final screen. */
+const campaign = (function () {
+  const KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("tryb_campaign") || "{}"); } catch (e) {}
+  try {
+    const q = new URLSearchParams(location.search);
+    const found = {};
+    KEYS.forEach(function (k) { const v = q.get(k); if (v) found[k] = v; });
+    if (Object.keys(found).length) {
+      localStorage.setItem("tryb_campaign", JSON.stringify(found));
+      return found;
+    }
+  } catch (e) {}
+  return saved;
+})();
+
 const RAPID_SECONDS = 10;      // rapid fire only — nothing else is timed
 const MIN_AGE = 18;
 
@@ -1099,6 +1118,11 @@ function payload(){
     phone: details.phone.trim(),
     consent: !!details.consent,
     consentAt: details.consent ? new Date().toISOString() : "",
+    utmSource:   campaign.utm_source   || "",
+    utmMedium:   campaign.utm_medium   || "",
+    utmCampaign: campaign.utm_campaign || "",
+    utmContent:  campaign.utm_content  || "",
+    fbclid:      campaign.fbclid       || "",
     answers: QUESTIONS.map(q => ({ id:q.id, question:q.text, answer:answerLabel(q) })),
     timedOut: QUESTIONS.filter(q => answers[q.id] === null).length,
     durationSeconds: Math.round((Date.now() - startedAt) / 1000)
@@ -1146,10 +1170,18 @@ async function submit(){
       throw new Error(reason);
     }
 
-    // Meta Pixel conversion — fires only once the submission is confirmed saved,
-    // so ad optimisation counts real registrations. Guarded in case the pixel is
+    // Meta Pixel conversion — only once the submission is confirmed saved, so ad
+    // optimisation counts real registrations. The address bar is switched to
+    // ?registered=1 FIRST, so the events below carry that URL and Meta can also
+    // match a URL-based custom conversion on it. Guarded in case the pixel is
     // blocked by an ad blocker.
-    try { if (typeof fbq === "function") fbq("track", "CompleteRegistration"); } catch (e) {}
+    try { history.replaceState(null, "", location.pathname + "?registered=1"); } catch (e) {}
+    try {
+      if (typeof fbq === "function") {
+        fbq("track", "CompleteRegistration");
+        fbq("track", "PageView");   // so Meta records the ?registered=1 URL
+      }
+    } catch (e) {}
 
     finished = true; clearDraft(); sending = false;
     go(STEPS.length - 1);
