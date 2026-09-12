@@ -1146,6 +1146,11 @@ async function submit(){
       throw new Error(reason);
     }
 
+    // Meta Pixel conversion — fires only once the submission is confirmed saved,
+    // so ad optimisation counts real registrations. Guarded in case the pixel is
+    // blocked by an ad blocker.
+    try { if (typeof fbq === "function") fbq("track", "CompleteRegistration"); } catch (e) {}
+
     finished = true; clearDraft(); sending = false;
     go(STEPS.length - 1);
   } catch (err) {
