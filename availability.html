@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Weekend availability — TRYB</title>
+<title>TRYB Weekend availability</title>
 <meta name="description" content="Tell TRYB when you're free over the next four weekends, what you'd like to do, and we'll plan around it." />
 <meta name="robots" content="noindex, nofollow" />
 
@@ -199,11 +199,10 @@ input::placeholder,textarea::placeholder{color:var(--cream-28);}
 input:focus,textarea:focus{outline:none;border-color:var(--cream);}
 textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
 
-.req,.opt{
+.req{
   font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;margin-left:.5rem;
+  color:var(--cream-70);
 }
-.req{color:var(--cream-70);}
-.opt{color:var(--cream-28);}
 .invalid input,.invalid textarea{border-color:var(--cream);}
 .pref.invalid{border-color:var(--cream);}
 .err{display:none;font-size:.76rem;color:var(--cream);margin-top:.4rem;}
@@ -223,6 +222,10 @@ textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
 .btn:hover:not(:disabled){transform:translateY(-1px);}
 .btn:disabled{opacity:.5;cursor:default;}
 .status{margin-top:.9rem;font-size:.84rem;color:var(--cream-70);min-height:1.2em;}
+.closing{
+  text-align:center;font-size:.86rem;line-height:1.65;color:var(--cream-45);
+  max-width:34rem;margin:.6rem auto 0;
+}
 
 /* ---------- done ---------- */
 .done{display:none;text-align:center;padding:clamp(2.5rem,8vw,5rem) 0;}
@@ -260,7 +263,7 @@ body.sent .head h1,body.sent .head p{display:none;}
   <header class="head">
     <span class="eyebrow">TRYB · Your social concierge</span>
     <h1>When do you want us to plan for you?</h1>
-    <p>Tap the days you're free over the next four weekends — tap again to take one back.
+    <p>Tap the days you're free over the next four weekends. Tap again to take one back.
        Then tell us what you'd like to be doing, and we'll build the weekend around it.</p>
   </header>
 
@@ -299,23 +302,26 @@ body.sent .head h1,body.sent .head p{display:none;}
       <!-- ── The 5th option: something specific ───────────────── -->
       <section class="card">
         <div class="card__head"><h2>Something specific you want on the list</h2></div>
-        <p class="card__note">An activity or a particular event you'd like us to line up — say, a live
-          cricket match, or a dandiya night this festive season.</p>
+        <p class="card__note">Say, a live cricket match. Or a dandiya night this festive season.</p>
         <div class="field" id="wishField">
-          <label for="wish">The thing you'd like us to line up <span class="opt">Optional</span></label>
+          <label for="wish">The thing you'd like us to line up <span class="req">Required</span></label>
           <input type="text" id="wish" name="wish" maxlength="200" autocomplete="off"
+                 required aria-required="true" aria-describedby="wishErr"
                  placeholder="I want to watch a live cricket match" />
+          <span class="err" id="wishErr">Tell us one thing you'd like us to line up.</span>
         </div>
       </section>
 
       <!-- ── Expectations ─────────────────────────────────────── -->
       <section class="card">
         <div class="card__head"><h2>Anything else you expect from us</h2></div>
-        <p class="card__note">We're your social concierge — tell us what that should mean for you.</p>
+        <p class="card__note">We're your social concierge. Tell us what that should mean for you.</p>
         <div class="field" id="notesField">
-          <label for="notes">Your suggestions <span class="opt">Optional</span></label>
+          <label for="notes">Your suggestions <span class="req">Required</span></label>
           <textarea id="notes" name="notes" maxlength="1000"
+                    required aria-required="true" aria-describedby="notesErr"
                     placeholder="What would make a weekend with TRYB feel worth it?"></textarea>
+          <span class="err" id="notesErr">Tell us what you expect from us.</span>
         </div>
       </section>
 
@@ -326,7 +332,7 @@ body.sent .head h1,body.sent .head p{display:none;}
             <label for="phone">Your mobile number, so we can reach you <span class="req">Required</span></label>
             <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel"
                    required aria-required="true" aria-describedby="phoneErr"
-                   maxlength="18" placeholder="10-digit mobile number" />
+                   maxlength="18" placeholder="10 digit mobile number" />
             <span class="err" id="phoneErr">Please enter a valid 10-digit Indian mobile number.</span>
           </div>
           <button type="submit" class="btn" id="submitBtn">Submit availability</button>
@@ -335,13 +341,16 @@ body.sent .head h1,body.sent .head p{display:none;}
         <div class="hp"><label>Leave this empty<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" /></label></div>
       </section>
 
+      <p class="closing">Just like how plans get decided in your friends group: your 10 close
+        matches decide the plan, the timing and next week's activity bids, by majority.</p>
+
     </div>
   </form>
 
   <section class="done" id="done">
     <h2>That's all we needed.</h2>
     <p>We've got your weekends. If something fits, you'll hear from us on WhatsApp with an
-       invitation — the place, the people, the time. Nothing else to do until then.</p>
+       invitation: the place, the people, the time. Nothing else to do until then.</p>
     <a class="btn" href="index.html">Back to TRYB</a>
   </section>
 
@@ -351,7 +360,7 @@ body.sent .head h1,body.sent .head p{display:none;}
   <div class="footer-v3">
     <div class="f-logo">
       <img src="assets/logo.png" alt="tryb" />
-      <p class="f-copy">© <span data-year>2026</span> TRYB — a brand by EVELIT. Real life, in good company.</p>
+      <p class="f-copy">© <span data-year>2026</span> TRYB, a brand by EVELIT. Real life, in good company.</p>
     </div>
     <nav class="f-links">
       <a href="index.html">home</a>
@@ -382,7 +391,7 @@ body.sent .head h1,body.sent .head p{display:none;}
   /* The weekend the activity priorities are about. Shown on the card and
      recorded with every submission, so a row always says which weekend its
      1-2-3-4 refers to. Change this when you move on to the next weekend. */
-  var ACTIVITY_WEEKEND = "26–27 September";
+  var ACTIVITY_WEEKEND = "26 & 27 September";
 
   /* The four activities, in their starting order — they arrive pre-ranked
      1 to 4 in exactly this order, and people reorder from there. Edit the
@@ -397,8 +406,8 @@ body.sent .head h1,body.sent .head p{display:none;}
   /* Time of day. Asked once — it is a standing preference, not a per-day
      answer, so it is not repeated on every weekend. */
   var TIME_PREFS = [
-    { id:"day",    label:"Daytime", note:"11 AM – 5 PM" },
-    { id:"night",  label:"Night",   note:"7 PM – late"  },
+    { id:"day",    label:"Daytime", note:"11 AM to 5 PM" },
+    { id:"night",  label:"Night",   note:"after 7 PM"   },
     { id:"either", label:"Either works", note:"" }
   ];
 
@@ -448,8 +457,8 @@ body.sent .head h1,body.sent .head p{display:none;}
     var a = days[0], b = days[days.length - 1];
     if (days.length === 1) return MONTHS[a.getMonth()] + " " + a.getDate();
     if (a.getMonth() === b.getMonth())
-      return MONTHS[a.getMonth()] + " " + a.getDate() + "–" + b.getDate();
-    return MONTHS[a.getMonth()] + " " + a.getDate() + " – " + MONTHS[b.getMonth()] + " " + b.getDate();
+      return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + b.getDate();
+    return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + MONTHS[b.getMonth()] + " " + b.getDate();
   }
 
   function weekendTag(index){
@@ -588,7 +597,7 @@ body.sent .head h1,body.sent .head p{display:none;}
   var elActs = document.getElementById("acts");
 
   document.getElementById("actsNote").textContent =
-    "For the weekend of " + ACTIVITY_WEEKEND + " — 1 is what you want most.";
+    "For the weekend of " + ACTIVITY_WEEKEND + ". 1 is what you want most.";
 
   function activity(id){
     return ACTIVITIES.filter(function(a){ return a.id === id; })[0];
@@ -681,7 +690,14 @@ body.sent .head h1,body.sent .head p{display:none;}
     return /^[6-9]\d{9}$/.test(d) ? d : "";
   }
 
-  phoneEl.addEventListener("input", function(){ phoneWrap.classList.remove("invalid"); });
+  var wishEl    = document.getElementById("wish");
+  var wishWrap  = document.getElementById("wishField");
+  var notesEl   = document.getElementById("notes");
+  var notesWrap = document.getElementById("notesField");
+
+  [[phoneEl, phoneWrap], [wishEl, wishWrap], [notesEl, notesWrap]].forEach(function(pair){
+    pair[0].addEventListener("input", function(){ pair[1].classList.remove("invalid"); });
+  });
 
   /* Ordered, human-readable — exactly what gets written to the sheet. */
   function chosenDays(){
@@ -719,12 +735,26 @@ body.sent .head h1,body.sent .head p{display:none;}
       elPref.scrollIntoView({ block:"center" });
       return;
     }
+    if (wishEl.value.trim().length < 2){
+      wishWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      wishWrap.scrollIntoView({ block:"center" });
+      wishEl.focus();
+      return;
+    }
+    if (notesEl.value.trim().length < 2){
+      notesWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      notesWrap.scrollIntoView({ block:"center" });
+      notesEl.focus();
+      return;
+    }
     if (!phone){
       /* An empty field and a mistyped one are different mistakes — saying which
          one it is saves the guesswork. */
       document.getElementById("phoneErr").textContent = digits(phoneEl.value)
-        ? "That doesn't look right — we need a 10-digit Indian mobile number."
-        : "We need your mobile number — it's how we send the invitation.";
+        ? "That doesn't look right. We need a 10 digit Indian mobile number."
+        : "We need your mobile number. It's how we send the invitation.";
       phoneWrap.classList.add("invalid");
       statusEl.textContent = "";
       phoneEl.focus();
@@ -741,8 +771,8 @@ body.sent .head h1,body.sent .head p{display:none;}
       timePrefLabel: (TIME_PREFS.filter(function(t){ return t.id === timePref; })[0] || {}).label || "",
       activities: ranked,
       activityWeekend: ACTIVITY_WEEKEND,
-      wish:       document.getElementById("wish").value.trim(),
-      notes:      document.getElementById("notes").value.trim(),
+      wish:       wishEl.value.trim(),
+      notes:      notesEl.value.trim(),
       page:       "availability",
       referrer:   document.referrer || "",
       ua:         navigator.userAgent || ""
@@ -786,7 +816,7 @@ body.sent .head h1,body.sent .head p{display:none;}
       sending = false;
       btn.disabled = false;
       btn.textContent = "Submit availability";
-      statusEl.textContent = "That didn't save — " + err.message +
+      statusEl.textContent = "That didn't save. " + err.message +
         ". Please try again, or WhatsApp us on 70429 03139.";
     });
   });

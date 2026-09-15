@@ -535,15 +535,15 @@ function isoOf(d) {
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
-/** A list of dates → 'Sep 26-27', or 'Oct 31 - Nov 1' across a month end. */
+/** A list of dates -> 'Sep 26 & 27', or 'Oct 31 & Nov 1' across a month end. */
 function spanLabel(dates) {
   var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var sorted = dates.slice().sort(function (a, b) { return a - b; });
   var a = sorted[0], b = sorted[sorted.length - 1];
   if (a.getTime() === b.getTime()) return M[a.getMonth()] + ' ' + a.getDate();
   if (a.getMonth() === b.getMonth())
-    return M[a.getMonth()] + ' ' + a.getDate() + '-' + b.getDate();
-  return M[a.getMonth()] + ' ' + a.getDate() + ' - ' + M[b.getMonth()] + ' ' + b.getDate();
+    return M[a.getMonth()] + ' ' + a.getDate() + ' & ' + b.getDate();
+  return M[a.getMonth()] + ' ' + a.getDate() + ' & ' + M[b.getMonth()] + ' ' + b.getDate();
 }
 
 /**
