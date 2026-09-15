@@ -445,11 +445,12 @@ function buildInviteFunnel() {
 var AVAILABILITY_SHEET = 'Availability';
 
 /**
- * One row per availability submission. The windows someone offered are
- * written two ways: a readable summary you can scan, and one column per
- * weekend so you can filter a single weekend quickly. Activity priorities
- * get a column each (1..4), then their specific wish, their suggestions
- * and their number.
+ * One row per availability submission. The days someone offered are written
+ * two ways: a readable list you can scan, and one column per weekend so you
+ * can filter a single weekend quickly. Time of day is a single standing
+ * preference, not a per-day answer, so it gets one column. Activity
+ * priorities get a column each (1..4), alongside the weekend they were asked
+ * about, then their specific wish, their suggestions and their number.
  *
  * Writes only to the Availability tab — every other tab is untouched.
  */
@@ -458,16 +459,16 @@ function recordAvailability(body) {
                              : SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(AVAILABILITY_SHEET);
 
-  var windows = body.windows    || [];
-  var acts    = body.activities || [];
+  var days = body.days       || [];
+  var acts = body.activities || [];
 
   // Priority columns, in the order the form ranked them.
   var byRank = [];
   acts.forEach(function (a) { byRank[a.rank - 1] = a.name || a.id || ''; });
 
-  var headers = ['Submitted at', 'Mobile', 'Windows', 'Availability',
+  var headers = ['Submitted at', 'Mobile', 'Days free', 'Prefers', 'Availability',
                  'Weekend 1', 'Weekend 2', 'Weekend 3', 'Weekend 4',
-                 'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
+                 'Priorities for', 'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
                  'Wants specifically', 'Suggestions', 'Device'];
 
   if (!sheet) {
@@ -478,23 +479,18 @@ function recordAvailability(body) {
     sheet.setFrozenRows(1);
   }
 
-  // "Sat Sep 19 — Night" per window, grouped into the four weekend columns.
-  var lines = windows.map(function (w) {
-    return (w.label || w.date || '') + ' — ' + (w.slotLabel || w.slot || '');
-  });
-
-  // Group the windows by the weekend they fall in, so each column holds one
+  // Group the days by the weekend they fall in, so each column holds one
   // weekend. Each cell names its own dates ("Sep 26-27: ...") — someone who
   // skips a weekend shifts the columns, and without the dates the heading
   // alone would then point at the wrong weekend.
   var groups = {}, order = [];
-  windows.forEach(function (w) {
+  days.forEach(function (w) {
     var d   = dateFromIso(w.date);
     var sat = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 1) % 7));
     var k   = isoOf(sat);                          // Sun → back 1, Sat → back 0
     if (!groups[k]) { groups[k] = { days: [], picks: [] }; order.push(k); }
     groups[k].days.push(d);
-    groups[k].picks.push((w.day || '').slice(0, 3) + ' ' + (w.slotLabel || w.slot || ''));
+    groups[k].picks.push((w.day || '').slice(0, 3));
   });
   order.sort();
   var cols = order.slice(0, 4).map(function (k) {
@@ -508,9 +504,11 @@ function recordAvailability(body) {
   var row = [
     new Date(),
     body.phone ? "'" + String(body.phone) : '',
-    windows.length,
-    lines.join('\n'),
+    days.length,
+    body.timePrefLabel || body.timePref || '',
+    days.map(function (w) { return w.label || w.date || ''; }).join('\n'),
     cols[0], cols[1], cols[2], cols[3],
+    body.activityWeekend || '',
     byRank[0] || '', byRank[1] || '', byRank[2] || '', byRank[3] || '',
     body.wish  || '',
     body.notes || '',
@@ -564,9 +562,9 @@ function setupSheets() {
                                  'Question id', 'Question they stopped on', 'Section',
                                  'Answered', 'Of', 'Seconds', 'Completed', 'Device'] },
     { name: AVAILABILITY_SHEET,
-      head: ['Submitted at', 'Mobile', 'Windows', 'Availability',
+      head: ['Submitted at', 'Mobile', 'Days free', 'Prefers', 'Availability',
              'Weekend 1', 'Weekend 2', 'Weekend 3', 'Weekend 4',
-             'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
+             'Priorities for', 'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
              'Wants specifically', 'Suggestions', 'Device'] }
   ];
 

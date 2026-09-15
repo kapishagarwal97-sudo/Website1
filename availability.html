@@ -125,65 +125,67 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
 
 .days{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
 @media(max-width:520px){.days{grid-template-columns:1fr;}}
-.day{border:1px solid var(--line);border-radius:12px;padding:.8rem;background:var(--navy-2);}
-.day__head{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;margin-bottom:.65rem;}
-.day__date{display:flex;align-items:baseline;gap:.4rem;}
-.day__num{font-family:var(--font-display);font-size:1.25rem;line-height:1;}
-.day__name{font-size:.78rem;color:var(--cream-45);}
-.day__all{
-  font:inherit;font-size:.68rem;letter-spacing:.04em;background:none;border:0;
-  color:var(--cream-45);cursor:pointer;padding:.15rem .2rem;
-  transition:color .25s var(--ease);
-}
-.day__all:hover{color:var(--cream);}
-.day__all[aria-pressed="true"]{color:var(--cream);}
-
-.slots{display:grid;gap:.45rem;}
-.slot{
-  display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;
-  font:inherit;font-size:.82rem;
-  border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--cream-70);
-  padding:.55rem .7rem;cursor:pointer;
+/* one tap per day — free or not */
+.day{
+  display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;font:inherit;
+  border:1px solid var(--line);border-radius:12px;background:var(--navy-2);color:var(--cream);
+  padding:.8rem .85rem;cursor:pointer;
   transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
 }
-.slot .dot{
-  width:7px;height:7px;border-radius:50%;flex:none;
-  border:1px solid var(--cream-28);background:transparent;
+.day:hover{border-color:var(--line-strong);}
+.day__mark{
+  width:20px;height:20px;flex:none;border-radius:50%;
+  border:1px solid var(--cream-28);display:grid;place-items:center;
   transition:background .25s var(--ease),border-color .25s var(--ease);
 }
-.slot .label{font-weight:500;color:var(--cream);}
-.slot .time{margin-left:auto;font-size:.72rem;color:var(--cream-45);white-space:nowrap;}
-.slot:hover{border-color:var(--line-strong);}
-.slot[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
-.slot[aria-pressed="true"] .label,
-.slot[aria-pressed="true"] .time{color:var(--navy);}
-.slot[aria-pressed="true"] .dot{background:var(--navy);border-color:var(--navy);}
+.day__mark svg{width:11px;height:11px;stroke:var(--navy);stroke-width:2.6;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .2s var(--ease);}
+.day__num{font-family:var(--font-display);font-size:1.3rem;line-height:1;}
+.day__name{font-size:.82rem;color:var(--cream-45);}
+.day__free{margin-left:auto;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cream-28);}
+.day[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+.day[aria-pressed="true"] .day__name,
+.day[aria-pressed="true"] .day__free{color:var(--navy);}
+.day[aria-pressed="true"] .day__mark{background:var(--navy);border-color:var(--navy);}
+.day[aria-pressed="true"] .day__mark svg{opacity:1;stroke:var(--cream);}
+
+/* the one time-of-day preference, asked once for everything */
+.pref{
+  border:1px solid var(--line);border-radius:14px;background:rgba(247,242,234,.02);
+  padding:clamp(.85rem,2vw,1.1rem);margin-bottom:1rem;
+}
+.pref__q{font-size:.84rem;color:var(--cream-70);margin-bottom:.7rem;}
+.pref__opts{display:flex;gap:.5rem;flex-wrap:wrap;}
+.pref__opts .pill{flex:1 1 auto;text-align:center;padding:.55rem .9rem;}
 
 /* ---------- activities ---------- */
 .acts{display:grid;gap:.55rem;}
 .act{
-  display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;
-  font:inherit;border:1px solid var(--line);border-radius:12px;
-  background:var(--navy-2);color:var(--cream);padding:.75rem .85rem;cursor:pointer;
-  transition:border-color .25s var(--ease),background .25s var(--ease);
+  display:flex;align-items:center;gap:.75rem;
+  border:1px solid var(--line-strong);border-radius:12px;
+  background:var(--navy-2);color:var(--cream);padding:.7rem .65rem .7rem .8rem;
 }
-.act:hover{border-color:var(--line-strong);}
 .act__rank{
   width:30px;height:30px;flex:none;border-radius:50%;
-  border:1px solid var(--cream-28);display:grid;place-items:center;
-  font-size:.82rem;font-weight:600;color:var(--cream-45);
-  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+  background:var(--cream);border:1px solid var(--cream);color:var(--navy);
+  display:grid;place-items:center;font-size:.82rem;font-weight:600;
 }
-.act[data-rank] .act__rank{background:var(--cream);border-color:var(--cream);color:var(--navy);}
-.act[data-rank]{border-color:var(--line-strong);}
-.act__text{min-width:0;display:block;}
+.act__text{min-width:0;display:block;flex:1;}
 .act__name{display:block;font-size:.9rem;font-weight:500;line-height:1.3;}
 .act__note{display:block;margin-top:.12rem;font-size:.76rem;color:var(--cream-45);line-height:1.4;}
-.acts__reset{
-  margin-top:.85rem;font:inherit;font-size:.74rem;background:none;border:0;
-  color:var(--cream-45);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;
+.act__moves{display:flex;flex-direction:column;gap:.18rem;flex:none;}
+.move{
+  width:26px;height:20px;padding:0;font:inherit;cursor:pointer;
+  border:1px solid var(--line);border-radius:6px;background:transparent;
+  display:grid;place-items:center;
+  transition:background .2s var(--ease),border-color .2s var(--ease),opacity .2s var(--ease);
 }
-.acts__reset:hover{color:var(--cream);}
+.move svg{width:10px;height:10px;stroke:var(--cream-70);stroke-width:2.4;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;}
+.move:hover:not(:disabled){background:var(--cream);border-color:var(--cream);}
+.move:hover:not(:disabled) svg{stroke:var(--navy);}
+.move:disabled{opacity:.25;cursor:default;}
+.acts__hint{margin-top:.8rem;font-size:.74rem;color:var(--cream-45);}
 
 /* ---------- fields ---------- */
 .field{margin-top:.2rem;}
@@ -198,6 +200,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--cream);}
 textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
 
 .invalid input,.invalid textarea{border-color:var(--cream);}
+.pref.invalid{border-color:var(--cream);}
 .err{display:none;font-size:.76rem;color:var(--cream);margin-top:.4rem;}
 .invalid .err{display:block;}
 
@@ -252,7 +255,7 @@ body.sent .head h1,body.sent .head p{display:none;}
   <header class="head">
     <span class="eyebrow">TRYB · Your social concierge</span>
     <h1>When do you want us to plan for you?</h1>
-    <p>Tap the windows you're free over the next four weekends — tap again to take one back.
+    <p>Tap the days you're free over the next four weekends — tap again to take one back.
        Then tell us what you'd like to be doing, and we'll build the weekend around it.</p>
   </header>
 
@@ -266,16 +269,22 @@ body.sent .head h1,body.sent .head p{display:none;}
           <h2>Your next four weekends</h2>
           <span class="count" id="count">0 windows open</span>
         </div>
-        <p class="card__note">Whole days and whole weekends toggle in one move.</p>
+        <p class="card__note">Tap a day you're free. Whole weekends toggle in one move.</p>
+
+        <div class="pref" id="prefField">
+          <p class="pref__q" id="prefQ">Do you prefer daytime or night?</p>
+          <div class="pref__opts" id="pref" role="group" aria-labelledby="prefQ"></div>
+        </div>
+
         <div id="weekends"></div>
       </section>
 
       <!-- ── Activities ───────────────────────────────────────── -->
       <section class="card grid__side">
         <div class="card__head"><h2>What you'd like to do</h2></div>
-        <p class="card__note">Tap to rank them 1 to 4 — 1 is what you want most.</p>
+        <p class="card__note" id="actsNote"></p>
         <div class="acts" id="acts"></div>
-        <button type="button" class="acts__reset" id="actsReset">Clear the order</button>
+        <p class="acts__hint">Use the arrows to move an activity up or down.</p>
       </section>
 
     </div>
@@ -363,8 +372,14 @@ body.sent .head h1,body.sent .head p{display:none;}
   /* Must match SUBMIT_TOKEN in apps-script/Code.gs. */
   var SUBMIT_TOKEN = "tryb-2026";
 
-  /* The four activities people rank. Edit the names/notes freely —
-     the sheet columns follow whatever is listed here. */
+  /* The weekend the activity priorities are about. Shown on the card and
+     recorded with every submission, so a row always says which weekend its
+     1-2-3-4 refers to. Change this when you move on to the next weekend. */
+  var ACTIVITY_WEEKEND = "26–27 September";
+
+  /* The four activities, in their starting order — they arrive pre-ranked
+     1 to 4 in exactly this order, and people reorder from there. Edit the
+     names/notes freely; the sheet columns follow whatever is listed here. */
   var ACTIVITIES = [
     { id:"dining",    name:"Dining & supper clubs", note:"Long tables, new people, unhurried food." },
     { id:"games",     name:"Games & sport",          note:"Bowling, board games, pickleball, pool." },
@@ -372,10 +387,12 @@ body.sent .head h1,body.sent .head p{display:none;}
     { id:"making",    name:"Workshops & making",     note:"Pottery, painting, matcha — make something." }
   ];
 
-  /* The two windows offered on each day. */
-  var SLOTS = [
-    { id:"day",   label:"Daytime", time:"11 AM – 5 PM" },
-    { id:"night", label:"Night",   time:"7 PM – late"  }
+  /* Time of day. Asked once — it is a standing preference, not a per-day
+     answer, so it is not repeated on every weekend. */
+  var TIME_PREFS = [
+    { id:"day",    label:"Daytime", note:"11 AM – 5 PM" },
+    { id:"night",  label:"Night",   note:"7 PM – late"  },
+    { id:"either", label:"Either works", note:"" }
   ];
 
   var WEEKEND_COUNT = 4;   /* next 4 weekends = up to 8 days */
@@ -439,10 +456,9 @@ body.sent .head h1,body.sent .head p{display:none;}
    * ========================================================== */
 
   var weekends = buildWeekends(WEEKEND_COUNT);
-  var picked   = Object.create(null);   /* "2026-09-19|night" → true */
-  var ranks    = Object.create(null);   /* activity id → 1..4 */
-
-  function key(dateIso, slotId){ return dateIso + "|" + slotId; }
+  var picked   = Object.create(null);   /* "2026-09-19" → true */
+  var order    = ACTIVITIES.map(function(a){ return a.id; });   /* best first */
+  var timePref = "";                    /* one of TIME_PREFS ids */
 
   /* ============================================================
    * Render — weekends
@@ -472,9 +488,7 @@ body.sent .head h1,body.sent .head p{display:none;}
     wkBtn.textContent = wk.days.length === 1 ? "Whole day" : "Whole weekend";
     wkBtn.addEventListener("click", function(){
       var on = !allOn(wk.days);
-      wk.days.forEach(function(d){
-        SLOTS.forEach(function(s){ set(key(iso(d), s.id), on); });
-      });
+      wk.days.forEach(function(d){ set(iso(d), on); });
       sync();
     });
     head.appendChild(wkBtn);
@@ -485,65 +499,31 @@ body.sent .head h1,body.sent .head p{display:none;}
 
     wk.days.forEach(function(d){
       var dIso = iso(d);
-      var day = document.createElement("div");
-      day.className = "day";
-
-      var dHead = document.createElement("div");
-      dHead.className = "day__head";
-      dHead.innerHTML =
-        '<span class="day__date">' +
-          '<span class="day__num"></span><span class="day__name"></span>' +
-        '</span>';
-      dHead.querySelector(".day__num").textContent  = d.getDate();
-      dHead.querySelector(".day__name").textContent = DAYS[d.getDay()];
-
-      var allBtn = document.createElement("button");
-      allBtn.type = "button";
-      allBtn.className = "day__all";
-      allBtn.setAttribute("aria-pressed","false");
-      allBtn.textContent = "+ All day";
-      allBtn.addEventListener("click", function(){
-        var on = !allOn([d]);
-        SLOTS.forEach(function(s){ set(key(dIso, s.id), on); });
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "day";
+      b.setAttribute("aria-pressed","false");
+      b.dataset.key = dIso;
+      b.setAttribute("aria-label",
+        "Free on " + DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate());
+      b.innerHTML =
+        '<span class="day__mark"><svg viewBox="0 0 12 12" aria-hidden="true">' +
+          '<polyline points="2,6.4 4.6,9 10,3"></polyline></svg></span>' +
+        '<span class="day__num"></span>' +
+        '<span class="day__name"></span>' +
+        '<span class="day__free">Free</span>';
+      b.querySelector(".day__num").textContent  = d.getDate();
+      b.querySelector(".day__name").textContent = DAYS[d.getDay()];
+      b.addEventListener("click", function(){
+        set(dIso, !picked[dIso]);
         sync();
       });
-      dHead.appendChild(allBtn);
-      day.appendChild(dHead);
-
-      var slots = document.createElement("div");
-      slots.className = "slots";
-      SLOTS.forEach(function(s){
-        var b = document.createElement("button");
-        b.type = "button";
-        b.className = "slot";
-        b.setAttribute("aria-pressed","false");
-        b.dataset.key = key(dIso, s.id);
-        b.setAttribute("aria-label",
-          DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + s.label);
-        b.innerHTML =
-          '<span class="dot"></span>' +
-          '<span class="label"></span>' +
-          '<span class="time"></span>';
-        b.querySelector(".label").textContent = s.label;
-        b.querySelector(".time").textContent  = s.time;
-        b.addEventListener("click", function(){
-          set(b.dataset.key, !picked[b.dataset.key]);
-          sync();
-        });
-        slots.appendChild(b);
-      });
-      day.appendChild(slots);
-
-      /* remembered for sync() */
-      day._date = d;
-      day._all  = allBtn;
-      days.appendChild(day);
+      days.appendChild(b);
     });
 
     sec.appendChild(days);
-    sec._days = days;
-    sec._wk   = wk;
-    sec._btn  = wkBtn;
+    sec._wk  = wk;
+    sec._btn = wkBtn;
     elWeekends.appendChild(sec);
   });
 
@@ -551,25 +531,47 @@ body.sent .head h1,body.sent .head p{display:none;}
     if (on) picked[k] = true; else delete picked[k];
   }
   function allOn(dates){
-    return dates.every(function(d){
-      return SLOTS.every(function(s){ return picked[key(iso(d), s.id)]; });
-    });
+    return dates.every(function(d){ return picked[iso(d)]; });
   }
 
   /* Push state back into the DOM. One pass, so the buttons can never
      drift out of step with `picked`. */
   function sync(){
-    Array.prototype.forEach.call(elWeekends.querySelectorAll(".slot"), function(b){
+    Array.prototype.forEach.call(elWeekends.querySelectorAll(".day"), function(b){
       b.setAttribute("aria-pressed", picked[b.dataset.key] ? "true" : "false");
     });
     Array.prototype.forEach.call(elWeekends.querySelectorAll(".weekend"), function(sec){
       sec._btn.setAttribute("aria-pressed", allOn(sec._wk.days) ? "true" : "false");
-      Array.prototype.forEach.call(sec._days.children, function(day){
-        day._all.setAttribute("aria-pressed", allOn([day._date]) ? "true" : "false");
-      });
     });
     var n = Object.keys(picked).length;
-    elCount.textContent = n + (n === 1 ? " window open" : " windows open");
+    elCount.textContent = n + (n === 1 ? " day open" : " days open");
+  }
+
+  /* ============================================================
+   * Render — time of day (asked once)
+   * ========================================================== */
+
+  var elPref = document.getElementById("pref");
+
+  TIME_PREFS.forEach(function(t){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "pill";
+    b.dataset.id = t.id;
+    b.setAttribute("aria-pressed","false");
+    b.textContent = t.note ? t.label + " · " + t.note : t.label;
+    b.addEventListener("click", function(){
+      timePref = (timePref === t.id) ? "" : t.id;   /* tap again to clear */
+      document.getElementById("prefField").classList.remove("invalid");
+      syncPref();
+    });
+    elPref.appendChild(b);
+  });
+
+  function syncPref(){
+    Array.prototype.forEach.call(elPref.children, function(b){
+      b.setAttribute("aria-pressed", b.dataset.id === timePref ? "true" : "false");
+    });
   }
 
   /* ============================================================
@@ -578,54 +580,78 @@ body.sent .head h1,body.sent .head p{display:none;}
 
   var elActs = document.getElementById("acts");
 
-  ACTIVITIES.forEach(function(a){
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "act";
-    b.dataset.id = a.id;
-    b.innerHTML =
-      '<span class="act__rank"></span>' +
-      '<span class="act__text">' +
-        '<span class="act__name"></span>' +
-        '<span class="act__note"></span>' +
-      '</span>';
-    b.querySelector(".act__name").textContent = a.name;
-    b.querySelector(".act__note").textContent = a.note;
-    b.addEventListener("click", function(){
-      if (ranks[a.id]) unrank(a.id); else rank(a.id);
-      syncActs();
+  document.getElementById("actsNote").textContent =
+    "For the weekend of " + ACTIVITY_WEEKEND + " — 1 is what you want most.";
+
+  function activity(id){
+    return ACTIVITIES.filter(function(a){ return a.id === id; })[0];
+  }
+
+  var ARROW_UP   = '<svg viewBox="0 0 10 10" aria-hidden="true"><polyline points="2,6.5 5,3.5 8,6.5"/></svg>';
+  var ARROW_DOWN = '<svg viewBox="0 0 10 10" aria-hidden="true"><polyline points="2,3.5 5,6.5 8,3.5"/></svg>';
+
+  /* Rebuilt from `order` on every change, so the numbers and the arrows can
+     never drift out of step with the list that gets submitted. */
+  function renderActs(){
+    elActs.innerHTML = "";
+    order.forEach(function(id, i){
+      var a   = activity(id);
+      var row = document.createElement("div");
+      row.className = "act";
+      row.dataset.id = id;
+      row.innerHTML =
+        '<span class="act__rank"></span>' +
+        '<span class="act__text">' +
+          '<span class="act__name"></span>' +
+          '<span class="act__note"></span>' +
+        '</span>' +
+        '<span class="act__moves"></span>';
+      row.querySelector(".act__rank").textContent = i + 1;
+      row.querySelector(".act__name").textContent = a.name;
+      row.querySelector(".act__note").textContent = a.note;
+
+      var moves = row.querySelector(".act__moves");
+      [-1, 1].forEach(function(step){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "move";
+        b.innerHTML = step < 0 ? ARROW_UP : ARROW_DOWN;
+        b.disabled = step < 0 ? i === 0 : i === order.length - 1;
+        b.setAttribute("aria-label",
+          "Move " + a.name + (step < 0 ? " up" : " down") +
+          ", currently " + (i + 1) + " of " + order.length);
+        b.addEventListener("click", function(){ move(i, i + step); });
+        moves.appendChild(b);
+      });
+
+      elActs.appendChild(row);
     });
-    elActs.appendChild(b);
-  });
-
-  function rank(id){
-    ranks[id] = Object.keys(ranks).length + 1;
-  }
-  /* Removing a rank closes the gap, so the numbers always read 1,2,3… */
-  function unrank(id){
-    var gone = ranks[id];
-    delete ranks[id];
-    Object.keys(ranks).forEach(function(k){ if (ranks[k] > gone) ranks[k]--; });
   }
 
-  function syncActs(){
-    Array.prototype.forEach.call(elActs.children, function(b){
-      var r = ranks[b.dataset.id];
-      if (r){ b.dataset.rank = r; } else { delete b.dataset.rank; }
-      b.querySelector(".act__rank").textContent = r || "–";
-      b.setAttribute("aria-label",
-        b.querySelector(".act__name").textContent +
-        (r ? " — ranked " + r + ", tap to remove" : " — tap to rank"));
+  function move(from, to){
+    if (to < 0 || to >= order.length) return;
+    var moved = order[from];
+    order.splice(from, 1);
+    order.splice(to, 0, moved);
+    renderActs();
+    /* keep the arrow the user just pressed under their finger */
+    var row = elActs.children[to];
+    if (row){
+      var arrows = row.querySelectorAll(".move");
+      var want = arrows[to < from ? 0 : 1];
+      (want && !want.disabled ? want : arrows[to < from ? 1 : 0]).focus();
+    }
+  }
+
+  function rankedActivities(){
+    return order.map(function(id, i){
+      return { rank: i + 1, id: id, name: activity(id).name };
     });
   }
-
-  document.getElementById("actsReset").addEventListener("click", function(){
-    ranks = Object.create(null);
-    syncActs();
-  });
 
   sync();
-  syncActs();
+  renderActs();
+  syncPref();
 
   /* ============================================================
    * Submit
@@ -650,51 +676,39 @@ body.sent .head h1,body.sent .head p{display:none;}
   phoneEl.addEventListener("input", function(){ phoneWrap.classList.remove("invalid"); });
 
   /* Ordered, human-readable — exactly what gets written to the sheet. */
-  function chosenWindows(){
+  function chosenDays(){
     var out = [];
     weekends.forEach(function(wk){
       wk.days.forEach(function(d){
-        var dIso = iso(d);
-        SLOTS.forEach(function(s){
-          if (picked[key(dIso, s.id)]){
-            out.push({
-              date: dIso,
-              day:  DAYS[d.getDay()],
-              label: DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate(),
-              slot: s.id,
-              slotLabel: s.label,
-              time: s.time
-            });
-          }
-        });
+        if (picked[iso(d)]){
+          out.push({
+            date:  iso(d),
+            day:   DAYS[d.getDay()],
+            label: DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate()
+          });
+        }
       });
     });
     return out;
-  }
-
-  function rankedActivities(){
-    return ACTIVITIES
-      .filter(function(a){ return ranks[a.id]; })
-      .sort(function(x, y){ return ranks[x.id] - ranks[y.id]; })
-      .map(function(a){ return { rank: ranks[a.id], id: a.id, name: a.name }; });
   }
 
   form.addEventListener("submit", function(ev){
     ev.preventDefault();
     if (sending) return;
 
-    var windows = chosenWindows();
-    var order   = rankedActivities();
-    var phone   = validPhone(phoneEl.value);
+    var days   = chosenDays();
+    var ranked = rankedActivities();
+    var phone  = validPhone(phoneEl.value);
 
-    if (!windows.length){
-      statusEl.textContent = "Pick at least one window you're free.";
+    if (!days.length){
+      statusEl.textContent = "Pick at least one day you're free.";
       elWeekends.scrollIntoView({ block:"center" });
       return;
     }
-    if (order.length !== ACTIVITIES.length){
-      statusEl.textContent = "Rank all four activities from 1 to 4.";
-      elActs.scrollIntoView({ block:"center" });
+    if (!timePref){
+      document.getElementById("prefField").classList.add("invalid");
+      statusEl.textContent = "Tell us whether you prefer daytime or night.";
+      elPref.scrollIntoView({ block:"center" });
       return;
     }
     if (!phone){
@@ -709,8 +723,11 @@ body.sent .head h1,body.sent .head p{display:none;}
       type:       "availability",
       website:    document.getElementById("website").value,   /* honeypot */
       phone:      phone,
-      windows:    windows,
-      activities: order,
+      days:       days,
+      timePref:   timePref,
+      timePrefLabel: (TIME_PREFS.filter(function(t){ return t.id === timePref; })[0] || {}).label || "",
+      activities: ranked,
+      activityWeekend: ACTIVITY_WEEKEND,
       wish:       document.getElementById("wish").value.trim(),
       notes:      document.getElementById("notes").value.trim(),
       page:       "availability",
