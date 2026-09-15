@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TRYB Weekend availability</title>
+<meta name="description" content="Tell TRYB when you're free over the next four weekends, what you'd like to do, and we'll plan around it." />
+<meta name="robots" content="noindex, nofollow" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="TRYB" />
+<meta property="og:title" content="When do you want us to plan for you?" />
+<meta property="og:description" content="Tap the weekends you're free, rank what you'd like to do, and leave the rest to us." />
+<meta property="og:url" content="https://jointryb.in/availability.html" />
+<meta property="og:image" content="https://jointryb.in/assets/scene-rooftop.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#1e2a44" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   TRYB — Weekend availability
+   Two colours only: navy (ink) + cream. Everything else is a
+   tint of one of them, so the page stays strictly on brand.
+   Self-contained: no dependency on style.css / invites.css.
+   ============================================================ */
+:root{
+  --navy:#1e2a44;          /* brand navy — the page */
+  --navy-2:#182238;        /* one step down — recessed panels */
+  --navy-3:#212f4d;        /* one step up — raised cards */
+  --cream:#f7f2ea;         /* brand cream — the ink on navy */
+  --cream-70:rgba(247,242,234,.70);
+  --cream-45:rgba(247,242,234,.45);
+  --cream-28:rgba(247,242,234,.28);
+  --line:rgba(247,242,234,.14);
+  --line-strong:rgba(247,242,234,.34);
+  --font-display:"Fraunces","Times New Roman",serif;
+  --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --gutter:clamp(1.1rem,4vw,3rem);
+  --radius:18px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+*{margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{
+  min-height:100vh;display:flex;flex-direction:column;
+  background:var(--navy);color:var(--cream);
+  font-family:var(--font-sans);font-weight:300;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  -webkit-tap-highlight-color:transparent;
+}
+a{color:inherit;}
+img{max-width:100%;display:block;}
+::selection{background:var(--cream);color:var(--navy);}
+:focus-visible{outline:2px solid var(--cream);outline-offset:3px;border-radius:6px;}
+
+.wrap{flex:1 0 auto;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gutter);}
+
+/* ---------- top bar ---------- */
+.top{flex:none;display:flex;justify-content:center;padding:clamp(1.6rem,4vw,2.6rem) 0 clamp(.8rem,2vw,1.2rem);}
+.top img{height:clamp(30px,4.6vw,42px);width:auto;}
+
+/* ---------- page head ---------- */
+.head{padding:clamp(1rem,3vw,2rem) 0 clamp(1.6rem,4vw,2.6rem);max-width:46rem;}
+.eyebrow{
+  display:inline-block;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--cream-45);margin-bottom:1rem;
+}
+.head h1{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(1.9rem,5.4vw,3.1rem);line-height:1.1;letter-spacing:-.01em;
+}
+.head p{margin-top:.9rem;color:var(--cream-70);font-size:clamp(.92rem,1.7vw,1.02rem);max-width:38rem;}
+
+/* ---------- layout ---------- */
+form{padding-bottom:clamp(3rem,8vw,5rem);}
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:clamp(1rem,2.2vw,1.6rem);align-items:start;}
+@media(min-width:901px){.grid__side{position:sticky;top:1.2rem;}}
+@media(max-width:900px){.grid{grid-template-columns:1fr;}}
+.stack{display:grid;gap:clamp(1rem,2.2vw,1.6rem);margin-top:clamp(1rem,2.2vw,1.6rem);}
+
+/* ---------- card ---------- */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--navy-3),var(--navy-2));
+  padding:clamp(1.1rem,2.6vw,1.75rem);
+}
+.card__head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.35rem;}
+.card__head h2{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(1.15rem,2.3vw,1.4rem);letter-spacing:-.005em;
+}
+.card__note{color:var(--cream-45);font-size:.82rem;margin-bottom:1.15rem;}
+.count{
+  font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cream-45);white-space:nowrap;
+}
+
+/* ---------- weekends ---------- */
+.weekend{border:1px solid var(--line);border-radius:14px;padding:clamp(.85rem,2vw,1.15rem);background:rgba(247,242,234,.02);}
+.weekend + .weekend{margin-top:.8rem;}
+.weekend__head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.85rem;}
+.weekend__when{min-width:0;}
+.weekend__tag{display:block;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-45);margin-bottom:.15rem;}
+.weekend__date{font-family:var(--font-display);font-weight:400;font-size:clamp(1.05rem,2.4vw,1.3rem);white-space:nowrap;}
+
+/* inverted pill — the only "second colour" move on the page */
+.pill{
+  font:inherit;font-size:.72rem;font-weight:500;letter-spacing:.04em;
+  border:1px solid var(--line-strong);border-radius:999px;
+  background:transparent;color:var(--cream-70);
+  padding:.42rem .85rem;cursor:pointer;white-space:nowrap;
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.pill:hover{border-color:var(--cream);color:var(--cream);}
+.pill[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+
+.days{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+@media(max-width:520px){.days{grid-template-columns:1fr;}}
+/* one tap per day — free or not */
+.day{
+  display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;font:inherit;
+  border:1px solid var(--line);border-radius:12px;background:var(--navy-2);color:var(--cream);
+  padding:.8rem .85rem;cursor:pointer;
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.day:hover{border-color:var(--line-strong);}
+.day__mark{
+  width:20px;height:20px;flex:none;border-radius:50%;
+  border:1px solid var(--cream-28);display:grid;place-items:center;
+  transition:background .25s var(--ease),border-color .25s var(--ease);
+}
+.day__mark svg{width:11px;height:11px;stroke:var(--navy);stroke-width:2.6;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .2s var(--ease);}
+.day__num{font-family:var(--font-display);font-size:1.3rem;line-height:1;}
+.day__name{font-size:.82rem;color:var(--cream-45);}
+.day__free{margin-left:auto;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cream-28);}
+.day[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+.day[aria-pressed="true"] .day__name,
+.day[aria-pressed="true"] .day__free{color:var(--navy);}
+.day[aria-pressed="true"] .day__mark{background:var(--navy);border-color:var(--navy);}
+.day[aria-pressed="true"] .day__mark svg{opacity:1;stroke:var(--cream);}
+
+/* the one time-of-day preference, asked once for everything */
+.pref{
+  border:1px solid var(--line);border-radius:14px;background:rgba(247,242,234,.02);
+  padding:clamp(.85rem,2vw,1.1rem);margin-bottom:1rem;
+}
+.pref__q{font-size:.84rem;color:var(--cream-70);margin-bottom:.7rem;}
+.pref__opts{display:flex;gap:.5rem;flex-wrap:wrap;}
+.pref__opts .pill{flex:1 1 auto;text-align:center;padding:.55rem .9rem;}
+
+/* ---------- activities ---------- */
+.acts{display:grid;gap:.55rem;}
+.act{
+  display:flex;align-items:center;gap:.75rem;
+  border:1px solid var(--line-strong);border-radius:12px;
+  background:var(--navy-2);color:var(--cream);padding:.7rem .65rem .7rem .8rem;
+}
+.act__rank{
+  width:30px;height:30px;flex:none;border-radius:50%;
+  background:var(--cream);border:1px solid var(--cream);color:var(--navy);
+  display:grid;place-items:center;font-size:.82rem;font-weight:600;
+}
+.act__text{min-width:0;display:block;flex:1;}
+.act__name{display:block;font-size:.9rem;font-weight:500;line-height:1.3;}
+.act__note{display:block;margin-top:.12rem;font-size:.76rem;color:var(--cream-45);line-height:1.4;}
+.act__moves{display:flex;flex-direction:column;gap:.18rem;flex:none;}
+.move{
+  width:26px;height:20px;padding:0;font:inherit;cursor:pointer;
+  border:1px solid var(--line);border-radius:6px;background:transparent;
+  display:grid;place-items:center;
+  transition:background .2s var(--ease),border-color .2s var(--ease),opacity .2s var(--ease);
+}
+.move svg{width:10px;height:10px;stroke:var(--cream-70);stroke-width:2.4;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;}
+.move:hover:not(:disabled){background:var(--cream);border-color:var(--cream);}
+.move:hover:not(:disabled) svg{stroke:var(--navy);}
+.move:disabled{opacity:.25;cursor:default;}
+.acts__hint{margin-top:.8rem;font-size:.74rem;color:var(--cream-45);}
+
+/* ---------- fields ---------- */
+.field{margin-top:.2rem;}
+.field label{display:block;font-size:.8rem;color:var(--cream-70);margin-bottom:.45rem;}
+input[type="text"],input[type="tel"],textarea{
+  width:100%;font:inherit;font-size:.92rem;color:var(--cream);
+  background:var(--navy-2);border:1px solid var(--line);border-radius:12px;
+  padding:.8rem .9rem;transition:border-color .25s var(--ease);
+}
+input::placeholder,textarea::placeholder{color:var(--cream-28);}
+input:focus,textarea:focus{outline:none;border-color:var(--cream);}
+textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
+
+.req{
+  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;margin-left:.5rem;
+  color:var(--cream-70);
+}
+.invalid input,.invalid textarea{border-color:var(--cream);}
+.pref.invalid{border-color:var(--cream);}
+.err{display:none;font-size:.76rem;color:var(--cream);margin-top:.4rem;}
+.invalid .err{display:block;}
+
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ---------- submit ---------- */
+.submit-row{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:end;}
+@media(max-width:620px){.submit-row{grid-template-columns:1fr;}}
+.btn{
+  font:inherit;font-size:.9rem;font-weight:500;letter-spacing:.02em;
+  background:var(--cream);color:var(--navy);border:1px solid var(--cream);
+  border-radius:999px;padding:.85rem 1.8rem;cursor:pointer;white-space:nowrap;
+  transition:opacity .25s var(--ease),transform .25s var(--ease);
+}
+.btn:hover:not(:disabled){transform:translateY(-1px);}
+.btn:disabled{opacity:.5;cursor:default;}
+.status{margin-top:.9rem;font-size:.84rem;color:var(--cream-70);min-height:1.2em;}
+.closing{
+  text-align:center;font-size:.86rem;line-height:1.65;color:var(--cream-45);
+  max-width:34rem;margin:.6rem auto 0;
+}
+
+/* ---------- done ---------- */
+.done{display:none;text-align:center;padding:clamp(2.5rem,8vw,5rem) 0;}
+.done h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.7rem,4.6vw,2.6rem);line-height:1.15;}
+.done p{margin-top:.9rem;color:var(--cream-70);max-width:32rem;margin-left:auto;margin-right:auto;}
+.done .btn{margin-top:1.8rem;display:inline-block;text-decoration:none;}
+body.sent form{display:none;}
+body.sent .done{display:block;}
+body.sent .head h1,body.sent .head p{display:none;}
+
+/* ---------- footer ---------- */
+.site-footer{border-top:1px solid var(--line);margin-top:auto;}
+.footer-v3{
+  max-width:1080px;margin:0 auto;padding:clamp(1.8rem,4vw,2.6rem) var(--gutter);
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;
+}
+.f-logo img{height:30px;width:auto;margin-bottom:.6rem;}
+.f-copy{font-size:.76rem;color:var(--cream-45);}
+.f-links{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.78rem;}
+.f-links a{color:var(--cream-70);text-decoration:none;transition:color .25s var(--ease);}
+.f-links a:hover{color:var(--cream);}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;}
+  html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+
+<div class="top"><a href="index.html"><img src="assets/logo.png" alt="tryb" /></a></div>
+
+<div class="wrap">
+
+  <header class="head">
+    <span class="eyebrow">TRYB · Your social concierge</span>
+    <h1>When do you want us to plan for you?</h1>
+    <p>Tap the days you're free over the next four weekends. Tap again to take one back.
+       Then tell us what you'd like to be doing, and we'll build the weekend around it.</p>
+  </header>
+
+  <form id="form" novalidate>
+
+    <div class="grid">
+
+      <!-- ── Weekends ─────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card__head">
+          <h2>Your next four weekends</h2>
+          <span class="count" id="count">0 windows open</span>
+        </div>
+        <p class="card__note">Tap a day you're free. Whole weekends toggle in one move.</p>
+
+        <div class="pref" id="prefField">
+          <p class="pref__q" id="prefQ">Do you prefer daytime or night?</p>
+          <div class="pref__opts" id="pref" role="group" aria-labelledby="prefQ"></div>
+        </div>
+
+        <div id="weekends"></div>
+      </section>
+
+      <!-- ── Activities ───────────────────────────────────────── -->
+      <section class="card grid__side">
+        <div class="card__head"><h2>What you'd like to do</h2></div>
+        <p class="card__note" id="actsNote"></p>
+        <div class="acts" id="acts"></div>
+        <p class="acts__hint">Use the arrows to move an activity up or down.</p>
+      </section>
+
+    </div>
+
+    <div class="stack">
+
+      <!-- ── The 5th option: something specific ───────────────── -->
+      <section class="card">
+        <div class="card__head"><h2>Something specific you want on the list</h2></div>
+        <p class="card__note">Say, a live cricket match. Or a dandiya night this festive season.</p>
+        <div class="field" id="wishField">
+          <label for="wish">The thing you'd like us to line up <span class="req">Required</span></label>
+          <input type="text" id="wish" name="wish" maxlength="200" autocomplete="off"
+                 required aria-required="true" aria-describedby="wishErr"
+                 placeholder="I want to watch a live cricket match" />
+          <span class="err" id="wishErr">Tell us one thing you'd like us to line up.</span>
+        </div>
+      </section>
+
+      <!-- ── Expectations ─────────────────────────────────────── -->
+      <section class="card">
+        <div class="card__head"><h2>Anything else you expect from us</h2></div>
+        <p class="card__note">We're your social concierge. Tell us what that should mean for you.</p>
+        <div class="field" id="notesField">
+          <label for="notes">Your suggestions <span class="req">Required</span></label>
+          <textarea id="notes" name="notes" maxlength="1000"
+                    required aria-required="true" aria-describedby="notesErr"
+                    placeholder="What would make a weekend with TRYB feel worth it?"></textarea>
+          <span class="err" id="notesErr">Tell us what you expect from us.</span>
+        </div>
+      </section>
+
+      <!-- ── Submit ───────────────────────────────────────────── -->
+      <section class="card">
+        <div class="submit-row">
+          <div class="field" id="phoneField">
+            <label for="phone">Your mobile number, so we can reach you <span class="req">Required</span></label>
+            <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel"
+                   required aria-required="true" aria-describedby="phoneErr"
+                   maxlength="18" placeholder="10 digit mobile number" />
+            <span class="err" id="phoneErr">Please enter a valid 10-digit Indian mobile number.</span>
+          </div>
+          <button type="submit" class="btn" id="submitBtn">Submit availability</button>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+        <div class="hp"><label>Leave this empty<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" /></label></div>
+      </section>
+
+      <p class="closing">Just like how plans get decided in your friends group: your 10 close
+        matches decide the plan, the timing and next week's activity bids, by majority.</p>
+
+    </div>
+  </form>
+
+  <section class="done" id="done">
+    <h2>That's all we needed.</h2>
+    <p>We've got your weekends. If something fits, you'll hear from us on WhatsApp with an
+       invitation: the place, the people, the time. Nothing else to do until then.</p>
+    <a class="btn" href="index.html">Back to TRYB</a>
+  </section>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-v3">
+    <div class="f-logo">
+      <img src="assets/logo.png" alt="tryb" />
+      <p class="f-copy">© <span data-year>2026</span> TRYB, a brand by EVELIT. Real life, in good company.</p>
+    </div>
+    <nav class="f-links">
+      <a href="index.html">home</a>
+      <a href="personality-test.html">join tryb</a>
+      <a href="mailto:team@jointryb.in">contact</a>
+      <a href="disclaimer.html">disclaimer</a>
+      <a href="privacy-policy.html">privacy policy</a>
+      <a href="refund-policy.html">refund policy</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+   * Config — the two things you are likely to change
+   * ========================================================== */
+
+  /* The same Apps Script web app the rest of the site posts to.
+     Submissions land in its own "Availability" tab. */
+  var SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKdfw00pO9l9JQAcpCiDvQciVJAE5_dbDZAnYrv9jH_jMeR5EWgX6tQA/exec";
+
+  /* Must match SUBMIT_TOKEN in apps-script/Code.gs. */
+  var SUBMIT_TOKEN = "tryb-2026";
+
+  /* The weekend the activity priorities are about. Shown on the card and
+     recorded with every submission, so a row always says which weekend its
+     1-2-3-4 refers to. Change this when you move on to the next weekend. */
+  var ACTIVITY_WEEKEND = "26 & 27 September";
+
+  /* The four activities, in their starting order — they arrive pre-ranked
+     1 to 4 in exactly this order, and people reorder from there. Edit the
+     names/notes freely; the sheet columns follow whatever is listed here. */
+  var ACTIVITIES = [
+    { id:"kishore", name:"Kishore Kumar songs & piano show", note:"" },
+    { id:"bachata", name:"Bachata dance class",              note:"" },
+    { id:"pottery", name:"Pottery workshop with dinner",     note:"" },
+    { id:"art",     name:"Art exhibition with lunch",        note:"" }
+  ];
+
+  /* Time of day. Asked once — it is a standing preference, not a per-day
+     answer, so it is not repeated on every weekend. */
+  var TIME_PREFS = [
+    { id:"day",    label:"Daytime", note:"11 AM to 5 PM" },
+    { id:"night",  label:"Night",   note:"after 7 PM"   },
+    { id:"either", label:"Either works", note:"" }
+  ];
+
+  var WEEKEND_COUNT = 4;   /* next 4 weekends = up to 8 days */
+
+  /* ============================================================
+   * Dates — computed at page load, so the page never goes stale
+   * ========================================================== */
+
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function iso(d){
+    return d.getFullYear() + "-" +
+           String(d.getMonth()+1).padStart(2,"0") + "-" +
+           String(d.getDate()).padStart(2,"0");
+  }
+
+  /* Walk forward from today collecting Saturdays and Sundays, and group each
+     Sunday with the Saturday it belongs to. If today is a Sunday, the first
+     group is that Sunday alone — its Saturday has already gone. */
+  function buildWeekends(n){
+    var today = new Date(); today.setHours(0,0,0,0);
+    var groups = [], current = null;
+    for (var i = 0; i < 70; i++){
+      /* Stop only once the nth weekend is complete — never mid-weekend, or the
+         last card would lose its Sunday. */
+      if (groups.length >= n && !current) break;
+      var d = new Date(today.getTime());
+      d.setDate(today.getDate() + i);
+      var wd = d.getDay();                       /* 0 Sun … 6 Sat */
+      if (wd !== 0 && wd !== 6) continue;
+      if (!current){                             /* a Saturday opens a weekend;
+                                                    a Sunday only when its
+                                                    Saturday has already gone */
+        if (groups.length >= n) break;
+        current = { days: [] };
+        groups.push(current);
+      }
+      current.days.push(d);
+      if (wd === 0) current = null;              /* Sunday closes it */
+    }
+    return groups;
+  }
+
+  function weekendLabel(days){
+    var a = days[0], b = days[days.length - 1];
+    if (days.length === 1) return MONTHS[a.getMonth()] + " " + a.getDate();
+    if (a.getMonth() === b.getMonth())
+      return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + b.getDate();
+    return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + MONTHS[b.getMonth()] + " " + b.getDate();
+  }
+
+  function weekendTag(index){
+    if (index === 0) return "This weekend";
+    if (index === 1) return "Next weekend";
+    return "In " + index + " weeks";
+  }
+
+  /* ============================================================
+   * State
+   * ========================================================== */
+
+  var weekends = buildWeekends(WEEKEND_COUNT);
+  var picked   = Object.create(null);   /* "2026-09-19" → true */
+  var order    = ACTIVITIES.map(function(a){ return a.id; });   /* best first */
+  var timePref = "";                    /* one of TIME_PREFS ids */
+
+  /* ============================================================
+   * Render — weekends
+   * ========================================================== */
+
+  var elWeekends = document.getElementById("weekends");
+  var elCount    = document.getElementById("count");
+
+  weekends.forEach(function(wk, wi){
+    var sec = document.createElement("div");
+    sec.className = "weekend";
+
+    var head = document.createElement("div");
+    head.className = "weekend__head";
+    head.innerHTML =
+      '<div class="weekend__when">' +
+        '<span class="weekend__tag"></span>' +
+        '<span class="weekend__date"></span>' +
+      '</div>';
+    head.querySelector(".weekend__tag").textContent  = weekendTag(wi);
+    head.querySelector(".weekend__date").textContent = weekendLabel(wk.days);
+
+    var wkBtn = document.createElement("button");
+    wkBtn.type = "button";
+    wkBtn.className = "pill";
+    wkBtn.setAttribute("aria-pressed","false");
+    wkBtn.textContent = wk.days.length === 1 ? "Whole day" : "Whole weekend";
+    wkBtn.addEventListener("click", function(){
+      var on = !allOn(wk.days);
+      wk.days.forEach(function(d){ set(iso(d), on); });
+      sync();
+    });
+    head.appendChild(wkBtn);
+    sec.appendChild(head);
+
+    var days = document.createElement("div");
+    days.className = "days";
+
+    wk.days.forEach(function(d){
+      var dIso = iso(d);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "day";
+      b.setAttribute("aria-pressed","false");
+      b.dataset.key = dIso;
+      b.setAttribute("aria-label",
+        "Free on " + DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate());
+      b.innerHTML =
+        '<span class="day__mark"><svg viewBox="0 0 12 12" aria-hidden="true">' +
+          '<polyline points="2,6.4 4.6,9 10,3"></polyline></svg></span>' +
+        '<span class="day__num"></span>' +
+        '<span class="day__name"></span>' +
+        '<span class="day__free">Free</span>';
+      b.querySelector(".day__num").textContent  = d.getDate();
+      b.querySelector(".day__name").textContent = DAYS[d.getDay()];
+      b.addEventListener("click", function(){
+        set(dIso, !picked[dIso]);
+        sync();
+      });
+      days.appendChild(b);
+    });
+
+    sec.appendChild(days);
+    sec._wk  = wk;
+    sec._btn = wkBtn;
+    elWeekends.appendChild(sec);
+  });
+
+  function set(k, on){
+    if (on) picked[k] = true; else delete picked[k];
+  }
+  function allOn(dates){
+    return dates.every(function(d){ return picked[iso(d)]; });
+  }
+
+  /* Push state back into the DOM. One pass, so the buttons can never
+     drift out of step with `picked`. */
+  function sync(){
+    Array.prototype.forEach.call(elWeekends.querySelectorAll(".day"), function(b){
+      b.setAttribute("aria-pressed", picked[b.dataset.key] ? "true" : "false");
+    });
+    Array.prototype.forEach.call(elWeekends.querySelectorAll(".weekend"), function(sec){
+      sec._btn.setAttribute("aria-pressed", allOn(sec._wk.days) ? "true" : "false");
+    });
+    var n = Object.keys(picked).length;
+    elCount.textContent = n + (n === 1 ? " day open" : " days open");
+  }
+
+  /* ============================================================
+   * Render — time of day (asked once)
+   * ========================================================== */
+
+  var elPref = document.getElementById("pref");
+
+  TIME_PREFS.forEach(function(t){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "pill";
+    b.dataset.id = t.id;
+    b.setAttribute("aria-pressed","false");
+    b.textContent = t.note ? t.label + " · " + t.note : t.label;
+    b.addEventListener("click", function(){
+      timePref = (timePref === t.id) ? "" : t.id;   /* tap again to clear */
+      document.getElementById("prefField").classList.remove("invalid");
+      syncPref();
+    });
+    elPref.appendChild(b);
+  });
+
+  function syncPref(){
+    Array.prototype.forEach.call(elPref.children, function(b){
+      b.setAttribute("aria-pressed", b.dataset.id === timePref ? "true" : "false");
+    });
+  }
+
+  /* ============================================================
+   * Render — activities
+   * ========================================================== */
+
+  var elActs = document.getElementById("acts");
+
+  document.getElementById("actsNote").textContent =
+    "For the weekend of " + ACTIVITY_WEEKEND + ". 1 is what you want most.";
+
+  function activity(id){
+    return ACTIVITIES.filter(function(a){ return a.id === id; })[0];
+  }
+
+  var ARROW_UP   = '<svg viewBox="0 0 10 10" aria-hidden="true"><polyline points="2,6.5 5,3.5 8,6.5"/></svg>';
+  var ARROW_DOWN = '<svg viewBox="0 0 10 10" aria-hidden="true"><polyline points="2,3.5 5,6.5 8,3.5"/></svg>';
+
+  /* Rebuilt from `order` on every change, so the numbers and the arrows can
+     never drift out of step with the list that gets submitted. */
+  function renderActs(){
+    elActs.innerHTML = "";
+    order.forEach(function(id, i){
+      var a   = activity(id);
+      var row = document.createElement("div");
+      row.className = "act";
+      row.dataset.id = id;
+      row.innerHTML =
+        '<span class="act__rank"></span>' +
+        '<span class="act__text">' +
+          '<span class="act__name"></span>' +
+          '<span class="act__note"></span>' +
+        '</span>' +
+        '<span class="act__moves"></span>';
+      row.querySelector(".act__rank").textContent = i + 1;
+      row.querySelector(".act__name").textContent = a.name;
+      var note = row.querySelector(".act__note");
+      if (a.note) note.textContent = a.note; else note.remove();
+
+      var moves = row.querySelector(".act__moves");
+      [-1, 1].forEach(function(step){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "move";
+        b.innerHTML = step < 0 ? ARROW_UP : ARROW_DOWN;
+        b.disabled = step < 0 ? i === 0 : i === order.length - 1;
+        b.setAttribute("aria-label",
+          "Move " + a.name + (step < 0 ? " up" : " down") +
+          ", currently " + (i + 1) + " of " + order.length);
+        b.addEventListener("click", function(){ move(i, i + step); });
+        moves.appendChild(b);
+      });
+
+      elActs.appendChild(row);
+    });
+  }
+
+  function move(from, to){
+    if (to < 0 || to >= order.length) return;
+    var moved = order[from];
+    order.splice(from, 1);
+    order.splice(to, 0, moved);
+    renderActs();
+    /* keep the arrow the user just pressed under their finger */
+    var row = elActs.children[to];
+    if (row){
+      var arrows = row.querySelectorAll(".move");
+      var want = arrows[to < from ? 0 : 1];
+      (want && !want.disabled ? want : arrows[to < from ? 1 : 0]).focus();
+    }
+  }
+
+  function rankedActivities(){
+    return order.map(function(id, i){
+      return { rank: i + 1, id: id, name: activity(id).name };
+    });
+  }
+
+  sync();
+  renderActs();
+  syncPref();
+
+  /* ============================================================
+   * Submit
+   * ========================================================== */
+
+  var form      = document.getElementById("form");
+  var phoneEl   = document.getElementById("phone");
+  var phoneWrap = document.getElementById("phoneField");
+  var statusEl  = document.getElementById("status");
+  var btn       = document.getElementById("submitBtn");
+  var sending   = false;
+
+  function digits(v){ return (v || "").replace(/\D/g, ""); }
+  /* Indian mobile: 10 digits starting 6–9, with an optional 91/0 prefix. */
+  function validPhone(v){
+    var d = digits(v);
+    if (d.length === 12 && d.indexOf("91") === 0) d = d.slice(2);
+    if (d.length === 11 && d.charAt(0) === "0")   d = d.slice(1);
+    return /^[6-9]\d{9}$/.test(d) ? d : "";
+  }
+
+  var wishEl    = document.getElementById("wish");
+  var wishWrap  = document.getElementById("wishField");
+  var notesEl   = document.getElementById("notes");
+  var notesWrap = document.getElementById("notesField");
+
+  [[phoneEl, phoneWrap], [wishEl, wishWrap], [notesEl, notesWrap]].forEach(function(pair){
+    pair[0].addEventListener("input", function(){ pair[1].classList.remove("invalid"); });
+  });
+
+  /* Ordered, human-readable — exactly what gets written to the sheet. */
+  function chosenDays(){
+    var out = [];
+    weekends.forEach(function(wk){
+      wk.days.forEach(function(d){
+        if (picked[iso(d)]){
+          out.push({
+            date:  iso(d),
+            day:   DAYS[d.getDay()],
+            label: DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate()
+          });
+        }
+      });
+    });
+    return out;
+  }
+
+  form.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (sending) return;
+
+    var days   = chosenDays();
+    var ranked = rankedActivities();
+    var phone  = validPhone(phoneEl.value);
+
+    if (!days.length){
+      statusEl.textContent = "Pick at least one day you're free.";
+      elWeekends.scrollIntoView({ block:"center" });
+      return;
+    }
+    if (!timePref){
+      document.getElementById("prefField").classList.add("invalid");
+      statusEl.textContent = "Tell us whether you prefer daytime or night.";
+      elPref.scrollIntoView({ block:"center" });
+      return;
+    }
+    if (wishEl.value.trim().length < 2){
+      wishWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      wishWrap.scrollIntoView({ block:"center" });
+      wishEl.focus();
+      return;
+    }
+    if (notesEl.value.trim().length < 2){
+      notesWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      notesWrap.scrollIntoView({ block:"center" });
+      notesEl.focus();
+      return;
+    }
+    if (!phone){
+      /* An empty field and a mistyped one are different mistakes — saying which
+         one it is saves the guesswork. */
+      document.getElementById("phoneErr").textContent = digits(phoneEl.value)
+        ? "That doesn't look right. We need a 10 digit Indian mobile number."
+        : "We need your mobile number. It's how we send the invitation.";
+      phoneWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      phoneEl.focus();
+      return;
+    }
+
+    var payload = {
+      token:      SUBMIT_TOKEN,
+      type:       "availability",
+      website:    document.getElementById("website").value,   /* honeypot */
+      phone:      phone,
+      days:       days,
+      timePref:   timePref,
+      timePrefLabel: (TIME_PREFS.filter(function(t){ return t.id === timePref; })[0] || {}).label || "",
+      activities: ranked,
+      activityWeekend: ACTIVITY_WEEKEND,
+      wish:       wishEl.value.trim(),
+      notes:      notesEl.value.trim(),
+      page:       "availability",
+      referrer:   document.referrer || "",
+      ua:         navigator.userAgent || ""
+    };
+
+    if (!SHEET_ENDPOINT){            /* preview mode — nothing configured yet */
+      console.log("[tryb] availability (preview, not sent):", payload);
+      document.body.classList.add("sent");
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    sending = true;
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    statusEl.textContent = "";
+
+    /* text/plain keeps this a "simple" request, so the browser skips the CORS
+       preflight that Apps Script cannot answer. */
+    fetch(SHEET_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res){ return res.text().then(function(t){ return { status: res.status, text: t }; }); })
+    .then(function(r){
+      var data = null;
+      try { data = JSON.parse(r.text); } catch (e) {}
+      if (!data){
+        console.error("[tryb] unexpected response from SHEET_ENDPOINT:", r.status, r.text.slice(0, 400));
+        throw new Error("the endpoint replied with " + r.status + ", not JSON");
+      }
+      if (!data.ok){
+        console.error("[tryb] script returned an error:", data);
+        throw new Error(data.error || "the script rejected it");
+      }
+      document.body.classList.add("sent");
+      window.scrollTo(0, 0);
+    })
+    .catch(function(err){
+      sending = false;
+      btn.disabled = false;
+      btn.textContent = "Submit availability";
+      statusEl.textContent = "That didn't save. " + err.message +
+        ". Please try again, or WhatsApp us on 70429 03139.";
+    });
+  });
+
+  /* footer year */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-year]"), function(el){
+    el.textContent = new Date().getFullYear();
+  });
+})();
+</script>
+</body>
+</html>
