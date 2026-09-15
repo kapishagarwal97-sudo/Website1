@@ -46,6 +46,13 @@ function doPost(e) {
       return json({ ok: true });
     }
 
+    // Weekend availability from availability.html → its own "Availability" tab.
+    // One row per submission, with a column per window so it stays readable.
+    if (body.type === 'availability') {
+      recordAvailability(body);
+      return json({ ok: true });
+    }
+
     // A seat reservation from the standalone invite pages → its own tab.
     // Kept entirely separate from Responses/Emails/Funnel.
     if (body.type === 'invite') {
@@ -78,7 +85,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '9 — leads + funnel + consent + invites + invite views + campaign attribution';
+var VERSION = '10 — leads + funnel + consent + invites + invite views + campaign attribution + weekend availability';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -86,7 +93,7 @@ function doGet() {
     ok: true,
     service: 'tryb-personality-test',
     version: VERSION,
-    handles: ['lead', 'dropoff', 'submission', 'invite', 'view']
+    handles: ['lead', 'dropoff', 'submission', 'invite', 'view', 'availability']
   });
 }
 
@@ -431,6 +438,116 @@ function buildInviteFunnel() {
   out.autoResizeColumns(1, 3);
 }
 
+/* ===============================================================
+ * Weekend availability (availability.html)
+ * =============================================================== */
+
+var AVAILABILITY_SHEET = 'Availability';
+
+/**
+ * One row per availability submission. The windows someone offered are
+ * written two ways: a readable summary you can scan, and one column per
+ * weekend so you can filter a single weekend quickly. Activity priorities
+ * get a column each (1..4), then their specific wish, their suggestions
+ * and their number.
+ *
+ * Writes only to the Availability tab — every other tab is untouched.
+ */
+function recordAvailability(body) {
+  var ss    = SPREADSHEET_ID ? SpreadsheetApp.openById(SPREADSHEET_ID)
+                             : SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(AVAILABILITY_SHEET);
+
+  var windows = body.windows    || [];
+  var acts    = body.activities || [];
+
+  // Priority columns, in the order the form ranked them.
+  var byRank = [];
+  acts.forEach(function (a) { byRank[a.rank - 1] = a.name || a.id || ''; });
+
+  var headers = ['Submitted at', 'Mobile', 'Windows', 'Availability',
+                 'Weekend 1', 'Weekend 2', 'Weekend 3', 'Weekend 4',
+                 'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
+                 'Wants specifically', 'Suggestions', 'Device'];
+
+  if (!sheet) {
+    sheet = ss.insertSheet(AVAILABILITY_SHEET);
+    var head = sheet.getRange(1, 1, 1, headers.length);
+    head.setValues([headers]);
+    head.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+
+  // "Sat Sep 19 — Night" per window, grouped into the four weekend columns.
+  var lines = windows.map(function (w) {
+    return (w.label || w.date || '') + ' — ' + (w.slotLabel || w.slot || '');
+  });
+
+  // Group the windows by the weekend they fall in, so each column holds one
+  // weekend. Each cell names its own dates ("Sep 26-27: ...") — someone who
+  // skips a weekend shifts the columns, and without the dates the heading
+  // alone would then point at the wrong weekend.
+  var groups = {}, order = [];
+  windows.forEach(function (w) {
+    var d   = dateFromIso(w.date);
+    var sat = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 1) % 7));
+    var k   = isoOf(sat);                          // Sun → back 1, Sat → back 0
+    if (!groups[k]) { groups[k] = { days: [], picks: [] }; order.push(k); }
+    groups[k].days.push(d);
+    groups[k].picks.push((w.day || '').slice(0, 3) + ' ' + (w.slotLabel || w.slot || ''));
+  });
+  order.sort();
+  var cols = order.slice(0, 4).map(function (k) {
+    return spanLabel(groups[k].days) + ': ' + groups[k].picks.join(', ');
+  });
+  while (cols.length < 4) cols.push('');
+
+  var device = /Mobi|Android|iPhone|iPad/.test(body.ua || '') ? 'Mobile' : 'Desktop';
+
+  // Leading apostrophe keeps the 10-digit mobile as exact text, never a number.
+  var row = [
+    new Date(),
+    body.phone ? "'" + String(body.phone) : '',
+    windows.length,
+    lines.join('\n'),
+    cols[0], cols[1], cols[2], cols[3],
+    byRank[0] || '', byRank[1] || '', byRank[2] || '', byRank[3] || '',
+    body.wish  || '',
+    body.notes || '',
+    device
+  ];
+
+  if (NEWEST_FIRST) {
+    sheet.insertRowAfter(1);
+    sheet.getRange(2, 1, 1, row.length).setValues([row]).setVerticalAlignment('top');
+  } else {
+    sheet.appendRow(row);
+  }
+}
+
+/** 'yyyy-mm-dd' → a local Date, with no timezone shift to trip over. */
+function dateFromIso(s) {
+  var p = String(s || '').split('-');
+  return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+}
+
+/** A Date → 'yyyy-mm-dd', matching dateFromIso. */
+function isoOf(d) {
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+}
+
+/** A list of dates → 'Sep 26-27', or 'Oct 31 - Nov 1' across a month end. */
+function spanLabel(dates) {
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var sorted = dates.slice().sort(function (a, b) { return a - b; });
+  var a = sorted[0], b = sorted[sorted.length - 1];
+  if (a.getTime() === b.getTime()) return M[a.getMonth()] + ' ' + a.getDate();
+  if (a.getMonth() === b.getMonth())
+    return M[a.getMonth()] + ' ' + a.getDate() + '-' + b.getDate();
+  return M[a.getMonth()] + ' ' + a.getDate() + ' - ' + M[b.getMonth()] + ' ' + b.getDate();
+}
+
 /**
  * Run this once from the editor (Run ▸ setupSheets) to create the Emails and
  * Funnel log tabs with their headers straight away, instead of waiting for the
@@ -445,7 +562,12 @@ function setupSheets() {
     { name: LEADS_SHEET,  head: ['Started at', 'Email', 'Session'] },
     { name: FUNNEL_SHEET, head: ['Session', 'First seen', 'Last seen', 'Left at (step)',
                                  'Question id', 'Question they stopped on', 'Section',
-                                 'Answered', 'Of', 'Seconds', 'Completed', 'Device'] }
+                                 'Answered', 'Of', 'Seconds', 'Completed', 'Device'] },
+    { name: AVAILABILITY_SHEET,
+      head: ['Submitted at', 'Mobile', 'Windows', 'Availability',
+             'Weekend 1', 'Weekend 2', 'Weekend 3', 'Weekend 4',
+             'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
+             'Wants specifically', 'Suggestions', 'Device'] }
   ];
 
   tabs.forEach(function (t) {

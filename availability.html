@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Weekend availability — TRYB</title>
+<meta name="description" content="Tell TRYB when you're free over the next four weekends, what you'd like to do, and we'll plan around it." />
+<meta name="robots" content="noindex, nofollow" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="TRYB" />
+<meta property="og:title" content="When do you want us to plan for you?" />
+<meta property="og:description" content="Tap the weekends you're free, rank what you'd like to do, and leave the rest to us." />
+<meta property="og:url" content="https://jointryb.in/availability.html" />
+<meta property="og:image" content="https://jointryb.in/assets/scene-rooftop.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#1e2a44" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   TRYB — Weekend availability
+   Two colours only: navy (ink) + cream. Everything else is a
+   tint of one of them, so the page stays strictly on brand.
+   Self-contained: no dependency on style.css / invites.css.
+   ============================================================ */
+:root{
+  --navy:#1e2a44;          /* brand navy — the page */
+  --navy-2:#182238;        /* one step down — recessed panels */
+  --navy-3:#212f4d;        /* one step up — raised cards */
+  --cream:#f7f2ea;         /* brand cream — the ink on navy */
+  --cream-70:rgba(247,242,234,.70);
+  --cream-45:rgba(247,242,234,.45);
+  --cream-28:rgba(247,242,234,.28);
+  --line:rgba(247,242,234,.14);
+  --line-strong:rgba(247,242,234,.34);
+  --font-display:"Fraunces","Times New Roman",serif;
+  --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --gutter:clamp(1.1rem,4vw,3rem);
+  --radius:18px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+*{margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{
+  min-height:100vh;display:flex;flex-direction:column;
+  background:var(--navy);color:var(--cream);
+  font-family:var(--font-sans);font-weight:300;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  -webkit-tap-highlight-color:transparent;
+}
+a{color:inherit;}
+img{max-width:100%;display:block;}
+::selection{background:var(--cream);color:var(--navy);}
+:focus-visible{outline:2px solid var(--cream);outline-offset:3px;border-radius:6px;}
+
+.wrap{flex:1 0 auto;width:100%;max-width:1080px;margin:0 auto;padding:0 var(--gutter);}
+
+/* ---------- top bar ---------- */
+.top{flex:none;display:flex;justify-content:center;padding:clamp(1.6rem,4vw,2.6rem) 0 clamp(.8rem,2vw,1.2rem);}
+.top img{height:clamp(30px,4.6vw,42px);width:auto;}
+
+/* ---------- page head ---------- */
+.head{padding:clamp(1rem,3vw,2rem) 0 clamp(1.6rem,4vw,2.6rem);max-width:46rem;}
+.eyebrow{
+  display:inline-block;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--cream-45);margin-bottom:1rem;
+}
+.head h1{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(1.9rem,5.4vw,3.1rem);line-height:1.1;letter-spacing:-.01em;
+}
+.head p{margin-top:.9rem;color:var(--cream-70);font-size:clamp(.92rem,1.7vw,1.02rem);max-width:38rem;}
+
+/* ---------- layout ---------- */
+form{padding-bottom:clamp(3rem,8vw,5rem);}
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:clamp(1rem,2.2vw,1.6rem);align-items:start;}
+@media(min-width:901px){.grid__side{position:sticky;top:1.2rem;}}
+@media(max-width:900px){.grid{grid-template-columns:1fr;}}
+.stack{display:grid;gap:clamp(1rem,2.2vw,1.6rem);margin-top:clamp(1rem,2.2vw,1.6rem);}
+
+/* ---------- card ---------- */
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--navy-3),var(--navy-2));
+  padding:clamp(1.1rem,2.6vw,1.75rem);
+}
+.card__head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.35rem;}
+.card__head h2{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(1.15rem,2.3vw,1.4rem);letter-spacing:-.005em;
+}
+.card__note{color:var(--cream-45);font-size:.82rem;margin-bottom:1.15rem;}
+.count{
+  font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cream-45);white-space:nowrap;
+}
+
+/* ---------- weekends ---------- */
+.weekend{border:1px solid var(--line);border-radius:14px;padding:clamp(.85rem,2vw,1.15rem);background:rgba(247,242,234,.02);}
+.weekend + .weekend{margin-top:.8rem;}
+.weekend__head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.85rem;}
+.weekend__when{min-width:0;}
+.weekend__tag{display:block;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-45);margin-bottom:.15rem;}
+.weekend__date{font-family:var(--font-display);font-weight:400;font-size:clamp(1.05rem,2.4vw,1.3rem);white-space:nowrap;}
+
+/* inverted pill — the only "second colour" move on the page */
+.pill{
+  font:inherit;font-size:.72rem;font-weight:500;letter-spacing:.04em;
+  border:1px solid var(--line-strong);border-radius:999px;
+  background:transparent;color:var(--cream-70);
+  padding:.42rem .85rem;cursor:pointer;white-space:nowrap;
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.pill:hover{border-color:var(--cream);color:var(--cream);}
+.pill[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+
+.days{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+@media(max-width:520px){.days{grid-template-columns:1fr;}}
+.day{border:1px solid var(--line);border-radius:12px;padding:.8rem;background:var(--navy-2);}
+.day__head{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;margin-bottom:.65rem;}
+.day__date{display:flex;align-items:baseline;gap:.4rem;}
+.day__num{font-family:var(--font-display);font-size:1.25rem;line-height:1;}
+.day__name{font-size:.78rem;color:var(--cream-45);}
+.day__all{
+  font:inherit;font-size:.68rem;letter-spacing:.04em;background:none;border:0;
+  color:var(--cream-45);cursor:pointer;padding:.15rem .2rem;
+  transition:color .25s var(--ease);
+}
+.day__all:hover{color:var(--cream);}
+.day__all[aria-pressed="true"]{color:var(--cream);}
+
+.slots{display:grid;gap:.45rem;}
+.slot{
+  display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;
+  font:inherit;font-size:.82rem;
+  border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--cream-70);
+  padding:.55rem .7rem;cursor:pointer;
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.slot .dot{
+  width:7px;height:7px;border-radius:50%;flex:none;
+  border:1px solid var(--cream-28);background:transparent;
+  transition:background .25s var(--ease),border-color .25s var(--ease);
+}
+.slot .label{font-weight:500;color:var(--cream);}
+.slot .time{margin-left:auto;font-size:.72rem;color:var(--cream-45);white-space:nowrap;}
+.slot:hover{border-color:var(--line-strong);}
+.slot[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+.slot[aria-pressed="true"] .label,
+.slot[aria-pressed="true"] .time{color:var(--navy);}
+.slot[aria-pressed="true"] .dot{background:var(--navy);border-color:var(--navy);}
+
+/* ---------- activities ---------- */
+.acts{display:grid;gap:.55rem;}
+.act{
+  display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;
+  font:inherit;border:1px solid var(--line);border-radius:12px;
+  background:var(--navy-2);color:var(--cream);padding:.75rem .85rem;cursor:pointer;
+  transition:border-color .25s var(--ease),background .25s var(--ease);
+}
+.act:hover{border-color:var(--line-strong);}
+.act__rank{
+  width:30px;height:30px;flex:none;border-radius:50%;
+  border:1px solid var(--cream-28);display:grid;place-items:center;
+  font-size:.82rem;font-weight:600;color:var(--cream-45);
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.act[data-rank] .act__rank{background:var(--cream);border-color:var(--cream);color:var(--navy);}
+.act[data-rank]{border-color:var(--line-strong);}
+.act__text{min-width:0;display:block;}
+.act__name{display:block;font-size:.9rem;font-weight:500;line-height:1.3;}
+.act__note{display:block;margin-top:.12rem;font-size:.76rem;color:var(--cream-45);line-height:1.4;}
+.acts__reset{
+  margin-top:.85rem;font:inherit;font-size:.74rem;background:none;border:0;
+  color:var(--cream-45);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;
+}
+.acts__reset:hover{color:var(--cream);}
+
+/* ---------- fields ---------- */
+.field{margin-top:.2rem;}
+.field label{display:block;font-size:.8rem;color:var(--cream-70);margin-bottom:.45rem;}
+input[type="text"],input[type="tel"],textarea{
+  width:100%;font:inherit;font-size:.92rem;color:var(--cream);
+  background:var(--navy-2);border:1px solid var(--line);border-radius:12px;
+  padding:.8rem .9rem;transition:border-color .25s var(--ease);
+}
+input::placeholder,textarea::placeholder{color:var(--cream-28);}
+input:focus,textarea:focus{outline:none;border-color:var(--cream);}
+textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
+
+.invalid input,.invalid textarea{border-color:var(--cream);}
+.err{display:none;font-size:.76rem;color:var(--cream);margin-top:.4rem;}
+.invalid .err{display:block;}
+
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* ---------- submit ---------- */
+.submit-row{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:end;}
+@media(max-width:620px){.submit-row{grid-template-columns:1fr;}}
+.btn{
+  font:inherit;font-size:.9rem;font-weight:500;letter-spacing:.02em;
+  background:var(--cream);color:var(--navy);border:1px solid var(--cream);
+  border-radius:999px;padding:.85rem 1.8rem;cursor:pointer;white-space:nowrap;
+  transition:opacity .25s var(--ease),transform .25s var(--ease);
+}
+.btn:hover:not(:disabled){transform:translateY(-1px);}
+.btn:disabled{opacity:.5;cursor:default;}
+.status{margin-top:.9rem;font-size:.84rem;color:var(--cream-70);min-height:1.2em;}
+
+/* ---------- done ---------- */
+.done{display:none;text-align:center;padding:clamp(2.5rem,8vw,5rem) 0;}
+.done h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.7rem,4.6vw,2.6rem);line-height:1.15;}
+.done p{margin-top:.9rem;color:var(--cream-70);max-width:32rem;margin-left:auto;margin-right:auto;}
+.done .btn{margin-top:1.8rem;display:inline-block;text-decoration:none;}
+body.sent form{display:none;}
+body.sent .done{display:block;}
+body.sent .head h1,body.sent .head p{display:none;}
+
+/* ---------- footer ---------- */
+.site-footer{border-top:1px solid var(--line);margin-top:auto;}
+.footer-v3{
+  max-width:1080px;margin:0 auto;padding:clamp(1.8rem,4vw,2.6rem) var(--gutter);
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;
+}
+.f-logo img{height:30px;width:auto;margin-bottom:.6rem;}
+.f-copy{font-size:.76rem;color:var(--cream-45);}
+.f-links{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.78rem;}
+.f-links a{color:var(--cream-70);text-decoration:none;transition:color .25s var(--ease);}
+.f-links a:hover{color:var(--cream);}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;}
+  html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+
+<div class="top"><a href="index.html"><img src="assets/logo.png" alt="tryb" /></a></div>
+
+<div class="wrap">
+
+  <header class="head">
+    <span class="eyebrow">TRYB · Your social concierge</span>
+    <h1>When do you want us to plan for you?</h1>
+    <p>Tap the windows you're free over the next four weekends — tap again to take one back.
+       Then tell us what you'd like to be doing, and we'll build the weekend around it.</p>
+  </header>
+
+  <form id="form" novalidate>
+
+    <div class="grid">
+
+      <!-- ── Weekends ─────────────────────────────────────────── -->
+      <section class="card">
+        <div class="card__head">
+          <h2>Your next four weekends</h2>
+          <span class="count" id="count">0 windows open</span>
+        </div>
+        <p class="card__note">Whole days and whole weekends toggle in one move.</p>
+        <div id="weekends"></div>
+      </section>
+
+      <!-- ── Activities ───────────────────────────────────────── -->
+      <section class="card grid__side">
+        <div class="card__head"><h2>What you'd like to do</h2></div>
+        <p class="card__note">Tap to rank them 1 to 4 — 1 is what you want most.</p>
+        <div class="acts" id="acts"></div>
+        <button type="button" class="acts__reset" id="actsReset">Clear the order</button>
+      </section>
+
+    </div>
+
+    <div class="stack">
+
+      <!-- ── The 5th option: something specific ───────────────── -->
+      <section class="card">
+        <div class="card__head"><h2>Something specific you want on the list</h2></div>
+        <p class="card__note">An activity or a particular event you'd like us to put into next week's plan.</p>
+        <div class="field" id="wishField">
+          <label for="wish">The thing you'd like us to line up</label>
+          <input type="text" id="wish" name="wish" maxlength="200" autocomplete="off"
+                 placeholder="A pottery class, the gig at Depot 48, a sunrise cycle — anything." />
+        </div>
+      </section>
+
+      <!-- ── Expectations ─────────────────────────────────────── -->
+      <section class="card">
+        <div class="card__head"><h2>Anything else you expect from us</h2></div>
+        <p class="card__note">We're your social concierge — tell us what that should mean for you.</p>
+        <div class="field" id="notesField">
+          <label for="notes">Your suggestions</label>
+          <textarea id="notes" name="notes" maxlength="1000"
+                    placeholder="What would make a weekend with TRYB feel worth it?"></textarea>
+        </div>
+      </section>
+
+      <!-- ── Submit ───────────────────────────────────────────── -->
+      <section class="card">
+        <div class="submit-row">
+          <div class="field" id="phoneField">
+            <label for="phone">Your mobile number, so we can reach you</label>
+            <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel"
+                   maxlength="18" placeholder="10-digit mobile number" />
+            <span class="err" id="phoneErr">Please enter a valid 10-digit Indian mobile number.</span>
+          </div>
+          <button type="submit" class="btn" id="submitBtn">Submit availability</button>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+        <div class="hp"><label>Leave this empty<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" /></label></div>
+      </section>
+
+    </div>
+  </form>
+
+  <section class="done" id="done">
+    <h2>That's all we needed.</h2>
+    <p>We've got your weekends. If something fits, you'll hear from us on WhatsApp with an
+       invitation — the place, the people, the time. Nothing else to do until then.</p>
+    <a class="btn" href="index.html">Back to TRYB</a>
+  </section>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-v3">
+    <div class="f-logo">
+      <img src="assets/logo.png" alt="tryb" />
+      <p class="f-copy">© <span data-year>2026</span> TRYB — a brand by EVELIT. Real life, in good company.</p>
+    </div>
+    <nav class="f-links">
+      <a href="index.html">home</a>
+      <a href="personality-test.html">join tryb</a>
+      <a href="mailto:team@jointryb.in">contact</a>
+      <a href="disclaimer.html">disclaimer</a>
+      <a href="privacy-policy.html">privacy policy</a>
+      <a href="refund-policy.html">refund policy</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+   * Config — the two things you are likely to change
+   * ========================================================== */
+
+  /* The same Apps Script web app the rest of the site posts to.
+     Submissions land in its own "Availability" tab. */
+  var SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbz1gqEno7ZZ9CdKdfw00pO9l9JQAcpCiDvQciVJAE5_dbDZAnYrv9jH_jMeR5EWgX6tQA/exec";
+
+  /* Must match SUBMIT_TOKEN in apps-script/Code.gs. */
+  var SUBMIT_TOKEN = "tryb-2026";
+
+  /* The four activities people rank. Edit the names/notes freely —
+     the sheet columns follow whatever is listed here. */
+  var ACTIVITIES = [
+    { id:"dining",    name:"Dining & supper clubs", note:"Long tables, new people, unhurried food." },
+    { id:"games",     name:"Games & sport",          note:"Bowling, board games, pickleball, pool." },
+    { id:"nightlife", name:"Music & nightlife",      note:"Live sets, listening bars, a proper night out." },
+    { id:"making",    name:"Workshops & making",     note:"Pottery, painting, matcha — make something." }
+  ];
+
+  /* The two windows offered on each day. */
+  var SLOTS = [
+    { id:"day",   label:"Daytime", time:"11 AM – 5 PM" },
+    { id:"night", label:"Night",   time:"7 PM – late"  }
+  ];
+
+  var WEEKEND_COUNT = 4;   /* next 4 weekends = up to 8 days */
+
+  /* ============================================================
+   * Dates — computed at page load, so the page never goes stale
+   * ========================================================== */
+
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function iso(d){
+    return d.getFullYear() + "-" +
+           String(d.getMonth()+1).padStart(2,"0") + "-" +
+           String(d.getDate()).padStart(2,"0");
+  }
+
+  /* Walk forward from today collecting Saturdays and Sundays, and group each
+     Sunday with the Saturday it belongs to. If today is a Sunday, the first
+     group is that Sunday alone — its Saturday has already gone. */
+  function buildWeekends(n){
+    var today = new Date(); today.setHours(0,0,0,0);
+    var groups = [], current = null;
+    for (var i = 0; i < 70; i++){
+      /* Stop only once the nth weekend is complete — never mid-weekend, or the
+         last card would lose its Sunday. */
+      if (groups.length >= n && !current) break;
+      var d = new Date(today.getTime());
+      d.setDate(today.getDate() + i);
+      var wd = d.getDay();                       /* 0 Sun … 6 Sat */
+      if (wd !== 0 && wd !== 6) continue;
+      if (!current){                             /* a Saturday opens a weekend;
+                                                    a Sunday only when its
+                                                    Saturday has already gone */
+        if (groups.length >= n) break;
+        current = { days: [] };
+        groups.push(current);
+      }
+      current.days.push(d);
+      if (wd === 0) current = null;              /* Sunday closes it */
+    }
+    return groups;
+  }
+
+  function weekendLabel(days){
+    var a = days[0], b = days[days.length - 1];
+    if (days.length === 1) return MONTHS[a.getMonth()] + " " + a.getDate();
+    if (a.getMonth() === b.getMonth())
+      return MONTHS[a.getMonth()] + " " + a.getDate() + "–" + b.getDate();
+    return MONTHS[a.getMonth()] + " " + a.getDate() + " – " + MONTHS[b.getMonth()] + " " + b.getDate();
+  }
+
+  function weekendTag(index){
+    if (index === 0) return "This weekend";
+    if (index === 1) return "Next weekend";
+    return "In " + index + " weeks";
+  }
+
+  /* ============================================================
+   * State
+   * ========================================================== */
+
+  var weekends = buildWeekends(WEEKEND_COUNT);
+  var picked   = Object.create(null);   /* "2026-09-19|night" → true */
+  var ranks    = Object.create(null);   /* activity id → 1..4 */
+
+  function key(dateIso, slotId){ return dateIso + "|" + slotId; }
+
+  /* ============================================================
+   * Render — weekends
+   * ========================================================== */
+
+  var elWeekends = document.getElementById("weekends");
+  var elCount    = document.getElementById("count");
+
+  weekends.forEach(function(wk, wi){
+    var sec = document.createElement("div");
+    sec.className = "weekend";
+
+    var head = document.createElement("div");
+    head.className = "weekend__head";
+    head.innerHTML =
+      '<div class="weekend__when">' +
+        '<span class="weekend__tag"></span>' +
+        '<span class="weekend__date"></span>' +
+      '</div>';
+    head.querySelector(".weekend__tag").textContent  = weekendTag(wi);
+    head.querySelector(".weekend__date").textContent = weekendLabel(wk.days);
+
+    var wkBtn = document.createElement("button");
+    wkBtn.type = "button";
+    wkBtn.className = "pill";
+    wkBtn.setAttribute("aria-pressed","false");
+    wkBtn.textContent = wk.days.length === 1 ? "Whole day" : "Whole weekend";
+    wkBtn.addEventListener("click", function(){
+      var on = !allOn(wk.days);
+      wk.days.forEach(function(d){
+        SLOTS.forEach(function(s){ set(key(iso(d), s.id), on); });
+      });
+      sync();
+    });
+    head.appendChild(wkBtn);
+    sec.appendChild(head);
+
+    var days = document.createElement("div");
+    days.className = "days";
+
+    wk.days.forEach(function(d){
+      var dIso = iso(d);
+      var day = document.createElement("div");
+      day.className = "day";
+
+      var dHead = document.createElement("div");
+      dHead.className = "day__head";
+      dHead.innerHTML =
+        '<span class="day__date">' +
+          '<span class="day__num"></span><span class="day__name"></span>' +
+        '</span>';
+      dHead.querySelector(".day__num").textContent  = d.getDate();
+      dHead.querySelector(".day__name").textContent = DAYS[d.getDay()];
+
+      var allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.className = "day__all";
+      allBtn.setAttribute("aria-pressed","false");
+      allBtn.textContent = "+ All day";
+      allBtn.addEventListener("click", function(){
+        var on = !allOn([d]);
+        SLOTS.forEach(function(s){ set(key(dIso, s.id), on); });
+        sync();
+      });
+      dHead.appendChild(allBtn);
+      day.appendChild(dHead);
+
+      var slots = document.createElement("div");
+      slots.className = "slots";
+      SLOTS.forEach(function(s){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "slot";
+        b.setAttribute("aria-pressed","false");
+        b.dataset.key = key(dIso, s.id);
+        b.setAttribute("aria-label",
+          DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + s.label);
+        b.innerHTML =
+          '<span class="dot"></span>' +
+          '<span class="label"></span>' +
+          '<span class="time"></span>';
+        b.querySelector(".label").textContent = s.label;
+        b.querySelector(".time").textContent  = s.time;
+        b.addEventListener("click", function(){
+          set(b.dataset.key, !picked[b.dataset.key]);
+          sync();
+        });
+        slots.appendChild(b);
+      });
+      day.appendChild(slots);
+
+      /* remembered for sync() */
+      day._date = d;
+      day._all  = allBtn;
+      days.appendChild(day);
+    });
+
+    sec.appendChild(days);
+    sec._days = days;
+    sec._wk   = wk;
+    sec._btn  = wkBtn;
+    elWeekends.appendChild(sec);
+  });
+
+  function set(k, on){
+    if (on) picked[k] = true; else delete picked[k];
+  }
+  function allOn(dates){
+    return dates.every(function(d){
+      return SLOTS.every(function(s){ return picked[key(iso(d), s.id)]; });
+    });
+  }
+
+  /* Push state back into the DOM. One pass, so the buttons can never
+     drift out of step with `picked`. */
+  function sync(){
+    Array.prototype.forEach.call(elWeekends.querySelectorAll(".slot"), function(b){
+      b.setAttribute("aria-pressed", picked[b.dataset.key] ? "true" : "false");
+    });
+    Array.prototype.forEach.call(elWeekends.querySelectorAll(".weekend"), function(sec){
+      sec._btn.setAttribute("aria-pressed", allOn(sec._wk.days) ? "true" : "false");
+      Array.prototype.forEach.call(sec._days.children, function(day){
+        day._all.setAttribute("aria-pressed", allOn([day._date]) ? "true" : "false");
+      });
+    });
+    var n = Object.keys(picked).length;
+    elCount.textContent = n + (n === 1 ? " window open" : " windows open");
+  }
+
+  /* ============================================================
+   * Render — activities
+   * ========================================================== */
+
+  var elActs = document.getElementById("acts");
+
+  ACTIVITIES.forEach(function(a){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "act";
+    b.dataset.id = a.id;
+    b.innerHTML =
+      '<span class="act__rank"></span>' +
+      '<span class="act__text">' +
+        '<span class="act__name"></span>' +
+        '<span class="act__note"></span>' +
+      '</span>';
+    b.querySelector(".act__name").textContent = a.name;
+    b.querySelector(".act__note").textContent = a.note;
+    b.addEventListener("click", function(){
+      if (ranks[a.id]) unrank(a.id); else rank(a.id);
+      syncActs();
+    });
+    elActs.appendChild(b);
+  });
+
+  function rank(id){
+    ranks[id] = Object.keys(ranks).length + 1;
+  }
+  /* Removing a rank closes the gap, so the numbers always read 1,2,3… */
+  function unrank(id){
+    var gone = ranks[id];
+    delete ranks[id];
+    Object.keys(ranks).forEach(function(k){ if (ranks[k] > gone) ranks[k]--; });
+  }
+
+  function syncActs(){
+    Array.prototype.forEach.call(elActs.children, function(b){
+      var r = ranks[b.dataset.id];
+      if (r){ b.dataset.rank = r; } else { delete b.dataset.rank; }
+      b.querySelector(".act__rank").textContent = r || "–";
+      b.setAttribute("aria-label",
+        b.querySelector(".act__name").textContent +
+        (r ? " — ranked " + r + ", tap to remove" : " — tap to rank"));
+    });
+  }
+
+  document.getElementById("actsReset").addEventListener("click", function(){
+    ranks = Object.create(null);
+    syncActs();
+  });
+
+  sync();
+  syncActs();
+
+  /* ============================================================
+   * Submit
+   * ========================================================== */
+
+  var form      = document.getElementById("form");
+  var phoneEl   = document.getElementById("phone");
+  var phoneWrap = document.getElementById("phoneField");
+  var statusEl  = document.getElementById("status");
+  var btn       = document.getElementById("submitBtn");
+  var sending   = false;
+
+  function digits(v){ return (v || "").replace(/\D/g, ""); }
+  /* Indian mobile: 10 digits starting 6–9, with an optional 91/0 prefix. */
+  function validPhone(v){
+    var d = digits(v);
+    if (d.length === 12 && d.indexOf("91") === 0) d = d.slice(2);
+    if (d.length === 11 && d.charAt(0) === "0")   d = d.slice(1);
+    return /^[6-9]\d{9}$/.test(d) ? d : "";
+  }
+
+  phoneEl.addEventListener("input", function(){ phoneWrap.classList.remove("invalid"); });
+
+  /* Ordered, human-readable — exactly what gets written to the sheet. */
+  function chosenWindows(){
+    var out = [];
+    weekends.forEach(function(wk){
+      wk.days.forEach(function(d){
+        var dIso = iso(d);
+        SLOTS.forEach(function(s){
+          if (picked[key(dIso, s.id)]){
+            out.push({
+              date: dIso,
+              day:  DAYS[d.getDay()],
+              label: DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate(),
+              slot: s.id,
+              slotLabel: s.label,
+              time: s.time
+            });
+          }
+        });
+      });
+    });
+    return out;
+  }
+
+  function rankedActivities(){
+    return ACTIVITIES
+      .filter(function(a){ return ranks[a.id]; })
+      .sort(function(x, y){ return ranks[x.id] - ranks[y.id]; })
+      .map(function(a){ return { rank: ranks[a.id], id: a.id, name: a.name }; });
+  }
+
+  form.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (sending) return;
+
+    var windows = chosenWindows();
+    var order   = rankedActivities();
+    var phone   = validPhone(phoneEl.value);
+
+    if (!windows.length){
+      statusEl.textContent = "Pick at least one window you're free.";
+      elWeekends.scrollIntoView({ block:"center" });
+      return;
+    }
+    if (order.length !== ACTIVITIES.length){
+      statusEl.textContent = "Rank all four activities from 1 to 4.";
+      elActs.scrollIntoView({ block:"center" });
+      return;
+    }
+    if (!phone){
+      phoneWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      phoneEl.focus();
+      return;
+    }
+
+    var payload = {
+      token:      SUBMIT_TOKEN,
+      type:       "availability",
+      website:    document.getElementById("website").value,   /* honeypot */
+      phone:      phone,
+      windows:    windows,
+      activities: order,
+      wish:       document.getElementById("wish").value.trim(),
+      notes:      document.getElementById("notes").value.trim(),
+      page:       "availability",
+      referrer:   document.referrer || "",
+      ua:         navigator.userAgent || ""
+    };
+
+    if (!SHEET_ENDPOINT){            /* preview mode — nothing configured yet */
+      console.log("[tryb] availability (preview, not sent):", payload);
+      document.body.classList.add("sent");
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    sending = true;
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    statusEl.textContent = "";
+
+    /* text/plain keeps this a "simple" request, so the browser skips the CORS
+       preflight that Apps Script cannot answer. */
+    fetch(SHEET_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res){ return res.text().then(function(t){ return { status: res.status, text: t }; }); })
+    .then(function(r){
+      var data = null;
+      try { data = JSON.parse(r.text); } catch (e) {}
+      if (!data){
+        console.error("[tryb] unexpected response from SHEET_ENDPOINT:", r.status, r.text.slice(0, 400));
+        throw new Error("the endpoint replied with " + r.status + ", not JSON");
+      }
+      if (!data.ok){
+        console.error("[tryb] script returned an error:", data);
+        throw new Error(data.error || "the script rejected it");
+      }
+      document.body.classList.add("sent");
+      window.scrollTo(0, 0);
+    })
+    .catch(function(err){
+      sending = false;
+      btn.disabled = false;
+      btn.textContent = "Submit availability";
+      statusEl.textContent = "That didn't save — " + err.message +
+        ". Please try again, or WhatsApp us on 70429 03139.";
+    });
+  });
+
+  /* footer year */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-year]"), function(el){
+    el.textContent = new Date().getFullYear();
+  });
+})();
+</script>
+</body>
+</html>
