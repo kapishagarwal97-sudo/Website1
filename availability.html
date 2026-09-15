@@ -298,7 +298,7 @@ body.sent .head h1,body.sent .head p{display:none;}
         <div class="field" id="wishField">
           <label for="wish">The thing you'd like us to line up</label>
           <input type="text" id="wish" name="wish" maxlength="200" autocomplete="off"
-                 placeholder="A pottery class, the gig at Depot 48, a sunrise cycle — anything." />
+                 placeholder="A comedy night, a morning trek, a particular gig — anything not on the list." />
         </div>
       </section>
 
@@ -381,10 +381,10 @@ body.sent .head h1,body.sent .head p{display:none;}
      1 to 4 in exactly this order, and people reorder from there. Edit the
      names/notes freely; the sheet columns follow whatever is listed here. */
   var ACTIVITIES = [
-    { id:"dining",    name:"Dining & supper clubs", note:"Long tables, new people, unhurried food." },
-    { id:"games",     name:"Games & sport",          note:"Bowling, board games, pickleball, pool." },
-    { id:"nightlife", name:"Music & nightlife",      note:"Live sets, listening bars, a proper night out." },
-    { id:"making",    name:"Workshops & making",     note:"Pottery, painting, matcha — make something." }
+    { id:"kishore", name:"Kishore Kumar songs & piano show", note:"" },
+    { id:"bachata", name:"Bachata dance class",              note:"" },
+    { id:"pottery", name:"Pottery workshop with dinner",     note:"" },
+    { id:"art",     name:"Art exhibition with lunch",        note:"" }
   ];
 
   /* Time of day. Asked once — it is a standing preference, not a per-day
@@ -608,7 +608,8 @@ body.sent .head h1,body.sent .head p{display:none;}
         '<span class="act__moves"></span>';
       row.querySelector(".act__rank").textContent = i + 1;
       row.querySelector(".act__name").textContent = a.name;
-      row.querySelector(".act__note").textContent = a.note;
+      var note = row.querySelector(".act__note");
+      if (a.note) note.textContent = a.note; else note.remove();
 
       var moves = row.querySelector(".act__moves");
       [-1, 1].forEach(function(step){
