@@ -69,16 +69,12 @@ img{max-width:100%;display:block;}
 .top img{height:clamp(30px,4.6vw,42px);width:auto;}
 
 /* ---------- page head ---------- */
-.head{padding:clamp(1rem,3vw,2rem) 0 clamp(1.6rem,4vw,2.6rem);max-width:46rem;}
-.eyebrow{
-  display:inline-block;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--cream-45);margin-bottom:1rem;
-}
+.head{padding:clamp(1.6rem,5vw,3rem) 0 clamp(2rem,5vw,3rem);max-width:46rem;}
 .head h1{
   font-family:var(--font-display);font-weight:400;
   font-size:clamp(1.9rem,5.4vw,3.1rem);line-height:1.1;letter-spacing:-.01em;
 }
-.head p{margin-top:.9rem;color:var(--cream-70);font-size:clamp(.92rem,1.7vw,1.02rem);max-width:38rem;}
+.head p{margin-top:1rem;color:var(--cream-45);font-size:clamp(.9rem,1.6vw,.98rem);max-width:34rem;}
 
 /* ---------- layout ---------- */
 form{padding-bottom:clamp(3rem,8vw,5rem);}
@@ -99,12 +95,12 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
   background:linear-gradient(180deg,var(--navy-3),var(--navy-2));
   padding:clamp(1.1rem,2.6vw,1.75rem);
 }
-.card__head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.35rem;}
+.card__head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem;}
 .card__head h2{
   font-family:var(--font-display);font-weight:400;
   font-size:clamp(1.15rem,2.3vw,1.4rem);letter-spacing:-.005em;
 }
-.card__note{color:var(--cream-45);font-size:.82rem;margin-bottom:1.15rem;}
+.card__note{color:var(--cream-45);font-size:.82rem;margin-top:.15rem;margin-bottom:1.1rem;}
 .count{
   font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--cream-45);white-space:nowrap;
@@ -114,8 +110,6 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
 .weekend{border:1px solid var(--line);border-radius:14px;padding:clamp(.85rem,2vw,1.15rem);background:rgba(247,242,234,.02);}
 .weekend + .weekend{margin-top:.8rem;}
 .weekend__head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.85rem;}
-.weekend__when{min-width:0;}
-.weekend__tag{display:block;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--cream-45);margin-bottom:.15rem;}
 .weekend__date{font-family:var(--font-display);font-weight:400;font-size:clamp(1.05rem,2.4vw,1.3rem);white-space:nowrap;}
 
 /* inverted pill — the only "second colour" move on the page */
@@ -148,10 +142,8 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
   stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .2s var(--ease);}
 .day__num{font-family:var(--font-display);font-size:1.3rem;line-height:1;}
 .day__name{font-size:.82rem;color:var(--cream-45);}
-.day__free{margin-left:auto;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cream-28);}
 .day[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
-.day[aria-pressed="true"] .day__name,
-.day[aria-pressed="true"] .day__free{color:var(--navy);}
+.day[aria-pressed="true"] .day__name{color:var(--navy);}
 .day[aria-pressed="true"] .day__mark{background:var(--navy);border-color:var(--navy);}
 .day[aria-pressed="true"] .day__mark svg{opacity:1;stroke:var(--cream);}
 
@@ -191,7 +183,7 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
 .move:hover:not(:disabled){background:var(--cream);border-color:var(--cream);}
 .move:hover:not(:disabled) svg{stroke:var(--navy);}
 .move:disabled{opacity:.25;cursor:default;}
-.acts__hint{margin-top:.8rem;font-size:.74rem;color:var(--cream-45);}
+
 
 /* ---------- fields ---------- */
 .field{margin-top:.2rem;}
@@ -206,8 +198,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--cream);}
 textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
 
 .req{
-  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;margin-left:.5rem;
-  color:var(--cream-70);
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cream-28);white-space:nowrap;
 }
 .invalid input,.invalid textarea{border-color:var(--cream);}
 .pref.invalid{border-color:var(--cream);}
@@ -267,10 +259,8 @@ body.sent .head h1,body.sent .head p{display:none;}
 <div class="wrap">
 
   <header class="head">
-    <span class="eyebrow">TRYB · Your social concierge</span>
     <h1>When do you want us to plan for you?</h1>
-    <p>Tap the days you're free over the next four weekends. Tap again to take one back.
-       Then tell us what you'd like to be doing, and we'll build the weekend around it.</p>
+    <p>Tap the days you're free. We'll build the weekend around them.</p>
   </header>
 
   <form id="form" novalidate>
@@ -280,13 +270,12 @@ body.sent .head h1,body.sent .head p{display:none;}
       <!-- ── Weekends ─────────────────────────────────────────── -->
       <section class="card">
         <div class="card__head">
-          <h2>Your next four weekends</h2>
-          <span class="count" id="count">0 windows open</span>
+          <h2>Next four weekends</h2>
+          <span class="count" id="count"></span>
         </div>
-        <p class="card__note">Tap a day you're free. Whole weekends toggle in one move.</p>
 
         <div class="pref" id="prefField">
-          <p class="pref__q" id="prefQ">Do you prefer daytime or night?</p>
+          <p class="pref__q" id="prefQ">Daytime or night?</p>
           <div class="pref__opts" id="pref" role="group" aria-labelledby="prefQ"></div>
         </div>
 
@@ -295,10 +284,9 @@ body.sent .head h1,body.sent .head p{display:none;}
 
       <!-- ── Activities ───────────────────────────────────────── -->
       <section class="card grid__side" id="actsCard" hidden>
-        <div class="card__head"><h2>What you'd like to do</h2></div>
+        <div class="card__head"><h2 id="actsH">What you'd like to do</h2></div>
         <p class="card__note" id="actsNote"></p>
         <div class="acts" id="acts"></div>
-        <p class="acts__hint">Use the arrows to move an activity up or down.</p>
       </section>
 
     </div>
@@ -307,56 +295,60 @@ body.sent .head h1,body.sent .head p{display:none;}
 
       <!-- ── The 5th option: something specific ───────────────── -->
       <section class="card">
-        <div class="card__head"><h2>Something specific you want on the list</h2></div>
-        <p class="card__note">Say, a live cricket match. Or a dandiya night this festive season.</p>
+        <div class="card__head">
+          <h2 id="wishH">Anything specific you'd like?</h2>
+          <span class="req">Required</span>
+        </div>
         <div class="field" id="wishField">
-          <label for="wish">The thing you'd like us to line up <span class="req">Required</span></label>
           <input type="text" id="wish" name="wish" maxlength="200" autocomplete="off"
-                 required aria-required="true" aria-describedby="wishErr"
-                 placeholder="I want to watch a live cricket match" />
+                 required aria-required="true" aria-labelledby="wishH" aria-describedby="wishErr"
+                 placeholder="A live cricket match, a dandiya night…" />
           <span class="err" id="wishErr">Tell us one thing you'd like us to line up.</span>
         </div>
       </section>
 
       <!-- ── Expectations ─────────────────────────────────────── -->
       <section class="card">
-        <div class="card__head"><h2>Anything else you expect from us</h2></div>
-        <p class="card__note">We're your social concierge. Tell us what that should mean for you.</p>
+        <div class="card__head">
+          <h2 id="notesH">What else do you expect?</h2>
+          <span class="req">Required</span>
+        </div>
         <div class="field" id="notesField">
-          <label for="notes">Your suggestions <span class="req">Required</span></label>
           <textarea id="notes" name="notes" maxlength="1000"
-                    required aria-required="true" aria-describedby="notesErr"
-                    placeholder="What would make a weekend with TRYB feel worth it?"></textarea>
+                    required aria-required="true" aria-labelledby="notesH" aria-describedby="notesErr"
+                    placeholder="What would make a weekend worth it?"></textarea>
           <span class="err" id="notesErr">Tell us what you expect from us.</span>
         </div>
       </section>
 
       <!-- ── Submit ───────────────────────────────────────────── -->
       <section class="card">
+        <div class="card__head">
+          <h2 id="phoneH">Your mobile number</h2>
+          <span class="req">Required</span>
+        </div>
         <div class="submit-row">
           <div class="field" id="phoneField">
-            <label for="phone">Your mobile number, so we can reach you <span class="req">Required</span></label>
             <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel"
-                   required aria-required="true" aria-describedby="phoneErr"
+                   required aria-required="true" aria-labelledby="phoneH" aria-describedby="phoneErr"
                    maxlength="18" placeholder="10 digit mobile number" />
-            <span class="err" id="phoneErr">Please enter a valid 10-digit Indian mobile number.</span>
+            <span class="err" id="phoneErr">Please enter a valid 10 digit Indian mobile number.</span>
           </div>
-          <button type="submit" class="btn" id="submitBtn">Submit availability</button>
+          <button type="submit" class="btn" id="submitBtn">Submit</button>
         </div>
         <p class="status" id="status" role="status" aria-live="polite"></p>
         <div class="hp"><label>Leave this empty<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" /></label></div>
       </section>
 
-      <p class="closing">Just like how plans get decided in your friends group: your 10 close
-        matches decide the plan, the timing and next week's activity bids, by majority.</p>
+      <p class="closing">Like plans in a friends group: your 10 close matches decide the
+        plan, the timing and next week's activity, by majority.</p>
 
     </div>
   </form>
 
   <section class="done" id="done">
     <h2>That's all we needed.</h2>
-    <p>We've got your weekends. If something fits, you'll hear from us on WhatsApp with an
-       invitation: the place, the people, the time. Nothing else to do until then.</p>
+    <p>If something fits, an invitation reaches you on WhatsApp.</p>
     <a class="btn" href="index.html">Back to TRYB</a>
   </section>
 
@@ -413,9 +405,9 @@ body.sent .head h1,body.sent .head p{display:none;}
   /* Time of day. Asked once — it is a standing preference, not a per-day
      answer, so it is not repeated on every weekend. */
   var TIME_PREFS = [
-    { id:"day",    label:"Daytime", note:"11 AM to 5 PM" },
-    { id:"night",  label:"Night",   note:"after 7 PM"   },
-    { id:"either", label:"Either works", note:"" }
+    { id:"day",    label:"Daytime" },
+    { id:"night",  label:"Night"   },
+    { id:"either", label:"Either"  }
   ];
 
   var WEEKEND_COUNT = 4;   /* next 4 weekends = up to 8 days */
@@ -477,12 +469,6 @@ body.sent .head h1,body.sent .head p{display:none;}
   /* "Sep 26 & 27", built from ACTIVITY_DATES so the two can never disagree. */
   var ACTIVITY_WEEKEND = weekendLabel(ACTIVITY_DATES.map(fromIso));
 
-  function weekendTag(index){
-    if (index === 0) return "This weekend";
-    if (index === 1) return "Next weekend";
-    return "In " + index + " weeks";
-  }
-
   /* ============================================================
    * State
    * ========================================================== */
@@ -507,12 +493,7 @@ body.sent .head h1,body.sent .head p{display:none;}
 
     var head = document.createElement("div");
     head.className = "weekend__head";
-    head.innerHTML =
-      '<div class="weekend__when">' +
-        '<span class="weekend__tag"></span>' +
-        '<span class="weekend__date"></span>' +
-      '</div>';
-    head.querySelector(".weekend__tag").textContent  = weekendTag(wi);
+    head.innerHTML = '<span class="weekend__date"></span>';
     head.querySelector(".weekend__date").textContent = weekendLabel(wk.days);
 
     var wkBtn = document.createElement("button");
@@ -544,8 +525,7 @@ body.sent .head h1,body.sent .head p{display:none;}
         '<span class="day__mark"><svg viewBox="0 0 12 12" aria-hidden="true">' +
           '<polyline points="2,6.4 4.6,9 10,3"></polyline></svg></span>' +
         '<span class="day__num"></span>' +
-        '<span class="day__name"></span>' +
-        '<span class="day__free">Free</span>';
+        '<span class="day__name"></span>';
       b.querySelector(".day__num").textContent  = d.getDate();
       b.querySelector(".day__name").textContent = DAYS[d.getDay()];
       b.addEventListener("click", function(){
@@ -583,7 +563,7 @@ body.sent .head h1,body.sent .head p{display:none;}
       sec._btn.setAttribute("aria-pressed", allOn(sec._wk.days) ? "true" : "false");
     });
     var n = Object.keys(picked).length;
-    elCount.textContent = n + (n === 1 ? " day open" : " days open");
+    elCount.textContent = n ? n + (n === 1 ? " day" : " days") : "";
 
     var open = activityUnlocked();
     elActsCard.hidden = !open;
@@ -602,7 +582,7 @@ body.sent .head h1,body.sent .head p{display:none;}
     b.className = "pill";
     b.dataset.id = t.id;
     b.setAttribute("aria-pressed","false");
-    b.textContent = t.note ? t.label + " · " + t.note : t.label;
+    b.textContent = t.label;
     b.addEventListener("click", function(){
       timePref = (timePref === t.id) ? "" : t.id;   /* tap again to clear */
       document.getElementById("prefField").classList.remove("invalid");
@@ -624,7 +604,7 @@ body.sent .head h1,body.sent .head p{display:none;}
   var elActs = document.getElementById("acts");
 
   document.getElementById("actsNote").textContent =
-    "For the weekend of " + ACTIVITY_WEEKEND + ". 1 is what you want most.";
+    ACTIVITY_WEEKEND + ", in order of preference.";
 
   function activity(id){
     return ACTIVITIES.filter(function(a){ return a.id === id; })[0];
