@@ -47,7 +47,7 @@ function doPost(e) {
     }
 
     // Weekend availability from availability.html → its own "Availability" tab.
-    // One row per submission, with a column per window so it stays readable.
+    // One row per submission, with a column per weekend so it stays readable.
     if (body.type === 'availability') {
       recordAvailability(body);
       return json({ ok: true });
@@ -480,7 +480,7 @@ function recordAvailability(body) {
   }
 
   // Group the days by the weekend they fall in, so each column holds one
-  // weekend. Each cell names its own dates ("Sep 26-27: ...") — someone who
+  // weekend. Each cell names its own dates ("Sep 26 & 27: ...") — someone who
   // skips a weekend shifts the columns, and without the dates the heading
   // alone would then point at the wrong weekend.
   var groups = {}, order = [];
