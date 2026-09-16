@@ -140,8 +140,7 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
 }
 .day__mark svg{width:11px;height:11px;stroke:var(--navy);stroke-width:2.6;fill:none;
   stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .2s var(--ease);}
-.day__num{font-family:var(--font-display);font-size:1.3rem;line-height:1;}
-.day__name{font-size:.82rem;color:var(--cream-45);}
+.day__name{font-family:var(--font-display);font-size:1.05rem;color:var(--cream);}
 .day[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--navy);}
 .day[aria-pressed="true"] .day__name{color:var(--navy);}
 .day[aria-pressed="true"] .day__mark{background:var(--navy);border-color:var(--navy);}
@@ -404,10 +403,12 @@ body.sent .head h1,body.sent .head p{display:none;}
 
   /* Time of day. Asked once — it is a standing preference, not a per-day
      answer, so it is not repeated on every weekend. */
+  /* The question already says "Daytime or night?", so the options give the
+     hours instead of saying the same two words back. */
   var TIME_PREFS = [
-    { id:"day",    label:"Daytime" },
-    { id:"night",  label:"Night"   },
-    { id:"either", label:"Either"  }
+    { id:"day",    label:"11 AM to 5 PM" },
+    { id:"night",  label:"After 7 PM"    },
+    { id:"either", label:"Either"        }
   ];
 
   var WEEKEND_COUNT = 4;   /* next 4 weekends = up to 8 days */
@@ -521,12 +522,12 @@ body.sent .head h1,body.sent .head p{display:none;}
       b.dataset.key = dIso;
       b.setAttribute("aria-label",
         "Free on " + DAYS[d.getDay()] + " " + MONTHS[d.getMonth()] + " " + d.getDate());
+      /* No date here: the weekend header above already reads "Sep 19 & 20",
+         and repeating 19 and 20 on the rows said it all twice. */
       b.innerHTML =
         '<span class="day__mark"><svg viewBox="0 0 12 12" aria-hidden="true">' +
           '<polyline points="2,6.4 4.6,9 10,3"></polyline></svg></span>' +
-        '<span class="day__num"></span>' +
         '<span class="day__name"></span>';
-      b.querySelector(".day__num").textContent  = d.getDate();
       b.querySelector(".day__name").textContent = DAYS[d.getDay()];
       b.addEventListener("click", function(){
         set(dIso, !picked[dIso]);
