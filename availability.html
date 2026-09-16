@@ -822,22 +822,31 @@ body.sent .head h1,body.sent .head p{display:none;}
 
     if (!SHEET_ENDPOINT){            /* preview mode — nothing configured yet */
       console.log("[tryb] availability (preview, not sent):", payload);
-      document.body.classList.add("sent");
-      window.scrollTo(0, 0);
+      thankYou();
       return;
     }
 
     sending = true;
     btn.disabled = true;
-    btn.textContent = "Sending…";
     statusEl.textContent = "";
 
-    /* text/plain keeps this a "simple" request, so the browser skips the CORS
-       preflight that Apps Script cannot answer. */
+    /* Apps Script answers in a second or two whatever we do: the /exec URL
+       redirects to script.googleusercontent.com, the container may be cold, and
+       only then does the row get written. Waiting on all that before saying
+       anything makes the form feel stuck, so the thank-you goes up at once and
+       the request finishes behind it. keepalive lets it run to completion even
+       if the page is closed in the meantime; the payload is a couple of KB,
+       well inside the 64KB that allows. If it does fail, the form comes back
+       with every answer still in it. */
+    thankYou();
+
     fetch(SHEET_ENDPOINT, {
+      /* text/plain keeps this a "simple" request, so the browser skips the CORS
+         preflight that Apps Script cannot answer. */
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      keepalive: true
     })
     .then(function(res){ return res.text().then(function(t){ return { status: res.status, text: t }; }); })
     .then(function(r){
@@ -851,17 +860,27 @@ body.sent .head h1,body.sent .head p{display:none;}
         console.error("[tryb] script returned an error:", data);
         throw new Error(data.error || "the script rejected it");
       }
-      document.body.classList.add("sent");
-      window.scrollTo(0, 0);
     })
     .catch(function(err){
-      sending = false;
-      btn.disabled = false;
-      btn.textContent = "Submit availability";
+      /* Took the thank-you back down: better an honest retry than a thank-you
+         for something that never saved. */
+      backToForm();
       statusEl.textContent = "That didn't save. " + err.message +
         ". Please try again, or WhatsApp us on 70429 03139.";
+      statusEl.scrollIntoView({ block:"center" });
     });
   });
+
+  function thankYou(){
+    document.body.classList.add("sent");
+    window.scrollTo(0, 0);
+  }
+
+  function backToForm(){
+    document.body.classList.remove("sent");
+    sending = false;
+    btn.disabled = false;
+  }
 
   /* footer year */
   Array.prototype.forEach.call(document.querySelectorAll("[data-year]"), function(el){
