@@ -85,6 +85,12 @@ form{padding-bottom:clamp(3rem,8vw,5rem);}
 .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:clamp(1rem,2.2vw,1.6rem);align-items:start;}
 @media(min-width:901px){.grid__side{position:sticky;top:1.2rem;}}
 @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+/* the activity card is hidden until one of its days is picked; while it is
+   away the weekends card has the row to itself */
+.grid.is-solo{grid-template-columns:1fr;}
+#actsCard[hidden]{display:none;}
+#actsCard{animation:reveal .45s var(--ease);}
+@keyframes reveal{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
 .stack{display:grid;gap:clamp(1rem,2.2vw,1.6rem);margin-top:clamp(1rem,2.2vw,1.6rem);}
 
 /* ---------- card ---------- */
@@ -269,7 +275,7 @@ body.sent .head h1,body.sent .head p{display:none;}
 
   <form id="form" novalidate>
 
-    <div class="grid">
+    <div class="grid" id="grid">
 
       <!-- ── Weekends ─────────────────────────────────────────── -->
       <section class="card">
@@ -288,7 +294,7 @@ body.sent .head h1,body.sent .head p{display:none;}
       </section>
 
       <!-- ── Activities ───────────────────────────────────────── -->
-      <section class="card grid__side">
+      <section class="card grid__side" id="actsCard" hidden>
         <div class="card__head"><h2>What you'd like to do</h2></div>
         <p class="card__note" id="actsNote"></p>
         <div class="acts" id="acts"></div>
@@ -388,17 +394,18 @@ body.sent .head h1,body.sent .head p{display:none;}
   /* Must match SUBMIT_TOKEN in apps-script/Code.gs. */
   var SUBMIT_TOKEN = "tryb-2026";
 
-  /* The weekend the activity priorities are about. Shown on the card and
-     recorded with every submission, so a row always says which weekend its
-     1-2-3-4 refers to. Change this when you move on to the next weekend. */
-  var ACTIVITY_WEEKEND = "26 & 27 September";
+  /* The days the activity priorities are about. The card only appears once
+     someone marks themselves free on one of them, so nobody ranks activities
+     for a weekend they cannot make. Its label is derived from these dates, so
+     moving to the next weekend means changing this one line. */
+  var ACTIVITY_DATES = ["2026-09-26", "2026-09-27"];
 
   /* The four activities, in their starting order — they arrive pre-ranked
      1 to 4 in exactly this order, and people reorder from there. Edit the
      names/notes freely; the sheet columns follow whatever is listed here. */
   var ACTIVITIES = [
     { id:"kishore", name:"Kishore Kumar songs & piano show", note:"" },
-    { id:"bachata", name:"Bachata dance class",              note:"" },
+    { id:"citywalk", name:"City walk with supper",            note:"" },
     { id:"pottery", name:"Pottery workshop with dinner",     note:"" },
     { id:"art",     name:"Art exhibition with lunch",        note:"" }
   ];
@@ -424,6 +431,12 @@ body.sent .head h1,body.sent .head p{display:none;}
     return d.getFullYear() + "-" +
            String(d.getMonth()+1).padStart(2,"0") + "-" +
            String(d.getDate()).padStart(2,"0");
+  }
+
+  /* 'yyyy-mm-dd' back to a local Date, with no timezone shift to trip over. */
+  function fromIso(str){
+    var q = String(str).split("-");
+    return new Date(Number(q[0]), Number(q[1]) - 1, Number(q[2]));
   }
 
   /* Walk forward from today collecting Saturdays and Sundays, and group each
@@ -461,6 +474,9 @@ body.sent .head h1,body.sent .head p{display:none;}
     return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + MONTHS[b.getMonth()] + " " + b.getDate();
   }
 
+  /* "Sep 26 & 27", built from ACTIVITY_DATES so the two can never disagree. */
+  var ACTIVITY_WEEKEND = weekendLabel(ACTIVITY_DATES.map(fromIso));
+
   function weekendTag(index){
     if (index === 0) return "This weekend";
     if (index === 1) return "Next weekend";
@@ -482,6 +498,8 @@ body.sent .head h1,body.sent .head p{display:none;}
 
   var elWeekends = document.getElementById("weekends");
   var elCount    = document.getElementById("count");
+  var elActsCard = document.getElementById("actsCard");
+  var elGrid     = document.getElementById("grid");
 
   weekends.forEach(function(wk, wi){
     var sec = document.createElement("div");
@@ -550,6 +568,11 @@ body.sent .head h1,body.sent .head p{display:none;}
     return dates.every(function(d){ return picked[iso(d)]; });
   }
 
+  /* True once the visitor is free on one of the activity days. */
+  function activityUnlocked(){
+    return ACTIVITY_DATES.some(function(d){ return picked[d]; });
+  }
+
   /* Push state back into the DOM. One pass, so the buttons can never
      drift out of step with `picked`. */
   function sync(){
@@ -561,6 +584,10 @@ body.sent .head h1,body.sent .head p{display:none;}
     });
     var n = Object.keys(picked).length;
     elCount.textContent = n + (n === 1 ? " day open" : " days open");
+
+    var open = activityUnlocked();
+    elActsCard.hidden = !open;
+    elGrid.classList.toggle("is-solo", !open);
   }
 
   /* ============================================================
@@ -682,11 +709,26 @@ body.sent .head h1,body.sent .head p{display:none;}
   var sending   = false;
 
   function digits(v){ return (v || "").replace(/\D/g, ""); }
-  /* Indian mobile: 10 digits starting 6–9, with an optional 91/0 prefix. */
+
+  /* The number without its country code, for the people who type one anyway.
+     A leading "+" says the 91 after it is definitely a country code, so it
+     always comes off; that matters because a real mobile can itself start "91",
+     and counting digits alone would accept "+91 98765432" as the number
+     9198765432. Without a "+" there is nothing to go on but the length. */
+  function localPart(v){
+    var raw = String(v || "").trim();
+    var d   = digits(raw);
+    if (raw.charAt(0) === "+"){
+      return d.indexOf("91") === 0 ? d.slice(2) : d;
+    }
+    if (d.length === 12 && d.indexOf("91") === 0) return d.slice(2);
+    if (d.length === 11 && d.charAt(0) === "0")   return d.slice(1);
+    return d;
+  }
+
+  /* Indian mobile: 10 digits starting 6-9. */
   function validPhone(v){
-    var d = digits(v);
-    if (d.length === 12 && d.indexOf("91") === 0) d = d.slice(2);
-    if (d.length === 11 && d.charAt(0) === "0")   d = d.slice(1);
+    var d = localPart(v);
     return /^[6-9]\d{9}$/.test(d) ? d : "";
   }
 
@@ -752,7 +794,7 @@ body.sent .head h1,body.sent .head p{display:none;}
     if (!phone){
       /* An empty field and a mistyped one are different mistakes — saying which
          one it is saves the guesswork. */
-      document.getElementById("phoneErr").textContent = digits(phoneEl.value)
+      document.getElementById("phoneErr").textContent = localPart(phoneEl.value)
         ? "That doesn't look right. We need a 10 digit Indian mobile number."
         : "We need your mobile number. It's how we send the invitation.";
       phoneWrap.classList.add("invalid");
@@ -769,8 +811,8 @@ body.sent .head h1,body.sent .head p{display:none;}
       days:       days,
       timePref:   timePref,
       timePrefLabel: (TIME_PREFS.filter(function(t){ return t.id === timePref; })[0] || {}).label || "",
-      activities: ranked,
-      activityWeekend: ACTIVITY_WEEKEND,
+      activities:      activityUnlocked() ? ranked : [],
+      activityWeekend: activityUnlocked() ? ACTIVITY_WEEKEND : "",
       wish:       wishEl.value.trim(),
       notes:      notesEl.value.trim(),
       page:       "availability",
