@@ -389,16 +389,16 @@ body.sent .head h1,body.sent .head p{display:none;}
      someone marks themselves free on one of them, so nobody ranks activities
      for a weekend they cannot make. Its label is derived from these dates, so
      moving to the next weekend means changing this one line. */
-  var ACTIVITY_DATES = ["2026-09-26", "2026-09-27"];
+  var ACTIVITY_DATES = ["2026-10-10", "2026-10-11"];
 
   /* The four activities, in their starting order — they arrive pre-ranked
      1 to 4 in exactly this order, and people reorder from there. Edit the
      names/notes freely; the sheet columns follow whatever is listed here. */
   var ACTIVITIES = [
-    { id:"kishore", name:"Kishore Kumar songs & piano show", note:"" },
-    { id:"citywalk", name:"City walk with supper",            note:"" },
-    { id:"pottery", name:"Pottery workshop with dinner",     note:"" },
-    { id:"art",     name:"Art exhibition with lunch",        note:"" }
+    { id:"painting",   name:"Painting workshop", note:"" },
+    { id:"dance",      name:"Dance class",       note:"" },
+    { id:"boardgames", name:"Board games",       note:"" },
+    { id:"comedy",     name:"Comedy show",       note:"" }
   ];
 
   /* Time of day. Asked once — it is a standing preference, not a per-day
@@ -467,7 +467,7 @@ body.sent .head h1,body.sent .head p{display:none;}
     return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + MONTHS[b.getMonth()] + " " + b.getDate();
   }
 
-  /* "Sep 26 & 27", built from ACTIVITY_DATES so the two can never disagree. */
+  /* "Oct 10 & 11", built from ACTIVITY_DATES so the two can never disagree. */
   var ACTIVITY_WEEKEND = weekendLabel(ACTIVITY_DATES.map(fromIso));
 
   /* ============================================================
