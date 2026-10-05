@@ -85,7 +85,7 @@ function doPost(e) {
 
 /** Bumped whenever this file changes, so opening /exec proves which version is
  *  actually deployed — a paste that was never redeployed shows the old value. */
-var VERSION = '10 — leads + funnel + consent + invites + invite views + campaign attribution + weekend availability';
+var VERSION = '11 — leads + funnel + consent + invites + invite views + campaign attribution + weekend availability + pincode';
 
 /** Open the /exec URL in a browser to see what is live. */
 function doGet() {
@@ -450,7 +450,8 @@ var AVAILABILITY_SHEET = 'Availability';
  * can filter a single weekend quickly. Time of day is a single standing
  * preference, not a per-day answer, so it gets one column. Activity
  * priorities get a column each (1..4), alongside the weekend they were asked
- * about, then their specific wish, their suggestions and their number.
+ * about, then their specific wish, their suggestions, their number and the
+ * pincode their suggestions should be local to.
  *
  * Writes only to the Availability tab — every other tab is untouched.
  */
@@ -466,10 +467,13 @@ function recordAvailability(body) {
   var byRank = [];
   acts.forEach(function (a) { byRank[a.rank - 1] = a.name || a.id || ''; });
 
+  // Pincode goes on the end, not next to Mobile where it reads better: this tab
+  // is written by position, so inserting a column mid-table would leave every
+  // row already in the sheet sitting under the wrong headings.
   var headers = ['Submitted at', 'Mobile', 'Days free', 'Prefers', 'Availability',
                  'Weekend 1', 'Weekend 2', 'Weekend 3', 'Weekend 4',
                  'Priorities for', 'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
-                 'Wants specifically', 'Suggestions', 'Device'];
+                 'Wants specifically', 'Suggestions', 'Device', 'Pincode'];
 
   if (!sheet) {
     sheet = ss.insertSheet(AVAILABILITY_SHEET);
@@ -477,6 +481,15 @@ function recordAvailability(body) {
     head.setValues([headers]);
     head.setFontWeight('bold');
     sheet.setFrozenRows(1);
+  } else if (sheet.getLastColumn() < headers.length) {
+    // The tab was made by an earlier version of this script, so it is short a
+    // heading or two. Name only the new columns on the right; nothing already
+    // in the sheet is touched.
+    var from    = sheet.getLastColumn() + 1;
+    var missing = headers.slice(from - 1);
+    var add     = sheet.getRange(1, from, 1, missing.length);
+    add.setValues([missing]);
+    add.setFontWeight('bold');
   }
 
   // Group the days by the weekend they fall in, so each column holds one
@@ -512,7 +525,10 @@ function recordAvailability(body) {
     byRank[0] || '', byRank[1] || '', byRank[2] || '', byRank[3] || '',
     body.wish  || '',
     body.notes || '',
-    device
+    device,
+    // Leading apostrophe keeps a pincode starting 0 intact, and stops Sheets
+    // reading six digits as a number.
+    body.pincode ? "'" + String(body.pincode) : ''
   ];
 
   if (NEWEST_FIRST) {
@@ -565,7 +581,7 @@ function setupSheets() {
       head: ['Submitted at', 'Mobile', 'Days free', 'Prefers', 'Availability',
              'Weekend 1', 'Weekend 2', 'Weekend 3', 'Weekend 4',
              'Priorities for', 'Priority 1', 'Priority 2', 'Priority 3', 'Priority 4',
-             'Wants specifically', 'Suggestions', 'Device'] }
+             'Wants specifically', 'Suggestions', 'Device', 'Pincode'] }
   ];
 
   tabs.forEach(function (t) {

@@ -208,8 +208,8 @@ textarea{resize:vertical;min-height:6.5rem;line-height:1.6;}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
 
 /* ---------- submit ---------- */
-.submit-row{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:end;}
-@media(max-width:620px){.submit-row{grid-template-columns:1fr;}}
+.submit-row{display:grid;grid-template-columns:minmax(8rem,.55fr) 1fr auto;gap:.8rem;align-items:start;}
+@media(max-width:760px){.submit-row{grid-template-columns:1fr;gap:.9rem;}}
 .btn{
   font:inherit;font-size:.9rem;font-weight:500;letter-spacing:.02em;
   background:var(--cream);color:var(--navy);border:1px solid var(--cream);
@@ -323,13 +323,23 @@ body.sent .head h1,body.sent .head p{display:none;}
       <!-- ── Submit ───────────────────────────────────────────── -->
       <section class="card">
         <div class="card__head">
-          <h2 id="phoneH">Your mobile number</h2>
+          <h2>Where to reach you</h2>
           <span class="req">Required</span>
         </div>
+        <p class="card__note">The pincode keeps our suggestions close to you.</p>
         <div class="submit-row">
+          <div class="field" id="pinField">
+            <input type="text" id="pincode" name="pincode" inputmode="numeric"
+                   autocomplete="postal-code"
+                   required aria-required="true" aria-label="Your pincode"
+                   aria-describedby="pinErr"
+                   maxlength="6" placeholder="6 digit pincode" />
+            <span class="err" id="pinErr">Please enter a valid 6 digit pincode.</span>
+          </div>
           <div class="field" id="phoneField">
             <input type="tel" id="phone" name="phone" inputmode="numeric" autocomplete="tel"
-                   required aria-required="true" aria-labelledby="phoneH" aria-describedby="phoneErr"
+                   required aria-required="true" aria-label="Your mobile number"
+                   aria-describedby="phoneErr"
                    maxlength="18" placeholder="10 digit mobile number" />
             <span class="err" id="phoneErr">Please enter a valid 10 digit Indian mobile number.</span>
           </div>
@@ -389,16 +399,16 @@ body.sent .head h1,body.sent .head p{display:none;}
      someone marks themselves free on one of them, so nobody ranks activities
      for a weekend they cannot make. Its label is derived from these dates, so
      moving to the next weekend means changing this one line. */
-  var ACTIVITY_DATES = ["2026-09-26", "2026-09-27"];
+  var ACTIVITY_DATES = ["2026-10-10", "2026-10-11"];
 
   /* The four activities, in their starting order — they arrive pre-ranked
      1 to 4 in exactly this order, and people reorder from there. Edit the
      names/notes freely; the sheet columns follow whatever is listed here. */
   var ACTIVITIES = [
-    { id:"kishore", name:"Kishore Kumar songs & piano show", note:"" },
-    { id:"citywalk", name:"City walk with supper",            note:"" },
-    { id:"pottery", name:"Pottery workshop with dinner",     note:"" },
-    { id:"art",     name:"Art exhibition with lunch",        note:"" }
+    { id:"painting",   name:"Painting workshop", note:"" },
+    { id:"dance",      name:"Dance class",       note:"" },
+    { id:"boardgames", name:"Board games",       note:"" },
+    { id:"comedy",     name:"Comedy show",       note:"" }
   ];
 
   /* Time of day. Asked once — it is a standing preference, not a per-day
@@ -467,7 +477,7 @@ body.sent .head h1,body.sent .head p{display:none;}
     return MONTHS[a.getMonth()] + " " + a.getDate() + " & " + MONTHS[b.getMonth()] + " " + b.getDate();
   }
 
-  /* "Sep 26 & 27", built from ACTIVITY_DATES so the two can never disagree. */
+  /* "Oct 10 & 11", built from ACTIVITY_DATES so the two can never disagree. */
   var ACTIVITY_WEEKEND = weekendLabel(ACTIVITY_DATES.map(fromIso));
 
   /* ============================================================
@@ -707,18 +717,26 @@ body.sent .head h1,body.sent .head p{display:none;}
     return d;
   }
 
+  /* Indian pincode: 6 digits, and the first is never 0. */
+  function validPin(v){
+    var d = digits(v);
+    return /^[1-9]\d{5}$/.test(d) ? d : "";
+  }
+
   /* Indian mobile: 10 digits starting 6-9. */
   function validPhone(v){
     var d = localPart(v);
     return /^[6-9]\d{9}$/.test(d) ? d : "";
   }
 
+  var pinEl     = document.getElementById("pincode");
+  var pinWrap   = document.getElementById("pinField");
   var wishEl    = document.getElementById("wish");
   var wishWrap  = document.getElementById("wishField");
   var notesEl   = document.getElementById("notes");
   var notesWrap = document.getElementById("notesField");
 
-  [[phoneEl, phoneWrap], [wishEl, wishWrap], [notesEl, notesWrap]].forEach(function(pair){
+  [[phoneEl, phoneWrap], [pinEl, pinWrap], [wishEl, wishWrap], [notesEl, notesWrap]].forEach(function(pair){
     pair[0].addEventListener("input", function(){ pair[1].classList.remove("invalid"); });
   });
 
@@ -772,6 +790,16 @@ body.sent .head h1,body.sent .head p{display:none;}
       notesEl.focus();
       return;
     }
+    if (!validPin(pinEl.value)){
+      document.getElementById("pinErr").textContent = digits(pinEl.value)
+        ? "That doesn't look right. We need a 6 digit pincode."
+        : "We need your pincode to keep suggestions near you.";
+      pinWrap.classList.add("invalid");
+      statusEl.textContent = "";
+      pinWrap.scrollIntoView({ block:"center" });
+      pinEl.focus();
+      return;
+    }
     if (!phone){
       /* An empty field and a mistyped one are different mistakes — saying which
          one it is saves the guesswork. */
@@ -789,6 +817,7 @@ body.sent .head h1,body.sent .head p{display:none;}
       type:       "availability",
       website:    document.getElementById("website").value,   /* honeypot */
       phone:      phone,
+      pincode:    validPin(pinEl.value),
       days:       days,
       timePref:   timePref,
       timePrefLabel: (TIME_PREFS.filter(function(t){ return t.id === timePref; })[0] || {}).label || "",
