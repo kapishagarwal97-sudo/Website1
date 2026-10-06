@@ -134,9 +134,9 @@
   <script>
     (function(){
       "use strict";
-      /* Paste this event's secure Razorpay link here (https://rzp.io/...).
-         Until it is set, the button opens WhatsApp so nobody hits a dead end. */
-      var PAY_LINK = "";
+      /* This event's secure Razorpay link. If it is ever cleared, the button
+         falls back to WhatsApp so nobody hits a dead end. */
+      var PAY_LINK = "https://rzp.io/rzp/0ltYXSAI";
 
       document.querySelectorAll("[data-year]").forEach(function(el){el.textContent=new Date().getFullYear();});
 
