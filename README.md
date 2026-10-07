@@ -152,6 +152,31 @@ pick `setupSheets` in the Apps Script editor and press **Run**. It only adds a
 missing tab or header row and never touches existing rows, so it is safe to run
 more than once.
 
+### Where people live
+
+`Where do you live?` is one screen holding two fields. The city is picked from a
+list of **1,635 towns across all 36 states and union territories**, built by
+merging a city dataset with the full district list, so every district
+headquarters is present. Free text is refused — a typed value that is not a real
+pick is rejected — because inconsistent spellings were the original problem.
+
+Old names stay searchable and resolve to the current one, so "Gurgaon" finds
+**Gurugram** and is stored that way; likewise Bangalore, Bombay, Allahabad,
+Vizag, Trichy and around twenty others. Each row shows its state, since names
+repeat across India.
+
+The list is not exhaustive, so **"My city isn't listed"** sits at the bottom of
+every result and swaps in a box to type freely. Those entries land in the same
+column as picked ones.
+
+The pincode strips non-digits, caps at six, and refuses anything starting with
+zero. It gets its own `Pincode` column; the city keeps the existing
+`Which city do you live in?` column.
+
+A question can also carry `column:"…"` to keep writing to its original sheet
+column after its on-screen wording changes — `Where do you work or study?` uses
+this to stay in `Which sector do you work in?`.
+
 ### Consent to be contacted
 
 The final screen carries an unticked checkbox:

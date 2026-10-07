@@ -296,6 +296,30 @@ body::before{
 .field.bad .err{display:block}
 input[type="date"]{color-scheme:dark}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+/* city picker + pincode */
+.combo{position:relative}
+.combo__list{
+  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:6;
+  max-height:min(240px,38vh);overflow-y:auto;
+  background:#1a2438;border:1px solid rgba(215,206,195,.25);border-radius:3px;
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
+}
+.combo__opt{
+  display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
+  padding:.6rem .9rem;font-size:.95rem;color:var(--sand);cursor:pointer;
+  border-bottom:1px solid rgba(215,206,195,.07);
+}
+.combo__opt:last-child{border-bottom:none}
+.combo__opt.on,.combo__opt:hover{background:rgba(235,100,46,.2);color:var(--cream)}
+.combo__st{font-size:.76rem;opacity:.5;white-space:nowrap}
+.combo__opt--other{color:var(--ember);font-style:italic}
+.geo{display:grid;gap:1.5rem;margin-top:1.9rem;max-width:460px}
+.geo .field{position:relative;margin:0}
+#i-pin{letter-spacing:.22em;font-variant-numeric:tabular-nums}
+.chosen{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-size:1.15rem;color:var(--cream);padding:.55rem 0;border-bottom:1px solid rgba(215,206,195,.3)}
+.chosen button{margin-left:auto;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--sand);opacity:.7}
+.chosen button:hover{color:var(--ember);opacity:1}
+
 /* consent — unticked by default, never a condition of joining */
 .consent{display:flex;align-items:flex-start;gap:.8rem;margin-top:1.6rem;max-width:46ch;cursor:pointer}
 .consent input{position:absolute;width:1px;height:1px;opacity:0}
@@ -454,6 +478,12 @@ const MIN_AGE = 18;
    ============================================================ */
 const AGREE = ["Strongly disagree","Neutral","Strongly agree"];
 
+/* Every district and town we could source, with the state for disambiguation and
+   old spellings kept searchable, so "Gurgaon" finds Gurugram. */
+const STATES = ["Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh", "Dadra and Nagar Haveli", "Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Lakshadweep", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
+const CITIES = [["Achalpur",20],["Achhnera",33],["Adalaj",11],["Adilabad",31],["Adityapur",15],["Adoni",1],["Adoor",17],["Adra",35],["Adyar",16],["Afzalpur",16],["Agar Malwa",19],["Agartala",32],["Agatti",18],["Agra",33],["Ahmedabad",11],["Ahmednagar",20],["Aizawl",23],["Ajmer",28],["Akola",20],["Akot",20],["Alappuzha",17],["Aligarh",33],["AlipurdUrban Agglomerationr",35],["Alipurduar",35],["Alirajpur",19],["Almora",34],["Alwar",28],["Amalapuram",1],["Amalner",20],["Ambala",12],["Ambedkar Nagar",33],["Ambejogai",20],["Ambikapur",6],["Amethi (Chatrapati Sahuji Mahraj Nagar)",33],["Amini",18],["Amravati",20],["Amreli",11],["Amritsar",27],["Amroha",33],["Amroha (J.P. Nagar)",33],["Anakapalle",1],["Anand",11],["Anantapur",1],["Anantnag",14],["Androth",18],["Angul",25],["Anjangaon",20],["Anjar",11],["Anjaw",2],["Ankleshwar",11],["Anuppur",19],["Arakkonam",30],["Arambagh",35],["Araria",4],["Aravalli",11],["Ariyalur",30],["Arrah",4],["Arsikere",16],["Aruppukkottai",30],["Arvi",20],["Arwal",4],["Asansol",35],["Asarganj",4],["Ashok Nagar",19],["Ashoknagar",19],["Athni",16],["Attingal",17],["Auraiya",33],["Aurangabad",4],["Aurangabad",20],["Azamgarh",33],["Bagaha",4],["Bagalkot",16],["Bageshwar",34],["Baghpat",33],["Bahadurgarh",12],["Baharampur",35],["Bahraich",33],["Baksa",3],["Balaghat",19],["Balangir",25],["Balasore",25],["Baleshwar Town",25],["Ballari",16],["Ballari (Bellary)",16],["Ballia",33],["Balod",6],["Baloda Bazar",6],["Balrampur",6],["Balrampur",33],["Balurghat",35],["Banaskantha (Palanpur)",11],["Banda",33],["Bandipore",14],["Banka",4],["Bankura",35],["Banswara",28],["Bapatla",1],["Barabanki",33],["Baramula",14],["Baramulla",14],["Baran",28],["Barbil",25],["Bareilly",33],["Bargarh",25],["Barh",4],["Baripada Town",25],["Barmer",28],["Barnala",27],["Barpeta",3],["Barwani",19],["Bastar",6],["Basti",33],["Batala",27],["Bathinda",27],["Beed",20],["Begusarai",4],["Belagavi",16,"Belgaum"],["Belagavi (Belgaum)",16],["Bellampalle",31],["Belonia",32],["Bemetara",6],["Bengaluru",16,"Bangalore"],["Bengaluru (Bangalore) Rural",16],["Bengaluru (Bangalore) Urban",16],["Bettiah",4],["Betul",19],["BhabUrban Agglomeration",4],["Bhadohi",33],["Bhadrachalam",31],["Bhadradri Kothagudem",31],["Bhadrak",25],["Bhagalpur",4],["Bhainsa",31],["Bhandara",20],["Bharatpur",28],["Bharuch",11],["Bhatapara",6],["Bhavnagar",11],["Bhawanipatna",25],["Bheemunipatnam",1],["Bhilai Nagar",6],["Bhilwara",28],["Bhimavaram",1],["Bhind",19],["Bhiwandi",20],["Bhiwani",12],["Bhojpur",4],["Bhongir",31],["Bhopal",19],["Bhubaneswar",25],["Bhuj",11],["Bidar",16],["Bijapur",6],["Bijnor",33],["Bikaner",28],["Bilaspur",6],["Bilaspur",13],["Birbhum",35],["Bishnupur",21],["Biswanath",3],["Bithra",18],["Bobbili",1],["Bodhan",31],["Bokaro",15],["Bokaro Steel City",15],["Bongaigaon",3],["Bongaigaon City",3],["Botad",11],["Boudh",25],["Brahmapur",25],["Budaun",33],["Budgam",14],["Bulandshahr",33],["Buldhana",20],["Bundi",28],["Burdwan (Bardhaman)",35],["Burhanpur",19],["Buxar",4],["Byasanagar",25],["Cachar",3],["Central Delhi",9],["Chaibasa",15],["Chalakudy",17],["Chamarajanagar",16],["Chamba",13],["Chamoli",34],["Champawat",34],["Champhai",23],["Chandauli",33],["Chandausi",33],["Chandel",21],["Chandigarh",5],["Chandrapur",20],["Changanassery",17],["Changlang",2],["Charaideo",3],["Charkhi Dadri",12],["Chatra",15],["Chennai",30,"Madras"],["Cherthala",17],["Chethlath",18],["Chhapra",4],["Chhapra",11],["Chhatarpur",19],["Chhindwara",19],["Chhota Udepur",11],["Chikballapur",16],["Chikkamagaluru",16,"Chikmagalur"],["Chikkamagaluru (Chikmagalur)",16],["Chilakaluripet",1],["Chirala",1],["Chirang",3],["Chirkunda",15],["Chirmiri",6],["Chitradurga",16],["Chitrakoot",33],["Chittoor",1],["Chittorgarh",28],["Chittur-Thathamangalam",17],["Churachandpur",21],["Churu",28],["Coimbatore",30],["Cooch Behar",35],["Cuddalore",30],["Cuttack",25],["Dadra & Nagar Haveli",7],["Dahod",11],["Dakshin Dinajpur (South Dinajpur)",35],["Dakshina Kannada",16],["Dalli-Rajhara",6],["Daman",8],["Damoh",19],["Dangs (Ahwa)",11],["Dantewada (South Bastar)",6],["Darbhanga",4],["Darjeeling",35],["Darjiling",35],["Darrang",3],["Datia",19],["Dausa",28],["Davanagere",16],["Davangere",16],["Deesa",11],["Dehradun",34],["Dehri-on-Sone",4],["Delhi",9],["Deogarh",25],["Deoghar",15],["Deoria",33],["Devbhoomi Dwarka",11],["Dewas",19],["Dhalai",32],["Dhamtari",6],["Dhanbad",15],["Dhar",19],["Dharmanagar",32],["Dharmapuri",30],["Dharmavaram",1],["Dharwad",16],["Dhemaji",3],["Dhenkanal",25],["Dholpur",28],["Dhoraji",11],["Dhubri",3],["Dhule",20],["Dhuri",27],["Dibang Valley",2],["Dibrugarh",3],["Dima Hasao",3],["Dimapur",24],["Dindigul",30],["Dindori",19],["Diphu",3],["Dispur",3],["Diu",8],["Doda",14],["Dumka",15],["Dumraon",4],["Dungarpur",28],["Durg",6],["East Champaran (Motihari)",4],["East Delhi",9],["East Garo Hills",22],["East Godavari",1],["East Jaintia Hills",22],["East Kameng",2],["East Khasi Hills",22],["East Siang",2],["East Sikkim",29],["East Singhbhum",15],["Eluru",1],["English Bazar",35],["Ernakulam",17],["Erode",30],["Etah",33],["Etawah",33],["Faizabad",33],["Faridabad",12],["Faridkot",27],["Farooqnagar",31],["Farrukhabad",33],["Fatehabad",12],["Fatehgarh Sahib",27],["Fatehpur",33],["Fatehpur Sikri",33],["Fazilka",27],["Ferozepur",27],["Firozabad",33],["Firozpur",27],["Firozpur Cantt.",27],["Forbesganj",4],["Gadag",16],["Gadchiroli",20],["Gadwal",31],["Gajapati",25],["Ganderbal",14],["Gandhinagar",11],["Gangarampur",35],["Ganjam",25],["Ganjbasoda",19],["Garhwa",15],["Gariyaband",6],["Gautam Buddha Nagar",33],["Gaya",4],["Ghaziabad",33],["Ghazipur",33],["Gir Somnath",11],["Giridih",15],["Goalpara",3],["Gobichettipalayam",30],["Gobindgarh",27],["Godda",15],["Godhra",11],["Gohana",12],["Gokak",16],["Golaghat",3],["Gomati",32],["Gonda",33],["Gondia",20],["Gooty",1],["Gopalganj",4],["Gorakhpur",33],["Gudivada",1],["Gudur",1],["Gumia",15],["Gumla",15],["Guna",19],["Guntakal",1],["Guntur",1],["Gurdaspur",27],["Gurugram",12,"Gurgaon"],["Guruvayoor",17],["Guwahati",3,"Gauhati"],["Gwalior",19],["Habra",35],["Hailakandi",3],["Hajipur",4],["Haldwani-cum-Kathgodam",34],["Hamirpur",13],["Hamirpur",33],["Hansi",12],["Hanumangarh",28],["Hapur",33],["Hapur (Panchsheel Nagar)",33],["Harda",19],["Hardoi",33],["Hardwar",34],["Haridwar",34],["Hassan",16],["Hathras",33],["Haveri",16],["Hazaribag",15],["Hindupur",1],["Hingoli",20],["Hisar",12],["Hojai",3],["Hooghly",35],["Hoshangabad",19],["Hoshiarpur",27],["Howrah",35],["Hubli-Dharwad",16],["Hugli-Chinsurah",35],["Hyderabad",31],["Ichalkaranji",20],["Idukki",17],["Imphal",21],["Imphal East",21],["Imphal West",21],["Indore",19],["Itarsi",19],["Jabalpur",19],["Jagatsinghapur",25],["Jagdalpur",6],["Jaggaiahpet",1],["Jagraon",27],["Jagtial",31],["Jaipur",28],["Jaisalmer",28],["Jajpur",25],["Jalandhar",27],["Jalandhar Cantt.",27],["Jalaun",33],["Jalgaon",20],["Jalna",20],["Jalore",28],["Jalpaiguri",35],["Jamalpur",4],["Jammalamadugu",1],["Jammu",14],["Jamnagar",11],["Jamshedpur",15],["Jamtara",15],["Jamui",4],["Jangaon",31],["Janjgir-Champa",6],["Jashpur",6],["Jatani",25],["Jaunpur",33],["Jayashankar Bhoopalpally",31],["Jehanabad",4],["Jhabua",19],["Jhajjar",12],["Jhalawar",28],["Jhansi",33],["Jhargram",35],["Jharsuguda",25],["Jhumri Tilaiya",15],["Jhunjhunu",28],["Jind",12],["Jiribam",21],["Jodhpur",28],["Jogulamba Gadwal",31],["Jorhat",3],["Junagadh",11],["Kabirdham (Kawardha)",6],["Kachchh",11],["Kadapa",1],["Kadi",11],["Kadiri",1],["Kadmath",18],["Kagaznagar",31],["Kailasahar",32],["Kaimur (Bhabua)",4],["Kaithal",12],["Kakching",21],["Kakinada",1],["Kalaburagi (Gulbarga)",16],["Kalahandi",25],["Kalimpong",35],["Kalpeni",18],["Kalpi",33],["Kalyan-Dombivali",20],["Kamareddy",31],["Kamjong",21],["Kamrup",3],["Kamrup Metropolitan",3],["Kancheepuram",30],["Kanchipuram",30],["Kandhamal",25],["Kandukur",1],["Kangpokpi",21],["Kangra",13],["Kanhangad",17],["Kanker (North Bastar)",6],["Kannauj",33],["Kannur",17],["Kanpur",33,"Cawnpore"],["Kanpur Dehat",33],["Kanpur Nagar",33],["Kanshiram Nagar (Kasganj)",33],["Kanyakumari",30],["Kapadvanj",11],["Kapurthala",27],["Karaikal",26],["Karauli",28],["Karbi Anglong",3],["Kargil",14],["Karimganj",3],["Karimnagar",31],["Karjat",20],["Karnal",12],["Karur",30],["Karwar",16],["Kasaragod",17],["Kashipur",34],["KathUrban Agglomeration",14],["Kathua",14],["Katihar",4],["Katni",19],["Kaushambi",33],["Kavali",1],["Kavaratti",18],["Kayamkulam",17],["Kendrapara",25],["Kendujhar",25],["Kendujhar (Keonjhar)",25],["Keshod",11],["Khagaria",4],["Khair",33],["Khambhat",11],["Khammam",31],["Khandwa",19],["Khanna",27],["Kharagpur",35],["Kharar",27],["Khargone",19],["Kheda (Nadiad)",11],["Khordha",25],["Khowai",32],["Khunti",15],["Kilthan",18],["Kinnaur",13],["Kiphire",24],["Kishanganj",4],["Kishtwar",14],["Kochi",17,"Cochin"],["Kodagu",16],["Koderma",15],["Kodungallur",17],["Kohima",24],["Kokrajhar",3],["Kolar",16],["Kolasib",23],["Kolhapur",20],["Kolkata",35,"Calcutta"],["Kollam",17],["Komaram Bheem Asifabad",31],["Kondagaon",6],["Koppal",16],["Koraput",25],["Koratla",31],["Korba",6],["Korea (Koriya)",6],["Kot Kapura",27],["Kota",28],["Kothagudem",31],["Kottayam",17],["Kovvur",1],["Koyilandy",17],["Kozhikode",17,"Calicut"],["Kra Daadi",2],["Krishna",1],["Krishnagiri",30],["Kulgam",14],["Kullu",13],["Kunnamkulam",17],["Kupwara",14],["Kurnool",1],["Kurukshetra",12],["Kurung Kumey",2],["Kushinagar (Padrauna)",33],["Kyathampalle",31],["Lachhmangarh",28],["Ladnu",28],["Ladwa",12],["Lahar",19],["Laharpur",33],["Lahaul &amp; Spiti",13],["Lakheri",28],["Lakhimpur",3],["Lakhimpur",33],["Lakhimpur - Kheri",33],["Lakhisarai",4],["Lakshmeshwar",16],["Lal Gopalganj Nindaura",33],["Lalganj",4],["Lalganj",33],["Lalgudi",30],["Lalitpur",33],["Lalsot",28],["Lanka",3],["Lar",33],["Latehar",15],["Lathi",11],["Latur",20],["Lawngtlai",23],["Leh",14],["Lilong",21],["Limbdi",11],["Lingsugur",16],["Loha",20],["Lohardaga",15],["Lohit",2],["Lonar",20],["Lonavla",20],["Longding",2],["Longleng",24],["Longowal",27],["Loni",33],["Losal",28],["Lower Dibang Valley",2],["Lower Siang",2],["Lower Subansiri",2],["Lucknow",33],["Ludhiana",27],["Lumding",3],["Lunawada",11],["Lunglei",23],["Macherla",1],["Machilipatnam",1],["Madanapalle",1],["Maddur",16],["Madhepura",4],["Madhubani",4],["Madhugiri",16],["Madhupur",15],["Madikeri",16],["Madurai",30],["Magadi",16],["Mahabubabad",31],["Mahabubnagar",31],["Mahad",20],["Mahalingapura",16],["Maharajganj",4],["Maharajganj",33],["Maharajpur",19],["Mahasamund",6],["Mahbubnagar",31],["Mahe",26],["Mahemdabad",11],["Mahendragarh",12],["Mahesana",11],["Mahidpur",19],["Mahisagar",11],["Mahnar Bazar",4],["Mahoba",33],["Mahuva",11],["Maihar",19],["Mainaguri",35],["Mainpuri",33],["Majuli",3],["Makhdumpur",4],["Makrana",28],["Malaj Khand",19],["Malappuram",17],["Malavalli",16],["Malda",35],["Malegaon",20],["Malerkotla",27],["Malkangiri",25],["Malkapur",20],["Malout",27],["Malpura",28],["Malur",16],["Mamit",23],["Manachanallur",30],["Manali",13],["Manasa",19],["Manavadar",11],["Manawar",19],["Mancherial",31],["Mandalgarh",28],["Mandamarri",31],["Mandapeta",1],["Mandawa",28],["Mandi",13],["Mandi Dabwali",12],["Mandideep",19],["Mandla",19],["Mandsaur",19],["Mandvi",11],["Mandya",16],["Manendragarh",6],["Maner",4],["Mangaldoi",3],["Mangaluru",16,"Mangalore"],["Mangalvedhe",20],["Manglaur",34],["Mangrol",11],["Mangrol",28],["Mangrulpir",20],["Manihari",4],["Manjlegaon",20],["Mankachar",3],["Manmad",20],["Mansa",11],["Mansa",27],["Manuguru",31],["Manvi",16],["Manwath",20],["Mapusa",10],["Margao",10],["Margherita",3],["Marhaura",4],["Mariani",3],["Marigaon",3],["Markapur",1],["Marmagao",10],["Masaurhi",4],["Mathabhanga",35],["Mathura",33],["Mattannur",17],["Mau",33],["Mauganj",19],["Mavelikkara",17],["Mavoor",17],["Mayang Imphal",21],["Mayurbhanj",25],["Medak",31],["Medchal",31],["Medininagar (Daltonganj)",15],["Medinipur",35],["Meerut",33],["Mehkar",20],["Mehsana",11],["Memari",35],["Merta City",28],["Mewat",12],["Mhaswad",20],["Mhow Cantonment",19],["Mhowgaon",19],["Mihijam",15],["Minicoy",18],["Mira-Bhayandar",20],["Mirganj",4],["Miryalaguda",31],["Mirzapur",33],["Modasa",11],["Modinagar",33],["Moga",27],["Mohali",27],["Mokameh",4],["Mokokchung",24],["Mon",24],["Monoharpur",35],["Moradabad",33],["Morbi",11],["Morena",19],["Morigaon",3],["Morinda, India",27],["Morshi",20],["Morvi",11],["Motihari",4],["Motipur",4],["Mount Abu",28],["Mudabidri",16],["Mudalagi",16],["Muddebihal",16],["Mudhol",16],["Mukerian",27],["Mukhed",20],["Muktsar",27],["Mul",20],["Mulbagal",16],["Multai",19],["Mumbai",20,"Bombay"],["Mumbai City",20],["Mumbai Suburban",20],["Mundargi",16],["Mundi",19],["Mungeli",6],["Munger",4],["Munger (Monghyr)",4],["Murliganj",4],["Murshidabad",35],["Murtijapur",20],["Murwara (Katni)",19],["Musabani",15],["Mussoorie",34],["Muvattupuzha",17],["Muzaffarnagar",33],["Muzaffarpur",4],["Mysuru",16,"Mysore"],["Mysuru (Mysore)",16],["Nabadwip",35],["Nabarangapur",25],["Nabarangpur",25],["Nabha",27],["Nadbai",28],["Nadia",35],["Nadiad",11],["Nagaon",3],["Nagapattinam",30],["Nagar",28],["Nagari",1],["Nagarkurnool",31],["Nagaur",28],["Nagda",19],["Nagercoil",30],["Nagina",33],["Nagla",34],["Nagpur",20],["Nahan",13],["Naharlagun",2],["Naidupet",1],["Naihati",35],["Naila Janjgir",6],["Nainital",34],["Nainpur",19],["Najibabad",33],["Nakodar",27],["Nakur",33],["Nalanda",4],["Nalbari",3],["Nalgonda",31],["Namagiripettai",30],["Namakkal",30],["Namsai",2],["Nanded",20],["Nanded-Waghala",20],["Nandgaon",20],["Nandivaram-Guduvancheri",30],["Nandura",20],["Nandurbar",20],["Nandyal",1],["Nangal",27],["Nanjangud",16],["Nanjikottai",30],["Nanpara",33],["Narasapuram",1],["Narasaraopet",1],["Naraura",33],["Narayanpet",31],["Narayanpur",6],["Nargund",16],["Narkatiaganj",4],["Narkhed",20],["Narmada (Rajpipla)",11],["Narnaul",12],["Narsinghgarh",19],["Narsinghpur",19],["Narsipatnam",1],["Narwana",12],["Nashik",20],["Nasirabad",28],["Natham",30],["Nathdwara",28],["Naugachhia",4],["Naugawan Sadat",33],["Nautanwa",33],["Navalgund",16],["Navsari",11],["Nawabganj",33],["Nawada",4],["Nawanshahr",27],["Nawanshahr (Shahid Bhagat Singh Nagar)",27],["Nawapur",20],["Nayagarh",25],["Nedumangad",17],["Neem-Ka-Thana",28],["Neemuch",19],["Nehtaur",33],["Nelamangala",16],["Nellikuppam",30],["Nellore",1],["Nepanagar",19],["New Delhi",9],["Neyveli (TS)",30],["Neyyattinkara",17],["Nidadavole",1],["Nilambur",17],["Nilanga",20],["Nilgiris",30],["Nimbahera",28],["Nirmal",31],["Niwai",33],["Niwari",19],["Nizamabad",31],["Nohar",28],["Noida",33],["Nokha",4],["Nokha",28],["Noney",21],["Nongstoin",22],["Noorpur",33],["North 24 Parganas",35],["North Delhi",9],["North East Delhi",9],["North Garo Hills",22],["North Goa",10],["North Lakhimpur",3],["North Sikkim",29],["North Tripura",32],["North West Delhi",9],["Nowgong",19],["Nowrozabad (Khodargama)",19],["Nuapada",25],["Nuzvid",1],["O' Valley",30],["Obra",33],["Oddanchatram",30],["Ongole",1],["Orai",33],["Osmanabad",20],["Ottappalam",17],["Ozar",20],["P.N.Patti",30],["Pachora",20],["Pachore",19],["Pacode",30],["Padmanabhapuram",30],["Padra",11],["Padrauna",33],["Paithan",20],["Pakaur",15],["Pakur",15],["Palacole",1],["Palai",17],["Palakkad",17],["Palampur",13],["Palamu",15],["Palani",30],["Palanpur",11],["Palasa Kasibugga",1],["Palghar",20],["Pali",19],["Pali",28],["Palia Kalan",33],["Palitana",11],["Palladam",30],["Pallapatti",30],["Pallikonda",30],["Palwal",12],["Palwancha",31],["Panagar",19],["Panagudi",30],["Panaji",10,"Panjim"],["Panamattom",17],["Panchkula",12],["Panchla",35],["Panchmahal (Godhra)",11],["PandUrban Agglomeration",35],["Pandharkaoda",20],["Pandharpur",20],["Pandhurna",19],["Panipat",12],["Panna",19],["Panniyannur",17],["Panruti",30],["Panvel",20],["Pappinisseri",17],["Papum Pare",2],["Paradip",25],["Paramakudi",30],["Parangipettai",30],["Parasi",33],["Paravoor",17],["Parbhani",20],["Pardi",11],["Parlakhemundi",25],["Parli",20],["Partur",20],["Parvathipuram",1],["Pasan",19],["Paschim Medinipur (West Medinipur)",35],["Paschim Punropara",35],["Pasighat",2],["Patan",11],["Pathanamthitta",17],["Pathankot",27],["Pathardi",20],["Pathri",20],["Patiala",27],["Patna",4],["Patratu",15],["Pattamundai",25],["Patti",27],["Pattran",27],["Pattukkottai",30],["Patur",20],["Pauni",20],["Pauri",34],["Pauri Garhwal",34],["Pavagada",16],["Pedana",1],["Peddapalli",31],["Peddapuram",1],["Pehowa",12],["Pen",20],["Perambalur",30],["Peravurani",30],["Peren",24],["Peringathur",17],["Perinthalmanna",17],["Periyakulam",30],["Periyasemur",30],["Pernampattu",30],["Perumbavoor",17],["Petlad",11],["Phagwara",27],["Phalodi",28],["Phaltan",20],["Phek",24],["Pherzawl",21],["Phillaur",27],["Phulabani",25],["Phulera",28],["Phulpur",33],["Phusro",15],["Pihani",33],["Pilani",28],["Pilibanga",28],["Pilibhit",33],["Pilkhuwa",33],["Pindwara",28],["Pinjore",12],["Pipar City",28],["Pipariya",19],["Piriyapatna",16],["Piro",4],["Pithampur",19],["Pithapuram",1],["Pithoragarh",34],["Pollachi",30],["Polur",30],["Ponnani",17],["Ponneri",30],["Ponnur",1],["Poonch",14],["Porbandar",11],["Porsa",19],["Port Blair",0],["Powayan",33],["Prakasam",1],["Prantij",28],["Pratapgarh",28],["Pratapgarh",32],["Pratapgarh",33],["Prayagraj",33,"Allahabad"],["Prithvipur",19],["Proddatur",1],["Puducherry",26,"Pondicherry"],["Pudukkottai",30],["Pudupattinam",30],["Pukhrayan",33],["Pulgaon",20],["Puliyankudi",30],["Pulwama",14],["Punalur",17],["Punch",14],["Pune",20,"Poona"],["Punganur",1],["Punjaipugalur",30],["Puranpur",33],["Purba Medinipur (East Medinipur)",35],["Puri",25],["Purna",20],["Purnia",4],["Purnia (Purnea)",4],["PurqUrban Agglomerationzi",33],["Purulia",35],["Purwa",33],["Pusad",20],["Puthuppally",17],["Puttur",1],["Puttur",16],["Qadian",27],["Raayachuru",16],["Rabkavi Banhatti",16],["Radhanpur",11],["Rae Bareli",33],["RaeBareli",33],["Rafiganj",4],["Raghogarh-Vijaypur",19],["Raghunathganj",35],["Raghunathpur",35],["Rahatgarh",19],["Rahuri",20],["Raichur",16],["Raigad",20],["Raiganj",35],["Raigarh",6],["Raikot",27],["Raipur",6],["Rairangpur",25],["Raisen",19],["Raisinghnagar",28],["Rajagangapur",25],["Rajahmundry",1,"Rajamahendravaram"],["Rajakhera",28],["Rajaldesar",28],["Rajam",1],["Rajampet",1],["Rajanna Sircilla",31],["Rajapalayam",30],["Rajauri",14],["Rajgarh",19],["Rajgarh (Alwar)",28],["Rajgarh (Churu)",28],["Rajgir",4],["Rajkot",11],["Rajnandgaon",6],["Rajouri",14],["Rajpipla",11],["Rajpura",27],["Rajsamand",28],["Rajula",11],["Rajura",20],["Ramachandrapuram",1],["Ramagundam",31],["Ramanagara",16],["Ramanagaram",16],["Ramanathapuram",30],["Ramban",14],["Ramdurg",16],["Rameshwaram",30],["Ramganj Mandi",28],["Ramgarh",15],["Ramnagar",4],["Ramnagar",34],["Ramngarh",28],["Rampur",33],["Rampur Maniharan",33],["Rampura Phul",27],["Rampurhat",35],["Ramtek",20],["Ranaghat",35],["Ranavav",11],["Ranchi",15],["Ranebennuru",16],["Rangareddy",31],["Rangia",3],["Rania",12],["Ranibennur",16],["Ranipet",30],["Rapar",11],["Rasipuram",30],["Rasra",33],["Ratangarh",28],["Rath",33],["Ratia",12],["Ratlam",19],["Ratnagiri",20],["Rau",19],["Raurkela",25],["Raver",20],["Rawatbhata",28],["Rawatsar",28],["Raxaul Bazar",4],["Rayachoti",1],["Rayadurg",1],["Rayagada",25],["Reasi",14],["Reengus",28],["Rehli",19],["Renigunta",1],["Renukoot",33],["Reoti",33],["Repalle",1],["Revelganj",4],["Rewa",19],["Rewari",12],["Ri Bhoi",22],["Rishikesh",34],["Risod",20],["Robertsganj",33],["Robertson Pet",16],["Rohtak",12],["Rohtas",4],["Ron",16],["Roorkee",34],["Rosera",4],["Rudauli",33],["Rudraprayag",34],["Rudrapur",33],["Rudrapur",34],["Rupnagar",27],["SUrban Agglomerationr",33],["Sabalgarh",19],["Sabarkantha (Himmatnagar)",11],["Sadabad",33],["Sadalagi",16],["Sadasivpet",31],["Sadri",28],["Sadulpur",28],["Sadulshahar",28],["Safidon",12],["Safipur",33],["Sagar",19],["Sagara",16],["Sagwara",28],["Saharanpur",33],["Saharsa",4],["Sahaspur",33],["Sahaswan",33],["Sahawar",33],["Sahibganj",15],["Sahibzada Ajit Singh Nagar (Mohali)",27],["Sahjanwa",33],["Saidpur",33],["Saiha",23],["Sailu",20],["Sainthia",35],["Sakaleshapura",16],["Sakti",6],["Salaya",11],["Salem",30],["Salur",1],["Samalkha",12],["Samalkot",1],["Samana",27],["Samastipur",4],["Samba",14],["Sambalpur",25],["Sambhal",33],["Sambhal (Bhim Nagar)",33],["Sambhar",28],["Samdhan",33],["Samthar",33],["Sanand",11],["Sanawad",19],["Sanchore",28],["Sandi",33],["Sandila",33],["Sanduru",16],["Sangamner",20],["Sangareddy",31],["Sangaria",28],["Sangli",20],["Sangole",20],["Sangrur",27],["Sankarankovil",30],["Sankari",30],["Sankeshwara",16],["Sant Kabir Nagar",33],["Santipur",35],["Saran",4],["Sarangpur",19],["Sardarshahar",28],["Sardhana",33],["Sarni",19],["Sarsod",12],["Sasaram",4],["Sasvad",20],["Satana",20],["Satara",20],["Sathyamangalam",30],["Satna",19],["Sattenapalle",1],["Sattur",30],["Saunda",15],["Saundatti-Yellamma",16],["Sausar",19],["Savanur",16],["Savarkundla",11],["Savner",20],["Sawai Madhopur",28],["Sawantwadi",20],["Sedam",16],["Sehore",19],["Senapati",21],["Sendhwa",19],["Seohara",33],["Seoni",19],["Seoni-Malwa",19],["Sepahijala",32],["Seraikela-Kharsawan",15],["Serchhip",23],["Shahabad",16],["Shahabad, Hardoi",33],["Shahabad, Rampur",33],["Shahade",20],["Shahbad",12],["Shahdara",9],["Shahdol",19],["Shahganj",33],["Shahjahanpur",33],["Shahpur",16],["Shahpura",28],["Shajapur",19],["Shamali (Prabuddh Nagar)",33],["Shamgarh",19],["Shamli",33],["Shamsabad, Agra",33],["Shamsabad, Farrukhabad",33],["Shegaon",20],["Sheikhpura",4],["Shendurjana",20],["Shenkottai",30],["Sheoganj",28],["Sheohar",4],["Sheopur",19],["Sherghati",4],["Sherkot",33],["Shiggaon",16],["Shikaripur",16],["Shikarpur, Bulandshahr",33],["Shikohabad",33],["Shillong",22],["Shimla",13,"Simla"],["Shirdi",20],["Shirpur-Warwade",20],["Shirur",20],["Shishgarh",33],["Shivamogga",16,"Shimoga"],["Shivamogga (Shimoga)",16],["Shivpuri",19],["Sholavandan",30],["Sholingur",30],["Shopian",14],["Shoranur",17],["Shravasti",33],["Shrigonda",20],["Shrirampur",20],["Shrirangapattana",16],["Shujalpur",19],["Siana",33],["Siang",2],["Sibsagar",3],["Siddharth Nagar",33],["Siddipet",31],["Sidhi",19],["Sidhpur",11],["Sidlaghatta",16],["Sihor",11],["Sihora",19],["Sikanderpur",33],["Sikandra Rao",33],["Sikandrabad",33],["Sikar",28],["Silao",4],["Silapathar",3],["Silchar",3],["Siliguri",35],["Sillod",20],["Silvassa",7],["Simdega",15],["Sindagi",16],["Sindhagi",16],["Sindhnur",16],["Sindhudurg",20],["Singrauli",19],["Sinnar",20],["Sira",16],["Sircilla",31],["Sirhind Fatehgarh Sahib",27],["Sirkali",30],["Sirmaur (Sirmour)",13],["Sirohi",28],["Sironj",19],["Sirsa",12],["Sirsaganj",33],["Sirsi",16],["Sirsi",33],["Siruguppa",16],["Sitamarhi",4],["Sitapur",33],["Sitarganj",34],["Sivaganga",30],["Sivagiri",30],["Sivakasi",30],["Sivasagar",3],["Siwan",4],["Sohagpur",19],["Sohna",12],["Sojat",28],["Solan",13],["Solapur",20],["Sonamukhi",35],["Sonbhadra",33],["Sonepur",4],["Sonepur",25],["Songadh",11],["Sonipat",12],["Sonitpur",3],["Sopore",14],["Soro",25],["Soron",33],["South 24 Parganas",35],["South Delhi",9],["South East Delhi",9],["South Garo Hills",22],["South Goa",10],["South Salmara-Mankachar",3],["South Sikkim",29],["South Tripura",32],["South West Delhi",9],["South West Garo Hills",22],["South West Khasi Hills",22],["Soyagaon",20],["Sri Ganganagar",28],["Sri Madhopur",28],["Srikakulam",1],["Srikalahasti",1],["Srinagar",14],["Srinagar",34],["Srinivaspur",16],["Srirampore",35],["Srisailam Project (Right Flank Colony) Township",1],["Srivilliputhur",30],["Sugauli",4],["Sujangarh",28],["Sujanpur",27],["Sukma",6],["Sullurpeta",1],["Sultanganj",4],["Sultanpur",33],["Sumerpur",28],["Sumerpur",33],["Sunabeda",25],["Sunam",27],["Sundargarh",25],["Sundarnagar",13],["Supaul",4],["Surajpur",6],["Surandai",30],["Surapura",16],["Surat",11],["Suratgarh",28],["Surendranagar",11],["Surguja",6],["Suri",35],["Suriyampalayam",30],["Suryapet",31],["Tadepalligudem",1],["Tadpatri",1],["Takhatgarh",28],["Taki",35],["Talaja",11],["Talcher",25],["Talegaon Dabhade",20],["Talikota",16],["Taliparamba",17],["Talode",20],["Talwara",27],["Tamenglong",21],["Tamluk",35],["Tanda",33],["Tandur",31],["Tanuku",1],["Tapi (Vyara)",11],["Tarakeswar",35],["Tarana",19],["Taranagar",28],["Taraori",12],["Tarbha",25],["Tarikere",16],["Tarn Taran",27],["Tasgaon",20],["Tawang",2],["Tehri",34],["Tehri Garhwal",34],["Tekkalakote",16],["Tenali",1],["Tengnoupal",21],["Tenkasi",30],["Tenu dam-cum-Kathhara",15],["Terdal",16],["Tezpur",3],["Thakurdwara",33],["Thammampatti",30],["Thana Bhawan",33],["Thane",20],["Thanesar",12],["Thangadh",11],["Thanjavur",30],["Tharad",11],["Tharamangalam",30],["Tharangambadi",30],["Theni",30],["Theni Allinagaram",30],["Thirumangalam",30],["Thirupuvanam",30],["Thiruthuraipoondi",30],["Thiruvalla",17],["Thiruvallur",30],["Thiruvananthapuram",17,"Trivandrum"],["Thiruvarur",30],["Thodupuzha",17],["Thoothukudi (Tuticorin)",30],["Thoubal",21],["Thrissur",17],["Thuraiyur",30],["Tikamgarh",19],["Tilda Newra",6],["Tilhar",33],["Tindivanam",30],["Tinsukia",3],["Tiptur",16],["Tirap",2],["Tirora",20],["Tiruchendur",30],["Tiruchengode",30],["Tiruchirappalli",30,"Trichy"],["Tirukalukundram",30],["Tirukkoyilur",30],["Tirunelveli",30],["Tirupathur",30],["Tirupati",1],["Tiruppur",30],["Tirur",17],["Tiruttani",30],["Tiruvallur",30],["Tiruvannamalai",30],["Tiruvarur",30],["Tiruvethipuram",30],["Tiruvuru",1],["Tirwaganj",33],["Titlagarh",25],["Tittakudi",30],["Todabhim",28],["Todaraisingh",28],["Tohana",12],["Tonk",28],["Tuensang",24],["Tuljapur",20],["Tulsipur",33],["Tumakuru",16,"Tumkur"],["Tumakuru (Tumkur)",16],["Tumsar",20],["Tundla",33],["Tuni",1],["Tura",22],["Uchgaon",20],["Udaipur",28],["Udaipur",32],["Udaipurwati",28],["Udalguri",3],["Udgir",20],["Udhagamandalam",30,"Ooty"],["Udham Singh Nagar",34],["Udhampur",14],["Udumalaipettai",30],["Udupi",16],["Ujhani",33],["Ujjain",19],["Ukhrul",21],["Umarga",20],["Umaria",19],["Umarkhed",20],["Umbergaon",11],["Umred",20],["Umreth",11],["Una",11],["Una",13],["Unakoti",32],["Unjha",11],["Unnamalaikadai",30],["Unnao",33],["Upleta",11],["Upper Siang",2],["Upper Subansiri",2],["Uran",20],["Uran Islampur",20],["Uravakonda",1],["Urmar Tanda",27],["Usilampatti",30],["Uthamapalayam",30],["Uthiramerur",30],["Utraula",33],["Uttar Dinajpur (North Dinajpur)",35],["Uttara Kannada (Karwar)",16],["Uttarkashi",34],["Vadakkuvalliyur",30],["Vadalur",30],["Vadgaon Kasba",20],["Vadipatti",30],["Vadnagar",11],["Vadodara",11,"Baroda"],["Vaijapur",20],["Vaikom",17],["Vaishali",4],["Valparai",30],["Valsad",11],["Vandavasi",30],["Vaniyambadi",30],["Vapi",11],["Varanasi",33,"Banaras Benares"],["Varkala",17],["Vasai-Virar",20],["Vatakara",17],["Vedaranyam",30],["Vellakoil",30],["Vellore",30],["Venkatagiri",1],["Veraval",11],["Vidisha",19],["Vijainagar, Ajmer",28],["Vijapur",11],["Vijayapura",16],["Vijayapura (Bijapur)",16],["Vijayawada",1],["Vijaypur",19],["Vikarabad",31],["Vikramasingapuram",30],["Viluppuram",30],["Vinukonda",1],["Viramgam",11],["Virudhachalam",30],["Virudhunagar",30],["Visakhapatnam",1,"Vizag"],["Visnagar",11],["Viswanatham",30],["Vita",20],["Vizianagaram",1],["Vrindavan",33],["Vyara",11],["Wadgaon Road",20],["Wadhwan",11],["Wadi",16],["Wai",20],["Wanaparthy",31],["Wani",20],["Wankaner",11],["Wara Seoni",19],["Warangal",31],["Warangal (Rural)",31],["Warangal (Urban)",31],["Wardha",20],["Warhapur",33],["Warisaliganj",4],["Warora",20],["Warud",20],["Washim",20],["Wayanad",17],["West Champaran",4],["West Delhi",9],["West Garo Hills",22],["West Godavari",1],["West Jaintia Hills",22],["West Kameng",2],["West Karbi Anglong",3],["West Khasi Hills",22],["West Siang",2],["West Sikkim",29],["West Singhbhum",15],["West Tripura",32],["Wokha",24],["YSR Kadapa",1],["Yadadri Bhuvanagiri",31],["Yadgir",16],["Yamunanagar",12],["Yanam",26],["Yavatmal",20],["Yawal",20],["Yellandu",31],["Yemmiganur",1],["Yerraguntla",1],["Yevla",20],["Zaidpur",33],["Zamania",33],["Zira",27],["Zirakpur",27],["Zunheboto",24]];
+const CITY_OTHER = "__other__";
+
 const SECTIONS = [
   { key:"self",   label:"How you see yourself" },
   { key:"agree",  label:"How strongly do you agree" },
@@ -573,7 +603,8 @@ const QUESTIONS = [
   { id:"e2",  s:6, type:"choice", text:"What is your current relationship status?",
     options:["Single","Committed","Married","Other ;)","Prefer not to say"] },
   { id:"e3",  s:6, type:"text",   text:"What is your hometown?", placeholder:"City you're from" },
-  { id:"e4",  s:6, type:"text",   text:"Which city do you live in?", placeholder:"Where you are now" },
+  { id:"e4",  s:6, type:"geo",    text:"Where do you live?",
+    note:"Your pincode lets us suggest experiences close to you." },
   { id:"e5",  s:6, type:"choice", text:"How long have you been living in your current city?",
     options:["Less than 6 months","6 months – 1 year","1 year – 3 years","3 years – 10 years","10 years +"] },
   { id:"e6",  s:6, type:"multi",  text:"What are your dietary preferences?",
@@ -581,7 +612,8 @@ const QUESTIONS = [
   { id:"e7",  s:6, type:"multi",  text:"What are your preferable cuisines?",
     options:["Asian","North Indian","South Indian","Italian","Mexican","Chinese","Others"] },
   { id:"e8",  s:6, type:"date",   text:"When's your birthday?" },
-  { id:"e9",  s:6, type:"text",   text:"Which sector do you work in?", placeholder:"e.g. design, finance, medicine" },
+  { id:"e9",  s:6, type:"text",   text:"Where do you work or study?", placeholder:"Company, or your college",
+    column:"Which sector do you work in?" },   // keeps the existing sheet column
   { id:"e10", s:6, type:"scale",  min:0, max:7, text:"How well did you do in school?",
     labels:["Struggled","Average","Exceptional"] },
   { id:"e11", s:6, type:"scale",  min:0, max:10, text:"How often do you drink alcohol?",
@@ -697,6 +729,7 @@ function render(){
   if (q.type === "rapid")  return renderRapid(q);
   if (q.type === "multi")  return renderMulti(q);
   if (q.type === "date")   return renderDate(q);
+  if (q.type === "geo")    return renderGeo(q);
   return renderText(q);
 }
 
@@ -928,6 +961,124 @@ function commitText(q){
   go(step + 1);
 }
 
+function cityLabel(c){ return c[0] + ", " + STATES[c[1]]; }
+
+function renderGeo(q){
+  const cur = answers[q.id] || { city:"", pin:"" };
+  card.innerHTML = `
+    <p class="eyebrow">${esc(SECTIONS[q.s].label)}</p>
+    <h2 class="q">${esc(q.text)}</h2>
+    <div class="geo">
+      <div class="field combo" id="f-city">
+        <label for="i-city">Your city</label>
+        <div id="city-slot"></div>
+        <p class="err">Pick your city from the list.</p>
+      </div>
+      <div class="field" id="f-pin">
+        <label for="i-pin">Pincode</label>
+        <input id="i-pin" type="text" inputmode="numeric" autocomplete="postal-code"
+               placeholder="110001" value="${esc(cur.pin)}" />
+        <p class="err">A pincode is six digits.</p>
+      </div>
+    </div>
+    ${q.note ? `<p class="sub">${esc(q.note)}</p>` : ""}
+    <button class="btn" id="next">Continue <span>&rarr;</span></button>`;
+
+  const slot = card.querySelector("#city-slot");
+  let picked = cur.city || "";          // only ever set by choosing, or by the manual box
+
+  function showChosen(){
+    slot.innerHTML = `<div class="chosen"><span>${esc(picked)}</span>
+      <button type="button" id="city-clear">Change</button></div>`;
+    slot.querySelector("#city-clear").onclick = () => { picked = ""; showSearch(""); };
+  }
+
+  function showManual(){
+    slot.innerHTML = `<input id="i-manual" type="text" autocapitalize="words"
+      placeholder="Type your city" value="" />`;
+    const m = slot.querySelector("#i-manual");
+    m.oninput = () => { picked = m.value.trim(); card.querySelector("#f-city").classList.remove("bad"); };
+    m.focus();
+  }
+
+  function showSearch(initial){
+    slot.innerHTML = `<input id="i-city" type="text" autocomplete="off" spellcheck="false"
+      role="combobox" aria-expanded="false" placeholder="Start typing — e.g. Gurgaon" value="${esc(initial)}" />`;
+    const input = slot.querySelector("#i-city");
+    let list = null, hi = -1, shown = [];
+
+    const close = () => { if (list) list.remove(); list = null; hi = -1; };
+
+    function open(f){
+      close();
+      const t = f.trim().toLowerCase();
+      shown = (t ? CITIES.filter(c =>
+                 c[0].toLowerCase().includes(t) || (c[2] && c[2].toLowerCase().includes(t))
+               ) : CITIES).slice(0, 80);
+      list = document.createElement("div");
+      list.className = "combo__list";
+      list.innerHTML = shown.map((c,i) =>
+          `<div class="combo__opt" data-i="${i}"><span>${esc(c[0])}</span><span class="combo__st">${esc(STATES[c[1]])}</span></div>`
+        ).join("") +
+        `<div class="combo__opt combo__opt--other" data-i="${CITY_OTHER}">My city isn't listed</div>`;
+      slot.appendChild(list);
+      list.querySelectorAll(".combo__opt").forEach(el => {
+        el.onmousedown = e => { e.preventDefault(); pickOpt(el.dataset.i); };
+      });
+    }
+
+    function pickOpt(i){
+      if (i === CITY_OTHER){ close(); showManual(); return; }
+      picked = cityLabel(shown[Number(i)]);
+      card.querySelector("#f-city").classList.remove("bad");
+      close(); showChosen();
+      card.querySelector("#i-pin").focus();
+    }
+
+    input.oninput = () => { picked = ""; open(input.value); };
+    input.onfocus = () => { if (input.value.trim()) open(input.value); };
+    input.onblur  = () => setTimeout(close, 120);
+    input.onkeydown = e => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp"){
+        e.preventDefault();
+        if (!list) return open(input.value);
+        const opts = list.querySelectorAll(".combo__opt");
+        hi = (hi + (e.key === "ArrowDown" ? 1 : -1) + opts.length) % opts.length;
+        opts.forEach((o,k) => o.classList.toggle("on", k === hi));
+        opts[hi].scrollIntoView({ block:"nearest" });
+      } else if (e.key === "Escape"){ close(); }
+      else if (e.key === "Enter" && list && hi > -1){
+        e.preventDefault(); e.stopPropagation();
+        pickOpt(list.querySelectorAll(".combo__opt")[hi].dataset.i);
+      }
+    };
+    if (initial) setTimeout(() => input.focus(), 10);
+  }
+
+  if (picked) showChosen(); else showSearch("");
+
+  const pin = card.querySelector("#i-pin");
+  pin.oninput = () => {
+    pin.value = pin.value.replace(/\D/g, "").slice(0, 6);
+    card.querySelector("#f-pin").classList.remove("bad");
+  };
+  card.querySelector("#next").onclick = () => commitGeo(q, () => picked);
+  hint.innerHTML = `<kbd>↑</kbd><kbd>↓</kbd> to pick &nbsp;·&nbsp; <kbd>enter</kbd> to continue`;
+}
+
+function commitGeo(q, getCity){
+  if (locked) return;
+  const city = (getCity ? getCity() : "").trim();
+  const pin  = card.querySelector("#i-pin").value.trim();
+  let ok = true;
+  if (!city){ card.querySelector("#f-city").classList.add("bad"); ok = false; }
+  if (!/^[1-9][0-9]{5}$/.test(pin)){ card.querySelector("#f-pin").classList.add("bad"); ok = false; }
+  if (!ok) return;
+  answers[q.id] = { city, pin };
+  paintProgress(true); saveDraft();
+  go(step + 1);
+}
+
 function renderDate(q){
   const val = answers[q.id] || "";
   card.innerHTML = `
@@ -1060,6 +1211,7 @@ function answerLabel(q){
   const a = answers[q.id];
   if (a === null || a === undefined || a === "") return "—";
   if (Array.isArray(a)) return a.length ? a.map(i => q.options[i]).join("; ") : "—";
+  if (q.type === "geo")  return a.city + " — " + a.pin;
   if (q.type === "text" || q.type === "date") return a;
   if (q.type === "scale") return a + " / " + q.max;
   return LETTERS[a] + " — " + q.options[a];
@@ -1123,7 +1275,15 @@ function payload(){
     utmCampaign: campaign.utm_campaign || "",
     utmContent:  campaign.utm_content  || "",
     fbclid:      campaign.fbclid       || "",
-    answers: QUESTIONS.map(q => ({ id:q.id, question:q.text, answer:answerLabel(q) })),
+    answers: QUESTIONS.flatMap(q => {
+      if (q.type === "geo"){
+        const a = answers[q.id] || {};
+        return [{ id:q.id,          question:"Which city do you live in?", answer:a.city || "—" },
+                { id:q.id + "-pin", question:"Pincode",                    answer:a.pin  || "—" }];
+      }
+      // `column` keeps a question in its original sheet column when the wording changes
+      return [{ id:q.id, question:q.column || q.text, answer:answerLabel(q) }];
+    }),
     timedOut: QUESTIONS.filter(q => answers[q.id] === null).length,
     durationSeconds: Math.round((Date.now() - startedAt) / 1000)
   };
@@ -1218,6 +1378,7 @@ document.addEventListener("keydown", e => {
     if (s.kind === "q"){
       if (s.q.type === "text"){ e.preventDefault(); commitText(s.q); return; }
       if (s.q.type === "date"){ e.preventDefault(); commitDate(s.q); return; }
+      if (s.q.type === "geo"){ e.preventDefault(); card.querySelector("#next").click(); return; }
       if (s.q.type === "multi" && (answers[s.q.id] || []).length){ e.preventDefault(); go(step + 1); return; }
     }
   }
