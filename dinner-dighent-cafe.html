@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dinner at Dighent Cafe — TRYB</title>
-<meta name="description" content="A long, unhurried dinner with a small TRYB group at Dighent Cafe. Saturday, 24 October, 8:00 PM." />
+<meta name="description" content="A long, unhurried dinner with a small TRYB group at Dighent Cafe, DLF Phase 4, Gurugram. Saturday, 24 October, 8:00 PM." />
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
@@ -43,7 +43,7 @@
     <div class="facts">
       <div class="fact"><div class="lbl">Date</div><div class="val">Sat, 24 Oct</div></div>
       <div class="fact"><div class="lbl">Time</div><div class="val">8:00 PM</div></div>
-      <div class="fact"><div class="lbl">Location</div><div class="val">Dighent Cafe</div></div>
+      <div class="fact"><div class="lbl">Location</div><div class="val">DLF Phase 4, Gurugram</div></div>
       <div class="fact"><div class="lbl">Price</div><div class="val">₹299</div></div>
     </div>
 
@@ -60,7 +60,6 @@
       <li>Your seat at a reserved TRYB table at Dighent Cafe</li>
       <li>A small group, curated by TRYB</li>
       <li>Profiles of everyone at your table before the dinner, and why you were matched</li>
-      <li>Conversation cards on the table, and suggested topics shared beforehand</li>
       <li>An evening to eat, talk and stay a while</li>
     </ul>
 
@@ -194,8 +193,9 @@
          To set or change either value, regenerate OFFER_SECRET from the code
          and the Rs1 link together - the two are bound to each other.
       ----------------------------------------------------------------------- */
-      var PAY_LINK     = "";
-      var OFFER_SECRET = "";
+      var PAY_LINK     = "https://rzp.io/rzp/UV6bJHDu";
+      var OFFER_SECRET = "FSIvIcgU+2YxMz8XxMx7ZO6lUXioGeJjjWoVFCBbiZXySgstscvaW/V8gMKEgU+NfZ5edWXVVI4/wT5b8y2JF/faGhaWPQM=";
+      var OFFER_ITER   = 600000;
       var OFFER_AMOUNT = "₹1";
 
       var WHATSAPP = "https://wa.me/917042903139?text=" +
@@ -228,15 +228,19 @@
 
       // Decrypt the offer link using the typed code as the key. A wrong code
       // makes AES-GCM fail its integrity check, which is the verification.
+      // The key is stretched with PBKDF2 so that working through every
+      // possible short code costs days of browser time rather than seconds.
       function unlock(code){
-        var enc = new TextEncoder();
-        return crypto.subtle.digest("SHA-256", enc.encode("tryb:" + code))
-          .then(function(raw){
-            return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
+        var blob = Uint8Array.from(atob(OFFER_SECRET), function(c){ return c.charCodeAt(0); });
+        var salt = blob.slice(0, 16), iv = blob.slice(16, 28), data = blob.slice(28);
+        return crypto.subtle.importKey("raw", new TextEncoder().encode(code), "PBKDF2", false, ["deriveKey"])
+          .then(function(base){
+            return crypto.subtle.deriveKey(
+              { name:"PBKDF2", salt: salt, iterations: OFFER_ITER, hash:"SHA-256" },
+              base, { name:"AES-GCM", length:256 }, false, ["decrypt"]);
           })
           .then(function(key){
-            var blob = Uint8Array.from(atob(OFFER_SECRET), function(c){ return c.charCodeAt(0); });
-            return crypto.subtle.decrypt({ name:"AES-GCM", iv: blob.slice(0,12) }, key, blob.slice(12));
+            return crypto.subtle.decrypt({ name:"AES-GCM", iv: iv }, key, data);
           })
           .then(function(out){
             var url = new TextDecoder().decode(out);
@@ -249,6 +253,7 @@
         var code = (codeEl.value || "").trim().toUpperCase();
         if(!code){ codeField.classList.add("invalid"); return; }
         applyBtn.disabled = true;
+        applyBtn.textContent = "Checking";
         unlock(code).then(function(url){
           payTarget = url;
           codeField.classList.remove("invalid");
@@ -259,6 +264,7 @@
           codeErr.textContent = "That code isn't valid.";
           codeField.classList.add("invalid");
           applyBtn.disabled = false;
+          applyBtn.textContent = "Apply";
           codeEl.focus();
         });
       }
